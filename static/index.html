@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Bayesotron</title>
+        <link rel="stylesheet" href="css/main.css">
+    </head>
+    <body>
+        <div id="menu">
+            <a href="#" id="btn-reset">Reset</a>
+            <a href="#" id="btn-export">Export to JSON</a>
+            <a href="#" id="btn-import">Import from JSON</a>
+        </div>
+        <div id="content">
+            <div id="canvas"></div>
+            <div id="editor">
+                <div id="node-list">
+                    <p>Node list:</p>
+                    <a href="#" id="btn-addnode">+</a>
+                </div>
+                <div id="node-editor">
+                    <p id="node-editor-label">Select a node to edit...</p>
+                </div>
+            </div>
+        </div>
+        <script src="bayesotron.js"></script>
+    </body>
+</html>
