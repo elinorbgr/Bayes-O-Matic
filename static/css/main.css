@@ -18,7 +18,7 @@ li {
 
 li a {
     display: inline-block;
-    border: 1px solid black;
+    border: 2px solid black;
     border-radius: 16px;
     padding: 8px;
     color: black;
@@ -38,7 +38,7 @@ li a:hover {
 }
 
 #canvas {
-    border: 1px solid black;
+    border: 2px solid black;
     border-radius: 16px;
     flex: 50%;
     margin: 8px;
@@ -50,11 +50,13 @@ li a:hover {
 }
 
 #meta-editor {
+    border: 2px solid black;
+    border-radius: 16px;
     padding: 4px;
 }
 
 #node-editor {
-    border: 1px solid black;
+    border: 2px solid black;
     border-radius: 16px;
     padding: 4px;
     margin-top: 16px;

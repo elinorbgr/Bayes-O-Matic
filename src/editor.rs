@@ -1,7 +1,6 @@
-use stdweb::unstable::TryInto;
 use stdweb::{
     traits::*,
-    web::{document, event::ClickEvent, HtmlElement},
+    web::{document, event::ClickEvent},
 };
 
 use crate::State;
@@ -25,30 +24,43 @@ pub fn add_node(state: &State) {
     li.append_child(&a);
     list.append_child(&li);
     crate::draw::redraw_graph(&state);
+    // switch the editor to the newly created node
+    node_edit_tab(state, node_id);
 }
 
 pub fn node_edit_tab(state: &State, id: usize) {
+    crate::utils::set_selected_button(&format!(".node-{}", id));
     // TODO
 }
 
 pub fn set_evidence_tab(state: &State) {
+    crate::utils::set_selected_button("#btn-observations");
     // TODO
 }
 
 pub fn compute_evidences(state: &State) {
+    crate::utils::set_selected_button("#btn-compute");
+    let panel = document().query_selector("#node-editor").unwrap().unwrap();
+    crate::utils::clear_children(&panel);
     // Compute the evidence
-    let (mut bayesnet, mapping) = state.borrow().make_bayesnet();
+    let (mut bayesnet, mapping) = match state.borrow().make_bayesnet() {
+        Ok(v) => v,
+        Err(()) => {
+            let p = document().create_element("p").unwrap();
+            p.append_child(&document().create_text_node(
+                "Inference cannot be performed if a node has 0 possible values.",
+            ));
+            panel.append_child(&p);
+            return;
+        }
+    };
+
     for _ in 0..10 {
         bayesnet.step();
     }
     let beliefs = bayesnet.beliefs();
 
     // Display the output
-    let panel = document().query_selector("#node-editor").unwrap().unwrap();
-    while let Some(node) = panel.first_child() {
-        let _ = panel.remove_child(&node);
-    }
-
     let log10 = 10f32.ln();
 
     let p = document().create_element("p").unwrap();

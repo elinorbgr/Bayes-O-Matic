@@ -159,7 +159,7 @@ impl DAG {
         self.nodes.get(id).and_then(|o| o.as_ref())
     }
 
-    pub fn make_bayesnet(&self) -> (BayesNet, Vec<usize>) {
+    pub fn make_bayesnet(&self) -> Result<(BayesNet, Vec<usize>), ()> {
         // Order the nodes of the graph into a topological order for insertion into
         // loopybayesnet
         let mut order = Vec::new();
@@ -189,6 +189,11 @@ impl DAG {
         // insert the nodes in the bayesnet
         for &n in &order {
             let node = self.nodes[n].as_ref().unwrap();
+            // early return if any node has no values
+            if node.values.len() == 0 {
+                return Err(());
+            }
+
             let mut parent_ids = Vec::new();
             let mut values_count = vec![node.values.len()];
             for &p in &node.parents {
@@ -211,7 +216,7 @@ impl DAG {
 
         net.set_evidence(&evidence);
 
-        (net, order)
+        Ok((net, order))
     }
 
     pub fn reset(&mut self) {
