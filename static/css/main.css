@@ -7,8 +7,16 @@ body {
     margin: 8px;
 }
 
-a {
+ul {
+    display: block;
+    padding: 0;
+}
+
+li {
     display: inline-block;
+}
+
+li a {
     border: 1px solid black;
     border-radius: 16px;
     padding: 8px;
@@ -16,7 +24,11 @@ a {
     text-decoration: none;
 }
 
-a:hover {
+li a:hover {
+    background-color: #d0d0d0;
+}
+
+.selected {
     background-color: #d0d0d0;
 }
 
@@ -36,9 +48,7 @@ a:hover {
     margin: 8px;
 }
 
-#node-list {
-    border: 1px solid black;
-    border-radius: 16px;
+#meta-editor {
     padding: 4px;
 }
 

@@ -7,16 +7,22 @@
     </head>
     <body>
         <div id="menu">
-            <a href="#" id="btn-reset">Reset</a>
-            <a href="#" id="btn-export">Export to JSON</a>
-            <a href="#" id="btn-import">Import from JSON</a>
+            <ul>
+                <li><a href="#" id="btn-reset">Reset</a></li>
+                <li><a href="#" id="btn-export">Export to JSON</a></li>
+                <li><a href="#" id="btn-import">Import from JSON</a></li>
+            </ul>
         </div>
         <div id="content">
             <div id="canvas"></div>
             <div id="editor">
-                <div id="node-list">
-                    <p>Node list:</p>
-                    <a href="#" id="btn-addnode">+</a>
+                <div id="meta-editor">
+                    <ul>
+                        <li><a href="#" id="btn-addnode">Add node</a></li>
+                        <li><a href="#" id="btn-observations">Set observations</a></li>
+                    </ul>
+                    <ul id="node-list">
+                    </ul>
                 </div>
                 <div id="node-editor">
                     <p id="node-editor-label">Select a node to edit...</p>
