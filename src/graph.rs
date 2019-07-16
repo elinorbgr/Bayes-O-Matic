@@ -1,12 +1,15 @@
 use loopybayesnet::BayesNet;
 use ndarray::{ArrayD, IxDyn};
+use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Node {
     pub parents: Vec<usize>,
     pub children: Vec<usize>,
     pub label: String,
     pub values: Vec<String>,
     pub credencies: Option<Vec<f32>>,
+    pub evidence: Option<usize>,
 }
 
 pub enum EdgeError {
@@ -14,6 +17,7 @@ pub enum EdgeError {
     WouldCycle,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct DAG {
     nodes: Vec<Option<Node>>,
 }
@@ -30,6 +34,7 @@ impl DAG {
             label: String::new(),
             values: Vec::new(),
             credencies: None,
+            evidence: None,
         };
         if let Some(id) = self.nodes.iter().position(|n| n.is_none()) {
             self.nodes[id] = Some(new_node);
@@ -102,6 +107,7 @@ impl DAG {
             node.values.push(value);
             // reset the credencies when changing the values
             node.credencies = None;
+            node.evidence = None;
             node.children.clone()
         } else {
             Vec::new()
@@ -119,6 +125,7 @@ impl DAG {
             node.values.remove(value_id);
             // reset the credencies when changing the values
             node.credencies = None;
+            node.evidence = None;
         }
     }
 
@@ -140,6 +147,12 @@ impl DAG {
         }
 
         Ok(())
+    }
+
+    pub fn set_evidence(&mut self, node: usize, evidence: Option<usize>) {
+        if let Some(&mut Some(ref mut node)) = self.nodes.get_mut(node) {
+            node.evidence = evidence;
+        }
     }
 
     pub fn get(&self, id: usize) -> Option<&Node> {
@@ -172,6 +185,8 @@ impl DAG {
 
         // a map for reverse indexing the nodes from our indices indices to loopybayesnet ones
         let mut map: Vec<Option<usize>> = vec![None; self.nodes.len()];
+        let mut evidence = Vec::new();
+        // insert the nodes in the bayesnet
         for &n in &order {
             let node = self.nodes[n].as_ref().unwrap();
             let mut parent_ids = Vec::new();
@@ -187,8 +202,27 @@ impl DAG {
             let log_probas = ArrayD::from_shape_vec(IxDyn(&values_count), credencies_data).unwrap();
             let loopy_id = net.add_node_from_log_probabilities(&parent_ids, log_probas);
             map[n] = Some(loopy_id);
+
+            // collect the evidence
+            if let Some(ev) = node.evidence {
+                evidence.push((loopy_id, ev));
+            }
         }
 
+        net.set_evidence(&evidence);
+
         (net, order)
+    }
+
+    pub fn reset(&mut self) {
+        self.nodes.clear();
+    }
+
+    pub fn to_json(&self) -> String {
+        serde_json::to_string(&self).unwrap()
+    }
+
+    pub fn from_json(json: &str) -> Result<DAG, serde_json::error::Error> {
+        serde_json::from_str(json)
     }
 }
