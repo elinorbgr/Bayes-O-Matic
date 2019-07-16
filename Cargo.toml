@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 loopybayesnet = "0.1"
+ndarray = "0.12"
