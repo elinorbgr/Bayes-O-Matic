@@ -12,8 +12,12 @@ ul {
     padding: 0;
 }
 
-li {
+.blocky li {
     display: inline-block;
+}
+
+.vlist li {
+    margin-right: 16px;
 }
 
 li a {
@@ -23,6 +27,11 @@ li a {
     padding: 8px;
     color: black;
     text-decoration: none;
+}
+
+.vlist li a {
+    padding: 2px;
+    margin-left: 2px;
 }
 
 li a:hover {

@@ -12,6 +12,7 @@ pub struct Node {
     pub evidence: Option<usize>,
 }
 
+#[derive(Copy, Clone, Debug)]
 pub enum EdgeError {
     BadNode,
     WouldCycle,
@@ -45,8 +46,7 @@ impl DAG {
         }
     }
 
-    pub fn add_edge(&mut self, child: usize, parent: usize) -> Result<(), EdgeError> {
-        // check if a cycle would be created...
+    pub fn check_edge_addition(&self, child: usize, parent: usize) -> Result<(), EdgeError> {
         if let Some(&Some(ref node)) = self.nodes.get(parent) {
             if parent == child {
                 return Err(EdgeError::WouldCycle);
@@ -72,6 +72,12 @@ impl DAG {
         } else {
             return Err(EdgeError::BadNode);
         }
+        Ok(())
+    }
+
+    pub fn add_edge(&mut self, child: usize, parent: usize) -> Result<(), EdgeError> {
+        // check if a cycle would be created...
+        self.check_edge_addition(child, parent)?;
 
         // no cycle, all is good, insert
         if let Some(&mut Some(ref mut node)) = self.nodes.get_mut(child) {
@@ -126,6 +132,12 @@ impl DAG {
             // reset the credencies when changing the values
             node.credencies = None;
             node.evidence = None;
+        }
+    }
+
+    pub fn set_label(&mut self, node: usize, label: String) {
+        if let Some(&mut Some(ref mut node)) = self.nodes.get_mut(node) {
+            node.label = label;
         }
     }
 
@@ -217,6 +229,13 @@ impl DAG {
         net.set_evidence(&evidence);
 
         Ok((net, order))
+    }
+
+    pub fn iter_nodes(&self) -> impl Iterator<Item = (usize, &Node)> {
+        self.nodes.iter().enumerate().filter_map(|(i, n)| match n {
+            Some(ref n) => Some((i, n)),
+            None => None,
+        })
     }
 
     pub fn reset(&mut self) {
