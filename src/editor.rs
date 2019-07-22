@@ -60,6 +60,7 @@ pub fn node_edit_tab(state: &State, id: usize) {
             crate::utils::clear_children(&node_link);
             node_link.append_child(&document().create_text_node(&label.raw_value()));
             node_edit_tab(&state, id);
+            crate::draw::redraw_graph(&state);
         }
     }));
     div.append_child(&document().create_text_node("Node name:"));
@@ -124,6 +125,7 @@ pub fn node_edit_tab(state: &State, id: usize) {
         a.add_event_listener(enclose!((state, id, i) move |_: ClickEvent| {
             state.borrow_mut().remove_edge(id, i);
             node_edit_tab(&state, id);
+            crate::draw::redraw_graph(&state);
         }));
         li.append_child(&a);
         parents_list.append_child(&li);
@@ -152,6 +154,7 @@ pub fn node_edit_tab(state: &State, id: usize) {
         let parent_id: usize = new_parent.raw_value().parse().unwrap();
         state.borrow_mut().add_edge(id, parent_id).unwrap();
         node_edit_tab(&state, id);
+        crate::draw::redraw_graph(&state);
     }));
     li.append_child(&new_parent);
     parents_list.append_child(&li);

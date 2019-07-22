@@ -4,6 +4,9 @@
         <meta charset="utf-8">
         <title>Bayesotron</title>
         <link rel="stylesheet" href="css/main.css">
+        <script src="https://d3js.org/d3.v4.js"></script>
+        <script src="https://dagrejs.github.io/project/graphlib-dot/v0.6.3/graphlib-dot.js"></script>
+        <script src="https://dagrejs.github.io/project/dagre-d3/v0.5.0/dagre-d3.js"></script>
     </head>
     <body>
         <div id="menu">
@@ -14,7 +17,11 @@
             </ul>
         </div>
         <div id="content">
-            <div id="canvas"></div>
+            <div id="canvas">
+                <svg>
+                    <g />
+                </svg>
+            </div>
             <div id="editor">
                 <div id="meta-editor">
                     <ul class="blocky">
@@ -29,6 +36,10 @@
                 </div>
             </div>
         </div>
+        <script>
+            // Create and configure the renderer
+            var render = dagreD3.render();
+        </script>
         <script src="bayesotron.js"></script>
     </body>
 </html>

@@ -1,8 +1,7 @@
 use loopybayesnet::BayesNet;
 use ndarray::{ArrayD, IxDyn};
-use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
 pub struct Node {
     pub parents: Vec<usize>,
     pub children: Vec<usize>,
@@ -16,9 +15,10 @@ pub struct Node {
 pub enum EdgeError {
     BadNode,
     WouldCycle,
+    AlreadyExisting,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
 pub struct DAG {
     nodes: Vec<Option<Node>>,
 }
@@ -51,6 +51,9 @@ impl DAG {
             if parent == child {
                 return Err(EdgeError::WouldCycle);
             }
+            if node.children.contains(&child) {
+                return Err(EdgeError::AlreadyExisting);
+            }
             let mut ancestors = node.parents.clone();
             let mut visited = vec![parent];
             // iteratively check all ancestors for equality with the child, if we find
@@ -81,11 +84,9 @@ impl DAG {
 
         // no cycle, all is good, insert
         if let Some(&mut Some(ref mut node)) = self.nodes.get_mut(child) {
-            if !node.parents.contains(&parent) {
-                node.parents.push(parent);
-                // reset the credencies when changing the parents
-                node.credencies = None;
-            }
+            node.parents.push(parent);
+            // reset the credencies when changing the parents
+            node.credencies = None;
         } else {
             return Err(EdgeError::BadNode);
         }
@@ -243,10 +244,10 @@ impl DAG {
     }
 
     pub fn to_json(&self) -> String {
-        serde_json::to_string(&self).unwrap()
+        unimplemented!();
     }
 
     pub fn from_json(json: &str) -> Result<DAG, serde_json::error::Error> {
-        serde_json::from_str(json)
+        unimplemented!();
     }
 }
