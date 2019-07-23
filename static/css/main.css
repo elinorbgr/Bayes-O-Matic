@@ -62,6 +62,8 @@ li a:hover {
     border-radius: 16px;
     flex: 50%;
     margin: 8px;
+    max-width: 600px;
+    overflow: scroll;
 }
 
 #editor {
