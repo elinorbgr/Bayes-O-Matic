@@ -327,7 +327,7 @@ pub fn compute_evidences(state: &State) {
         }
     };
 
-    for _ in 0..10 {
+    for _ in 0..100 {
         bayesnet.step();
     }
     let beliefs = bayesnet.beliefs();
