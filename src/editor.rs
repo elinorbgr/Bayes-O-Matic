@@ -119,15 +119,15 @@ pub fn node_edit_tab(state: &State, id: usize) {
     let li = document().create_element("li").unwrap();
     li.append_child(&document().create_text_node("Node parents:"));
     parents_list.append_child(&li);
-    for (i, &p) in node.parents.iter().enumerate() {
+    for &p in &node.parents {
         let li = document().create_element("li").unwrap();
         let parent = graph.get(p).unwrap();
         li.append_child(&document().create_text_node(&parent.label));
         let a = document().create_element("a").unwrap();
         a.append_child(&document().create_text_node("×"));
         a.set_attribute("href", "#").unwrap();
-        a.add_event_listener(enclose!((state, id, i) move |_: ClickEvent| {
-            state.borrow_mut().remove_edge(id, i);
+        a.add_event_listener(enclose!((state, id, p) move |_: ClickEvent| {
+            state.borrow_mut().remove_edge(id, p);
             node_edit_tab(&state, id);
             crate::draw::redraw_graph(&state);
         }));
