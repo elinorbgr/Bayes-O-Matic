@@ -7,7 +7,7 @@ pub struct Node {
     pub children: Vec<usize>,
     pub label: String,
     pub values: Vec<String>,
-    pub credencies: Option<Vec<f32>>,
+    pub credencies: Option<ArrayD<f32>>,
     pub evidence: Option<usize>,
 }
 
@@ -142,15 +142,14 @@ impl DAG {
         }
     }
 
-    pub fn set_credencies(&mut self, node: usize, credencies: Vec<f32>) -> Result<(), ()> {
-        // sanity check, the number of credencies must be equal to the number of values
-        // times the number of values of the parents
+    pub fn set_credencies(&mut self, node: usize, credencies: ArrayD<f32>) -> Result<(), ()> {
+        // sanity check, the dimensions of the array must match
         if let Some(&Some(ref node)) = self.nodes.get(node) {
-            let mut expected_count = node.values.len();
+            let mut shape = vec![node.values.len()];
             for &p in &node.parents {
-                expected_count *= self.nodes[p].as_ref().unwrap().values.len();
+                shape.push(self.nodes[p].as_ref().unwrap().values.len());
             }
-            if credencies.len() != expected_count {
+            if credencies.shape() != &shape[..] {
                 return Err(());
             }
         }
@@ -215,9 +214,9 @@ impl DAG {
             }
             let credencies_data = node.credencies.clone().unwrap_or_else(|| {
                 let count = values_count.iter().fold(1, |a, b| a * b);
-                vec![0.0; count]
+                ArrayD::from_shape_vec(IxDyn(&values_count), vec![0.0; count]).unwrap()
             });
-            let log_probas = ArrayD::from_shape_vec(IxDyn(&values_count), credencies_data).unwrap();
+            let log_probas = credencies_data / 10f32.ln();
             let loopy_id = net.add_node_from_log_probabilities(&parent_ids, log_probas);
             map[n] = Some(loopy_id);
 

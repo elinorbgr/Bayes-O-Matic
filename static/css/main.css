@@ -20,7 +20,18 @@ ul {
     margin-right: 16px;
 }
 
-li a {
+.posterior li {
+    display: inline-block;
+    margin: 0;
+    padding: 4px;
+    border: 1px solid black;
+}
+
+.posteriorlist {
+    list-style: none;
+}
+
+a {
     display: inline-block;
     border: 2px solid black;
     border-radius: 16px;
@@ -69,6 +80,20 @@ li a:hover {
     border-radius: 16px;
     padding: 4px;
     margin-top: 16px;
+}
+
+table, tr, td {
+    text-align: center;
+    border-bottom: 1px solid black;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 2px;
+}
+
+th:first-child {
+    border-right: 1px solid black;
 }
 
 /* graph style */

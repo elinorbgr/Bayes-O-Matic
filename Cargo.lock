@@ -14,6 +14,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "bayesotron"
 version = "0.1.0"
 dependencies = [
+ "itertools 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "loopybayesnet 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ndarray 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.97 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -44,6 +45,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "itertools"
 version = "0.7.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "either 1.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "itertools"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "either 1.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -309,6 +318,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum discard 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)" = "212d0f5754cb6769937f4501cc0e67f4f4483c8d2c3e1e922ee9edbe4ab4c7c0"
 "checksum either 1.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "5527cfe0d098f36e3f8839852688e63c8fff1c90b2b405aef730615f9a7bcf7b"
 "checksum itertools 0.7.11 (registry+https://github.com/rust-lang/crates.io-index)" = "0d47946d458e94a1b7bcabbf6521ea7c037062c81f534615abcad76e84d4970d"
+"checksum itertools 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5b8467d9c1cebe26feb08c640139247fac215782d35371ade9a2136ed6085358"
 "checksum itoa 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "501266b7edd0174f8530248f87f99c88fbe60ca4ef3dd486835b8d8d53136f7f"
 "checksum lazy_static 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "bc5729f27f159ddd61f4df6228e827e86643d4d3e7c32183cb30a1c08f604a14"
 "checksum log 0.4.7 (registry+https://github.com/rust-lang/crates.io-index)" = "c275b6ad54070ac2d665eef9197db647b32239c9d244bfb6f041a766d00da5b3"

@@ -30,8 +30,6 @@ pub fn clear_buttons() {
 
     let list = document().query_selector("#node-list").unwrap().unwrap();
     for node in list.child_nodes() {
-        console!(log, "{:?}", &node);
-        console!(log, "{:?}", node.first_child());
         let _ = HtmlElement::try_from(node.first_child().unwrap())
             .unwrap()
             .class_list()
