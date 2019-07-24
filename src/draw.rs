@@ -39,9 +39,6 @@ pub fn redraw_graph(state: &State) {
             g.graph().marginx = 20;
             g.graph().marginy = 20;
         }
-        g.graph().transition = function(selection) {
-            return selection.transition().duration(500);
-        };
         d3.select("svg").call(render, g);
         // update the viewbox of svg
         var svg = document.getElementsByTagName("svg")[0];

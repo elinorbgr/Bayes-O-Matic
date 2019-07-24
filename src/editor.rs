@@ -56,15 +56,12 @@ pub fn node_edit_tab(state: &State, id: usize) {
         .unwrap();
     label.set_attribute("size", "16");
     label.set_raw_value(&node.label);
-    label.add_event_listener(enclose!((state, id, label) move |event: KeyPressEvent| {
-        if event.key() == "Enter" {
-            state.borrow_mut().set_label(id, label.raw_value());
-            let node_link = document().query_selector(&format!(".node-{}", id)).unwrap().unwrap();
-            crate::utils::clear_children(&node_link);
-            node_link.append_child(&document().create_text_node(&label.raw_value()));
-            node_edit_tab(&state, id);
-            crate::draw::redraw_graph(&state);
-        }
+    label.add_event_listener(enclose!((state, id, label) move |event: InputEvent| {
+        state.borrow_mut().set_label(id, label.raw_value());
+        let node_link = document().query_selector(&format!(".node-{}", id)).unwrap().unwrap();
+        crate::utils::clear_children(&node_link);
+        node_link.append_child(&document().create_text_node(&label.raw_value()));
+        crate::draw::redraw_graph(&state);
     }));
     div.append_child(&document().create_text_node("Node name:"));
     div.append_child(&label);
