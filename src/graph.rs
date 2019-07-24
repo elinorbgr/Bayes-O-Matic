@@ -1,5 +1,6 @@
 use loopybayesnet::BayesNet;
 use ndarray::{ArrayD, IxDyn};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
 pub struct Node {
@@ -21,6 +22,19 @@ pub enum EdgeError {
 #[derive(Debug)]
 pub struct DAG {
     nodes: Vec<Option<Node>>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct JsonNode {
+    label: String,
+    values: Vec<String>,
+    parents: Vec<usize>,
+    credencies: Option<Vec<f32>>,
+}
+
+pub enum DeserError {
+    Json(serde_json::Error),
+    Graph(EdgeError),
 }
 
 impl DAG {
@@ -171,7 +185,7 @@ impl DAG {
         self.nodes.get(id).and_then(|o| o.as_ref())
     }
 
-    pub fn make_bayesnet(&self) -> Result<(BayesNet, Vec<usize>), ()> {
+    fn compact_ids(&self) -> (Vec<usize>, Vec<Option<usize>>) {
         // Order the nodes of the graph into a topological order for insertion into
         // loopybayesnet
         let mut order = Vec::new();
@@ -191,12 +205,21 @@ impl DAG {
         }
         order.reverse();
 
-        // order now contains a topological ordering of the nodes of the graph, which we will now
-        // feed into loopybayesnet
-        let mut net = BayesNet::new();
-
-        // a map for reverse indexing the nodes from our indices indices to loopybayesnet ones
+        // a map for reverse indexing the nodes from our indices indices to compacted ones
         let mut map: Vec<Option<usize>> = vec![None; self.nodes.len()];
+
+        for (i, &n) in order.iter().enumerate() {
+            map[n] = Some(i);
+        }
+
+        (order, map)
+    }
+
+    pub fn make_bayesnet(&self) -> Result<(BayesNet, Vec<usize>), ()> {
+        let (order, map) = self.compact_ids();
+        // order now contains a topological ordering of the nodes of the graph,
+        // which we will now feed into loopybayesnet
+        let mut net = BayesNet::new();
         let mut evidence = Vec::new();
         // insert the nodes in the bayesnet
         for &n in &order {
@@ -218,7 +241,6 @@ impl DAG {
             });
             let log_probas = credencies_data * 10f32.ln();
             let loopy_id = net.add_node_from_log_probabilities(&parent_ids, log_probas);
-            map[n] = Some(loopy_id);
 
             // collect the evidence
             if let Some(ev) = node.evidence {
@@ -243,10 +265,56 @@ impl DAG {
     }
 
     pub fn to_json(&self) -> String {
-        unimplemented!();
+        let (order, map) = self.compact_ids();
+        let mut nodelist: Vec<JsonNode> = Vec::with_capacity(order.len());
+
+        for &n in &order {
+            let node = self.nodes[n].as_ref().unwrap();
+            nodelist.push(JsonNode {
+                label: node.label.clone(),
+                values: node.values.clone(),
+                parents: node
+                    .parents
+                    .iter()
+                    .map(|&i| map[i].unwrap())
+                    .collect::<Vec<_>>(),
+                credencies: node
+                    .credencies
+                    .as_ref()
+                    .map(|a| a.iter().cloned().collect()),
+            });
+        }
+
+        serde_json::to_string(&nodelist).unwrap()
     }
 
-    pub fn from_json(json: &str) -> Result<DAG, serde_json::error::Error> {
-        unimplemented!();
+    pub fn from_json(json: &str) -> Result<DAG, DeserError> {
+        let contents: Vec<JsonNode> = serde_json::from_str(json).map_err(DeserError::Json)?;
+
+        let mut dag = DAG::new();
+
+        for node in &contents {
+            let id = dag.insert_node();
+            for &p in &node.parents {
+                dag.add_edge(id, p).map_err(DeserError::Graph)?;
+            }
+            for v in &node.values {
+                dag.add_value(id, v.into());
+            }
+            // and the credencies
+            if let Some(ref array) = node.credencies {
+                let mut shape = vec![node.values.len()];
+                for &p in &node.parents {
+                    shape.push(contents[p].values.len());
+                }
+                let array = match ArrayD::from_shape_vec(IxDyn(&shape), array.clone()).ok() {
+                    Some(a) => a,
+                    None => continue, // ignore bad arrays
+                };
+                dag.set_credencies(id, array);
+            }
+        }
+
+        Ok(dag)
     }
 }
