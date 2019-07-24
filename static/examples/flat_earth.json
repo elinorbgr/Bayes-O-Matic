@@ -1,0 +1,102 @@
+[
+  {
+    "label": "Shape",
+    "values": [
+      "Flat",
+      "Spherical"
+    ],
+    "parents": [],
+    "observation": null,
+    "credencies": null
+  },
+  {
+    "label": "Conspiracy",
+    "values": [
+      "Absent",
+      "Present"
+    ],
+    "parents": [
+      0
+    ],
+    "observation": null,
+    "credencies": [
+      3.0,
+      5.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "label": "Conspiracy leaked",
+    "values": [
+      "False",
+      "True"
+    ],
+    "parents": [
+      1
+    ],
+    "observation": 0,
+    "credencies": [
+      4.0,
+      0.0,
+      0.0,
+      2.0
+    ]
+  },
+  {
+    "label": "NASA pictures",
+    "values": [
+      "Don't exist",
+      "Exist"
+    ],
+    "parents": [
+      0,
+      1
+    ],
+    "observation": 1,
+    "credencies": [
+      4.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      5.0,
+      4.0,
+      4.0
+    ]
+  },
+  {
+    "label": "Looks flat",
+    "values": [
+      "False",
+      "True"
+    ],
+    "parents": [
+      0
+    ],
+    "observation": 1,
+    "credencies": [
+      0.0,
+      0.0,
+      5.0,
+      2.0
+    ]
+  },
+  {
+    "label": "Has horizon",
+    "values": [
+      "False",
+      "True"
+    ],
+    "parents": [
+      0
+    ],
+    "observation": 1,
+    "credencies": [
+      0.0,
+      0.0,
+      0.0,
+      5.0
+    ]
+  }
+]
