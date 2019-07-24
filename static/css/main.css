@@ -27,8 +27,12 @@ ul {
     border: 1px solid black;
 }
 
-.posteriorlist {
+.silentlist {
     list-style: none;
+}
+
+.widelist li {
+    padding: 8px;
 }
 
 a {

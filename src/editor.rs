@@ -307,7 +307,54 @@ pub fn node_edit_tab(state: &State, id: usize) {
 
 pub fn set_evidence_tab(state: &State) {
     crate::utils::set_selected_button("#btn-observations");
-    // TODO
+    let panel = document().query_selector("#node-editor").unwrap().unwrap();
+    crate::utils::clear_children(&panel);
+    // setup a list of observations for each node:
+    let p = document().create_element("p").unwrap();
+    p.append_child(&document().create_text_node("Observations for nodes:"));
+    panel.append_child(&p);
+
+    let graph = state.borrow();
+
+    let ul = document().create_element("ul").unwrap();
+    ul.class_list().add("silentlist").unwrap();
+    for (id, node) in graph.iter_nodes() {
+        let li = document().create_element("li").unwrap();
+        li.append_child(&document().create_text_node(&format!("Node \"{}\":", node.label)));
+        let observation: SelectElement = document()
+            .create_element("select")
+            .unwrap()
+            .try_into()
+            .unwrap();
+        // entry to disable observation
+        let no_obs = document().create_element("option").unwrap();
+        if node.evidence.is_none() {
+            no_obs.set_attribute("selected", "").unwrap();
+        }
+        no_obs.set_attribute("value", "").unwrap();
+        observation.append_child(&no_obs);
+        // all possible observations
+        for (i, v) in node.values.iter().enumerate() {
+            let obs = document().create_element("option").unwrap();
+            if node.evidence == Some(i) {
+                obs.set_attribute("selected", "").unwrap();
+            }
+            obs.set_attribute("value", &format!("{}", i));
+            obs.append_child(&document().create_text_node(v));
+            observation.append_child(&obs);
+        }
+        observation.add_event_listener(
+            enclose!((state, id, observation) move |event: InputEvent| {
+                let obs_value = observation.raw_value().parse::<usize>().ok();
+                state.borrow_mut().set_evidence(id, obs_value);
+                crate::draw::redraw_graph(&state);
+            }),
+        );
+        li.append_child(&observation);
+        ul.append_child(&li);
+    }
+
+    panel.append_child(&ul);
 }
 
 pub fn compute_evidences(state: &State) {
@@ -330,7 +377,11 @@ pub fn compute_evidences(state: &State) {
     for _ in 0..100 {
         bayesnet.step();
     }
-    let beliefs = bayesnet.beliefs();
+    let mut beliefs = bayesnet.beliefs();
+
+    for b in &mut beliefs {
+        b.renormalize();
+    }
 
     // Display the output
     let log10 = 10f32.ln();
@@ -339,39 +390,43 @@ pub fn compute_evidences(state: &State) {
     p.append_child(&document().create_text_node("Results of the inference:"));
     panel.append_child(&p);
     let ul = document().create_element("ul").unwrap();
-    ul.class_list().add("posteriorlist").unwrap();
-    for (i, credencies) in beliefs.iter().enumerate() {
+    ul.class_list().add("silentlist").unwrap();
+    ul.class_list().add("widelist").unwrap();
+    for (i, mut credencies) in beliefs.iter().enumerate() {
         let li = document().create_element("li").unwrap();
-        let inner_ul = document().create_element("ul").unwrap();
-        inner_ul.class_list().add("posterior").unwrap();
 
         let state = state.borrow();
         let node = state.get(mapping[i]).unwrap();
 
-        // adjust mean to 0
-        let mean_belief = credencies.log_probabilities().iter().sum::<f32>()
-            / (credencies.log_probabilities().len() as f32);
-
-        for (name, belief) in node
-            .values
-            .iter()
-            .zip(credencies.log_probabilities().iter())
-        {
-            let inner_li = document().create_element("li").unwrap();
-            inner_li.append_child(&document().create_text_node(&format!(
-                "{}: {:.2}",
-                name,
-                (belief - mean_belief) * log10
+        if let Some(obs) = node.evidence {
+            li.append_child(&document().create_text_node(&format!(
+                "Node \"{}\" is observed to be: \"{}\"",
+                node.label, node.values[obs]
             )));
-            inner_ul.append_child(&inner_li);
-        }
+        } else {
+            let inner_ul = document().create_element("ul").unwrap();
+            inner_ul.class_list().add("posterior").unwrap();
 
-        let p = document().create_element("p").unwrap();
-        p.append_child(
-            &document().create_text_node(&format!("Beliefs for node \"{}\":", node.label)),
-        );
-        li.append_child(&p);
-        li.append_child(&inner_ul);
+            for (name, belief) in node
+                .values
+                .iter()
+                .zip(credencies.log_probabilities().iter())
+            {
+                let inner_li = document().create_element("li").unwrap();
+                inner_li.append_child(&document().create_text_node(&format!(
+                    "{}: {:.2}",
+                    name,
+                    belief / log10
+                )));
+                inner_ul.append_child(&inner_li);
+            }
+
+            let p = document().create_element("p").unwrap();
+            li.append_child(
+                &document().create_text_node(&format!("Beliefs for node \"{}\": ", node.label)),
+            );
+            li.append_child(&inner_ul);
+        }
         ul.append_child(&li);
     }
 

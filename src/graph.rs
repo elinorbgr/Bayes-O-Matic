@@ -216,7 +216,7 @@ impl DAG {
                 let count = values_count.iter().fold(1, |a, b| a * b);
                 ArrayD::from_shape_vec(IxDyn(&values_count), vec![0.0; count]).unwrap()
             });
-            let log_probas = credencies_data / 10f32.ln();
+            let log_probas = credencies_data * 10f32.ln();
             let loopy_id = net.add_node_from_log_probabilities(&parent_ids, log_probas);
             map[n] = Some(loopy_id);
 
