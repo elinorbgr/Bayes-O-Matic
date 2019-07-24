@@ -7,16 +7,19 @@ fn graph_to_dot(graph: &DAG) -> String {
     writeln!(buffer, "digraph {{").unwrap();
     writeln!(buffer, "node [rx=16 ry=16]");
     for (id, node) in graph.iter_nodes() {
+        let mut style = String::new();
         if node.evidence.is_some() {
-            writeln!(
+            style.push_str("font-weight: bold;");
+        }
+        if node.values.is_empty() {
+            style.push_str("fill: #d00;");
+        }
+        writeln!(
                 buffer,
-                "n{} [label=\"{}\" labelStyle=\"font-weight: bold;\"];",
-                id, node.label
+                "n{} [label=\"{}\" labelStyle=\"{}\"];",
+                id, node.label, style
             )
             .unwrap();
-        } else {
-            writeln!(buffer, "n{} [label=\"{}\"];", id, node.label).unwrap();
-        }
     }
 
     for (id, node) in graph.iter_nodes() {

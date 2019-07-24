@@ -83,6 +83,7 @@ pub fn node_edit_tab(state: &State, id: usize) {
         a.add_event_listener(enclose!((state, id, i) move |_: ClickEvent| {
             state.borrow_mut().remove_value(id, i);
             node_edit_tab(&state, id);
+            crate::draw::redraw_graph(&state);
         }));
         li.append_child(&a);
         value_list.append_child(&li);
@@ -102,6 +103,7 @@ pub fn node_edit_tab(state: &State, id: usize) {
             if event.key() == "Enter" {
                 state.borrow_mut().add_value(id, new_value.raw_value());
                 node_edit_tab(&state, id);
+                crate::draw::redraw_graph(&state);
             }
         }),
     );
