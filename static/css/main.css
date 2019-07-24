@@ -57,7 +57,7 @@ li a:hover {
     background-color: #d0d0d0;
 }
 
-#content {
+.flex {
     display: flex;
 }
 
@@ -100,6 +100,21 @@ th, td {
 
 th:first-child {
     border-right: 1px solid black;
+}
+
+.hidden {
+    display: none;
+}
+
+#saveload {
+    border: 2px solid black;
+    border-radius: 16px;
+    padding: 4px;
+    margin-top: 16px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 16px;
 }
 
 /* graph style */

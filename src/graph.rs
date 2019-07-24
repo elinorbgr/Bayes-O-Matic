@@ -285,7 +285,7 @@ impl DAG {
             });
         }
 
-        serde_json::to_string(&nodelist).unwrap()
+        serde_json::to_string_pretty(&nodelist).unwrap()
     }
 
     pub fn from_json(json: &str) -> Result<DAG, DeserError> {
@@ -295,6 +295,7 @@ impl DAG {
 
         for node in &contents {
             let id = dag.insert_node();
+            dag.set_label(id, node.label.clone());
             for &p in &node.parents {
                 dag.add_edge(id, p).map_err(DeserError::Graph)?;
             }
