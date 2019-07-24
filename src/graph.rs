@@ -29,6 +29,7 @@ pub struct JsonNode {
     label: String,
     values: Vec<String>,
     parents: Vec<usize>,
+    observation: Option<usize>,
     credencies: Option<Vec<f32>>,
 }
 
@@ -278,6 +279,7 @@ impl DAG {
                     .iter()
                     .map(|&i| map[i].unwrap())
                     .collect::<Vec<_>>(),
+                observation: node.evidence,
                 credencies: node
                     .credencies
                     .as_ref()
@@ -302,6 +304,7 @@ impl DAG {
             for v in &node.values {
                 dag.add_value(id, v.into());
             }
+            dag.set_evidence(id, node.observation);
             // and the credencies
             if let Some(ref array) = node.credencies {
                 let mut shape = vec![node.values.len()];
