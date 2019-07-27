@@ -6,7 +6,7 @@ use stdweb::{
     web::{
         document,
         event::{ClickEvent, InputEvent, KeyPressEvent},
-        html_element::{InputElement, SelectElement},
+        html_element::{InputElement, SelectElement, TextAreaElement},
     },
 };
 
@@ -163,7 +163,25 @@ pub fn node_edit_tab(state: &State, id: usize) {
     parents_list.append_child(&li);
     panel.append_child(&parents_list);
 
-    // Fourth, the credencies
+    // Fourth, the node description
+    let div = document().create_element("div").unwrap();
+    let description: TextAreaElement = document()
+        .create_element("textarea")
+        .unwrap()
+        .try_into()
+        .unwrap();
+    description.set_attribute("cols", "40");
+    description.set_attribute("rows", "4");
+    description.set_attribute("placeholder", "Write a description of your node...");
+    description.set_value(&node.description);
+    description.add_event_listener(enclose!((state, id, description) move |event: InputEvent| {
+        state.borrow_mut().set_description(id, description.value());
+    }));
+    div.append_child(&description);
+    panel.append_child(&div);
+    panel.append_child(&document().create_element("hr").unwrap());
+
+    // Fifth, the credencies
     let table = document().create_element("table").unwrap();
     let tr = document().create_element("tr").unwrap();
     let th = document().create_element("th").unwrap();
@@ -176,6 +194,9 @@ pub fn node_edit_tab(state: &State, id: usize) {
         th.append_child(&document().create_text_node(&format!("C({})", v)));
         tr.append_child(&th);
     }
+    let th = document().create_element("th").unwrap();
+    th.append_child(&document().create_text_node("Explanation"));
+    tr.append_child(&th);
     table.append_child(&tr);
     if node.parents.is_empty() {
         let tr = document().create_element("tr").unwrap();
@@ -201,6 +222,19 @@ pub fn node_edit_tab(state: &State, id: usize) {
             td.append_child(&input);
             tr.append_child(&td);
         }
+        let td = document().create_element("td").unwrap();
+        let description: TextAreaElement = document()
+            .create_element("textarea")
+            .unwrap()
+            .try_into()
+            .unwrap();
+        description.set_attribute("cols", "20");
+        description.set_attribute("rows", "2");
+        description.set_attribute("name", "prior_description");
+        description.set_attribute("placeholder", "Description for this row...");
+        description.set_value(node.cred_description.get(0).map(|s| &s[..]).unwrap_or(""));
+        td.append_child(&description);
+        tr.append_child(&td);
         table.append_child(&tr);
     } else {
         // one line in the table for all possible parent values !
@@ -212,7 +246,7 @@ pub fn node_edit_tab(state: &State, id: usize) {
                 .enumerate()
                 .map(move |(i, v)| (p, &pnode.label, i, v))
         });
-        for values in values_iterator.multi_cartesian_product() {
+        for (iv, values) in values_iterator.multi_cartesian_product().enumerate() {
             let tr = document().create_element("tr").unwrap();
             let th = document().create_element("th").unwrap();
             let mut header_texts = values.iter().map(|&(_, p, _, v)| format!("{} = {}", p, v));
@@ -247,6 +281,19 @@ pub fn node_edit_tab(state: &State, id: usize) {
                 td.append_child(&input);
                 tr.append_child(&td);
             }
+            let td = document().create_element("td").unwrap();
+            let description: TextAreaElement = document()
+                .create_element("textarea")
+                .unwrap()
+                .try_into()
+                .unwrap();
+            description.set_attribute("cols", "20");
+            description.set_attribute("rows", "2");
+            description.set_attribute("name", &format!("{}_description", label));
+            description.set_attribute("placeholder", "Description for this row...");
+            description.set_value(node.cred_description.get(iv).map(|s| &s[..]).unwrap_or(""));
+            td.append_child(&description);
+            tr.append_child(&td);
             table.append_child(&tr);
         }
     }
@@ -254,7 +301,7 @@ pub fn node_edit_tab(state: &State, id: usize) {
     save_btn.append_child(&document().create_text_node("Save credencies"));
     save_btn.set_attribute("href", "#").unwrap();
     save_btn.add_event_listener(enclose!((state, id) move |_: ClickEvent| {
-        let credencies = {
+        let (credencies, descriptions) = {
             // get the current node
             let graph = state.borrow();
             let node = graph.get(id).unwrap();
@@ -269,14 +316,21 @@ pub fn node_edit_tab(state: &State, id: usize) {
             }));
             let count = shape.iter().fold(1, |a, b| a * b);
             let mut credencies = ArrayD::from_shape_vec(IxDyn(&shape), vec![0.0; count]).unwrap();
+            let mut descriptions = Vec::new();
             if node.parents.is_empty() {
                 for i in 0..node.values.len() {
+                    // get the credencies
                     let query = format!("input[name=\"prior_{}\"]", i);
                     let input = document().query_selector(&query).unwrap().unwrap();
                     let input: InputElement = input.try_into().unwrap();
                     let val = input.raw_value().parse::<f32>().unwrap_or(0.0);
                     credencies[i] = val;
                 }
+                // get the description for the row
+                let query = "textarea[name=\"prior_description\"]";
+                let texta = document().query_selector(query).unwrap().unwrap();
+                let texta: TextAreaElement = texta.try_into().unwrap();
+                descriptions.push(texta.value());
             } else {
                 let mut parent_values = node.parents.iter().map(|&p| {
                     let pnode = graph.get(p).unwrap();
@@ -285,6 +339,7 @@ pub fn node_edit_tab(state: &State, id: usize) {
                 for values in parent_values.multi_cartesian_product() {
                     let label = values.iter().map(|&(p, v)| format!("{}-{}", p, v)).join("_");
                     for i in 0..node.values.len() {
+                        // get the credencies
                         let query = format!("input[name=\"{}_{}\"]", label, i);
                         let input = document().query_selector(&query).unwrap().unwrap();
                         let input: InputElement = input.try_into().unwrap();
@@ -293,11 +348,17 @@ pub fn node_edit_tab(state: &State, id: usize) {
                         idx.extend(values.iter().map(|(p,v)| v));
                         credencies[IxDyn(&idx)] = val;
                     }
+                    // get the description for the row
+                    let query = format!("textarea[name=\"{}_description\"]", label);
+                    let texta = document().query_selector(&query).unwrap().unwrap();
+                    let texta: TextAreaElement = texta.try_into().unwrap();
+                    descriptions.push(texta.value());
                 }
             }
-            credencies
+            (credencies, descriptions)
         };
         state.borrow_mut().set_credencies(id, credencies).unwrap();
+        state.borrow_mut().set_cred_descriptions(id, descriptions).unwrap();
     }));
 
     panel.append_child(&table);

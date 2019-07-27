@@ -7,8 +7,10 @@ pub struct Node {
     pub parents: Vec<usize>,
     pub children: Vec<usize>,
     pub label: String,
+    pub description: String,
     pub values: Vec<String>,
     pub credencies: Option<ArrayD<f32>>,
+    pub cred_description: Vec<String>,
     pub evidence: Option<usize>,
 }
 
@@ -27,10 +29,14 @@ pub struct DAG {
 #[derive(Serialize, Deserialize)]
 pub struct JsonNode {
     label: String,
+    #[serde(default)]
+    description: String,
     values: Vec<String>,
     parents: Vec<usize>,
     observation: Option<usize>,
     credencies: Option<Vec<f32>>,
+    #[serde(default)]
+    cred_description: Vec<String>,
 }
 
 pub enum DeserError {
@@ -47,9 +53,11 @@ impl DAG {
         let new_node = Node {
             parents: Vec::new(),
             children: Vec::new(),
+            description: String::new(),
             label: String::new(),
             values: Vec::new(),
             credencies: None,
+            cred_description: Vec::new(),
             evidence: None,
         };
         if let Some(id) = self.nodes.iter().position(|n| n.is_none()) {
@@ -93,6 +101,18 @@ impl DAG {
         Ok(())
     }
 
+    fn count_parent_values(&self, node: usize) -> usize {
+        if let Some(&Some(ref node)) = self.nodes.get(node) {
+            let mut values = 1;
+            for &p in &node.parents {
+                values *= self.nodes[p].as_ref().unwrap().values.len();
+            }
+            return values;
+        } else {
+            return 0;
+        }
+    }
+
     pub fn add_edge(&mut self, child: usize, parent: usize) -> Result<(), EdgeError> {
         // check if a cycle would be created...
         self.check_edge_addition(child, parent)?;
@@ -102,6 +122,7 @@ impl DAG {
             node.parents.push(parent);
             // reset the credencies when changing the parents
             node.credencies = None;
+            node.cred_description = Vec::new();
         } else {
             return Err(EdgeError::BadNode);
         }
@@ -118,6 +139,7 @@ impl DAG {
             node.parents.retain(|&v| v != parent);
             // reset the credencies when changing the parents
             node.credencies = None;
+            node.cred_description = Vec::new();
         }
         if let Some(&mut Some(ref mut node)) = self.nodes.get_mut(parent) {
             node.children.retain(|&v| v != child);
@@ -129,6 +151,7 @@ impl DAG {
             node.values.push(value);
             // reset the credencies when changing the values
             node.credencies = None;
+            node.cred_description = Vec::new();
             node.evidence = None;
             node.children.clone()
         } else {
@@ -147,6 +170,7 @@ impl DAG {
             node.values.remove(value_id);
             // reset the credencies when changing the values
             node.credencies = None;
+            node.cred_description = Vec::new();
             node.evidence = None;
         }
     }
@@ -179,6 +203,29 @@ impl DAG {
     pub fn set_evidence(&mut self, node: usize, evidence: Option<usize>) {
         if let Some(&mut Some(ref mut node)) = self.nodes.get_mut(node) {
             node.evidence = evidence;
+        }
+    }
+
+    pub fn set_description(&mut self, node: usize, description: String) {
+        if let Some(&mut Some(ref mut node)) = self.nodes.get_mut(node) {
+            node.description = description;
+        }
+    }
+
+    pub fn set_cred_descriptions(
+        &mut self,
+        node: usize,
+        descriptions: Vec<String>,
+    ) -> Result<(), ()> {
+        let parent_values = self.count_parent_values(node);
+        if descriptions.len() != parent_values {
+            return Err(());
+        }
+        if let Some(&mut Some(ref mut node)) = self.nodes.get_mut(node) {
+            node.cred_description = descriptions;
+            Ok(())
+        } else {
+            Err(())
         }
     }
 
@@ -274,6 +321,7 @@ impl DAG {
             nodelist.push(JsonNode {
                 label: node.label.clone(),
                 values: node.values.clone(),
+                description: node.description.clone(),
                 parents: node
                     .parents
                     .iter()
@@ -284,6 +332,7 @@ impl DAG {
                     .credencies
                     .as_ref()
                     .map(|a| a.iter().cloned().collect()),
+                cred_description: node.cred_description.clone(),
             });
         }
 
@@ -305,6 +354,8 @@ impl DAG {
                 dag.add_value(id, v.into());
             }
             dag.set_evidence(id, node.observation);
+            dag.set_description(id, node.description.clone());
+            dag.set_cred_descriptions(id, node.cred_description.clone());
             // and the credencies
             if let Some(ref array) = node.credencies {
                 let mut shape = vec![node.values.len()];

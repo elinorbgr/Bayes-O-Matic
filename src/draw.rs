@@ -15,11 +15,11 @@ fn graph_to_dot(graph: &DAG) -> String {
             style.push_str("fill: #d00;");
         }
         writeln!(
-                buffer,
-                "n{} [label=\"{}\" labelStyle=\"{}\"];",
-                id, node.label, style
-            )
-            .unwrap();
+            buffer,
+            "n{} [label=\"{}\" labelStyle=\"{}\"];",
+            id, node.label, style
+        )
+        .unwrap();
     }
 
     for (id, node) in graph.iter_nodes() {
