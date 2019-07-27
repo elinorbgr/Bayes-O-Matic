@@ -23,7 +23,7 @@ before_script:
   - cargo install-update -i cargo-web
 
 script:
-  - cargo web deploy
+  - cargo web deploy --release
 
 deploy:
   provider: pages
