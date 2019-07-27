@@ -18,6 +18,7 @@ branches:
     - master
 
 before_script:
+  - cargo fetch
   - which cargo-install-update || cargo install cargo-update
   - cargo install-update cargo-update
   - cargo install-update -i cargo-web
