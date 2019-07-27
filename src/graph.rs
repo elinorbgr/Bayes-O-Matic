@@ -39,6 +39,7 @@ pub struct JsonNode {
     cred_description: Vec<String>,
 }
 
+#[derive(Debug)]
 pub enum DeserError {
     Json(serde_json::Error),
     Graph(EdgeError),

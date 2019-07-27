@@ -5,7 +5,12 @@ use crate::{
 use stdweb::{
     traits::*,
     unstable::TryInto,
-    web::{document, event::ClickEvent, html_element::TextAreaElement},
+    web::{
+        document,
+        event::{ClickEvent, ProgressLoadEvent},
+        html_element::TextAreaElement,
+        XmlHttpRequest,
+    },
 };
 
 pub fn reset_graph(state: &State) {
@@ -26,9 +31,64 @@ pub fn reset_graph(state: &State) {
     panel.append_child(&p);
 }
 
-pub fn load_from_json(state: &State) {
-    let json = state.borrow().to_json();
+pub fn load_json_into_state(state: &State, json: &str) -> Result<(), DeserError> {
+    let mut dag = DAG::from_json(json)?;
+    reset_graph(&state);
+    *(state.borrow_mut()) = dag;
+    // refill the node list
+    let list = document().query_selector("#node-list").unwrap().unwrap();
+    for (i, node) in state.borrow().iter_nodes() {
+        let li = document().create_element("li").unwrap();
+        let a = document().create_element("a").unwrap();
+        a.class_list().add(&format!("node-{}", i)).unwrap();
+        a.append_child(&document().create_text_node(&node.label));
+        a.set_attribute("href", "#").unwrap();
+        a.add_event_listener(enclose!( (state, i) move |_: ClickEvent| {
+                crate::editor::node_edit_tab(&state, i);
+        }));
+        li.append_child(&a);
+        list.append_child(&li);
+    }
+    crate::draw::redraw_graph(&state);
+    Ok(())
+}
 
+pub fn select_example(state: &State) {
+    const EXAMPLE_LIST: &[&str] = &["flat_earth"];
+    let popup = document().query_selector("#saveload").unwrap().unwrap();
+    crate::utils::clear_children(&popup);
+
+    let list = document().create_element("ul").unwrap();
+
+    for example in EXAMPLE_LIST {
+        let li = document().create_element("li").unwrap();
+        let p = document().create_element("p").unwrap();
+        let a = document().create_element("a").unwrap();
+        a.set_attribute("href", "#");
+        a.append_child(&document().create_text_node(example));
+        a.add_event_listener(enclose!( (state, example) move |_: ClickEvent| {
+            load_example(&state, example);
+        }));
+        p.append_child(&a);
+        li.append_child(&p);
+        list.append_child(&li);
+    }
+
+    popup.append_child(&list);
+    show_popup();
+}
+
+fn load_example(state: &State, example: &str) {
+    let req = XmlHttpRequest::new();
+    req.open("GET", &format!("examples/{}.json", example));
+    req.add_event_listener(enclose!((state, req) move |_: ProgressLoadEvent| {
+        let json_data = req.response_text().unwrap().unwrap();
+        load_json_into_state(&state, &json_data).unwrap();
+    }));
+    req.send();
+}
+
+pub fn load_from_json(state: &State) {
     let popup = document().query_selector("#saveload").unwrap().unwrap();
     crate::utils::clear_children(&popup);
 
@@ -55,42 +115,21 @@ pub fn load_from_json(state: &State) {
     submit_btn.add_event_listener(enclose!( (state, textarea, result_p) move |_: ClickEvent| {
         // try to load the values
         let json = textarea.value();
-        match DAG::from_json(&json) {
-            Ok(dag) => {
-                reset_graph(&state);
-                *(state.borrow_mut()) = dag;
-                // refill the node list
-                let list = document().query_selector("#node-list").unwrap().unwrap();
-                for (i, node) in state.borrow().iter_nodes() {
-                    let li = document().create_element("li").unwrap();
-                    let a = document().create_element("a").unwrap();
-                    a.class_list().add(&format!("node-{}", i)).unwrap();
-                    a.append_child(&document().create_text_node(&node.label));
-                    a.set_attribute("href", "#").unwrap();
-                    a.add_event_listener(enclose!( (state, i) move |_: ClickEvent| {
-                            crate::editor::node_edit_tab(&state, i);
-                    }));
-                    li.append_child(&a);
-                    list.append_child(&li);
+        if let Err(error) = load_json_into_state(&state, &json) {
+            // display the error
+            crate::utils::clear_children(&result_p);
+            match error {
+                DeserError::Json(e) => {
+                    result_p.append_child(&document().create_text_node(&format!("The provided input is not valid JSON: {}", e)));
                 }
-                crate::draw::redraw_graph(&state);
-            },
-            Err(error) => {
-                // display the error
-                crate::utils::clear_children(&result_p);
-                match error {
-                    DeserError::Json(e) => {
-                        result_p.append_child(&document().create_text_node(&format!("The provided input is not valid JSON: {}", e)));
-                    }
-                    DeserError::Graph(EdgeError::WouldCycle) => {
-                        result_p.append_child(&document().create_text_node("The input graph cannot be loaded as it contains a cycle."));
-                    }
-                    DeserError::Graph(EdgeError::BadNode) => {
-                        result_p.append_child(&document().create_text_node("The input graph cannot be loaded as it contains references to non-existing nodes."));
-                    }
-                    DeserError::Graph(EdgeError::AlreadyExisting) => {
-                        result_p.append_child(&document().create_text_node("The input graph cannot be loaded as it contains duplicate edges."));
-                    }
+                DeserError::Graph(EdgeError::WouldCycle) => {
+                    result_p.append_child(&document().create_text_node("The input graph cannot be loaded as it contains a cycle."));
+                }
+                DeserError::Graph(EdgeError::BadNode) => {
+                    result_p.append_child(&document().create_text_node("The input graph cannot be loaded as it contains references to non-existing nodes."));
+                }
+                DeserError::Graph(EdgeError::AlreadyExisting) => {
+                    result_p.append_child(&document().create_text_node("The input graph cannot be loaded as it contains duplicate edges."));
                 }
             }
         }

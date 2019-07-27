@@ -60,6 +60,14 @@ fn main() {
                 handlers::load_from_json(&state);
         }));
 
+    document()
+        .query_selector("#btn-examples")
+        .unwrap()
+        .unwrap()
+        .add_event_listener(enclose!( (state) move |_: ClickEvent| {
+                handlers::select_example(&state);
+        }));
+
     /*
      * setup the editor
      */
