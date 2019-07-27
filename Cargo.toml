@@ -3,6 +3,7 @@ name = "bayesomatic"
 version = "0.1.0"
 authors = ["Victor Berger <victor.berger@m4x.org>"]
 edition = "2018"
+license = "GPL-3.0-or-later"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
