@@ -1,0 +1,34 @@
+language: rust
+
+cache:
+  directories:
+    - /home/travis/.cargo
+
+before_cache:
+  - rm -rf /home/travis/.cargo/registry
+
+os: linux
+dist: trusty
+sudo: false
+
+rust: stable
+
+branches:
+  only:
+    - master
+
+before_script:
+  - which cargo-install-update || cargo install cargo-update
+  - cargo install-update cargo-update
+  - cargo install-update -i cargo-web
+
+script:
+  - cargo web deploy
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
+  local_dir: "target/deploy"
+  on:
+    branch: master
