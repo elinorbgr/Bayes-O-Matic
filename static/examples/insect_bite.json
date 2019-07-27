@@ -1,0 +1,135 @@
+[
+    {
+      "label": "Bitten by",
+      "description": "What is the insect that bit me?",
+      "values": [
+        "Mosquito",
+        "Spider",
+        "Bee",
+        "Wasp"
+      ],
+      "parents": [],
+      "observation": null,
+      "credencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "cred_description": [
+        "Mosquitoes are quite common at this moment of the year, the other insects are more rare."
+      ]
+    },
+    {
+      "label": "Stinger left",
+      "description": "Is there a stinger left in my skin?",
+      "values": [
+        "False",
+        "True"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": 1,
+      "credencies": [
+        2.0,
+        2.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "cred_description": [
+        "Mosquitoes don't normally leave anything in the skin when they bite.",
+        "Spiders don't leave anything either.",
+        "Bees can generally leave their stinger in the skin, and normally die after that.",
+        "Wasps use their stinger for hunting, and don't lose it when using it."
+      ]
+    },
+    {
+      "label": "Swelling",
+      "description": "Is there a swelling on my skin?",
+      "values": [
+        "False",
+        "True"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": 1,
+      "credencies": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5,
+        1.5,
+        1.0,
+        1.0
+      ],
+      "cred_description": [
+        "Mosquito bites may cause some very small swelling, but it's rarely notable.",
+        "Spider bites often cause some notable swelling.",
+        "Bee stings are not rarely accompanied by some swelling.",
+        "Wasp sting can cause some notable swelling for some persons."
+      ]
+    },
+    {
+      "label": "Pain",
+      "description": "Does it hurt?",
+      "values": [
+        "False",
+        "True"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": 1,
+      "credencies": [
+        2.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        3.0,
+        3.0
+      ],
+      "cred_description": [
+        "Mosquito bites rarely hurt.",
+        "Some spider bites may hurt, other not.",
+        "Been stings do hurt quite a lot.",
+        "Wasp stings do hurt as well."
+      ]
+    },
+    {
+      "label": "Itchy",
+      "description": "Does it feel itchy?",
+      "values": [
+        "False",
+        "True"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": 0,
+      "credencies": [
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        2.0,
+        2.0,
+        0.0,
+        0.0
+      ],
+      "cred_description": [
+        "Mosquito bites are often itchy.",
+        "Spider bites are often itchy as well.",
+        "Bee stings are not really itchy in general.",
+        "Wasp stings neither."
+      ]
+    }
+  ]

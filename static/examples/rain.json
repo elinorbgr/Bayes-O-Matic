@@ -1,0 +1,92 @@
+[
+    {
+      "label": "Recently rained",
+      "description": "Did it rain recently?",
+      "values": [
+        "False",
+        "True"
+      ],
+      "parents": [],
+      "observation": null,
+      "credencies": [
+        1.0,
+        0.0
+      ],
+      "cred_description": [
+        "We are in a rather dry country, it rains only ~10% of the time."
+      ]
+    },
+    {
+      "label": "Sprinkler triggered recently",
+      "description": "Did the sprinkler of the park trigger recently?",
+      "values": [
+        "False",
+        "True"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": null,
+      "credencies": [
+        0.0,
+        2.0,
+        0.5,
+        0.0
+      ],
+      "cred_description": [
+        "If it didn't rain, it's slightly possible that the sprinkler triggered recently, as it does once a day.",
+        "If it rained, it is quite unlikely that the sprinkler triggered."
+      ]
+    },
+    {
+      "label": "Grass is wet",
+      "description": "Is the grass of the park wet?",
+      "values": [
+        "False",
+        "True"
+      ],
+      "parents": [
+        0,
+        1
+      ],
+      "observation": 1,
+      "credencies": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.0,
+        1.0,
+        3.0
+      ],
+      "cred_description": [
+        "",
+        "If the sprinkler triggered recently, the grass is likely still wet",
+        "If it recently rained, it's likely the grass is still wet now.",
+        "If the sprinkler triggered and it rained, the grass should be drenched."
+      ]
+    },
+    {
+      "label": "Clouds in the sky",
+      "description": "Are there clouds in the sky?",
+      "values": [
+        "False",
+        "True"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": 1,
+      "credencies": [
+        0.5,
+        0.0,
+        0.0,
+        2.0
+      ],
+      "cred_description": [
+        "As rain is rare here, it's unlikely to see clouds without rain.",
+        "If it rained recently, it is quite likely that we still see some clouds."
+      ]
+    }
+  ]

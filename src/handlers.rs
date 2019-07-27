@@ -54,7 +54,8 @@ pub fn load_json_into_state(state: &State, json: &str) -> Result<(), DeserError>
 }
 
 pub fn select_example(state: &State) {
-    const EXAMPLE_LIST: &[&str] = &["flat_earth"];
+    const EXAMPLE_LIST: &[&str] = &["insect_bite", "rain", "flat_earth"];
+
     let popup = document().query_selector("#saveload").unwrap().unwrap();
     crate::utils::clear_children(&popup);
 
