@@ -44,6 +44,13 @@ a {
     text-decoration: none;
 }
 
+p a {
+    display: inline;
+    border: 0;
+    padding: 0;
+    text-decoration: underline;
+}
+
 .vlist li a {
     padding: 2px;
     margin-left: 2px;
@@ -75,7 +82,7 @@ li a:hover {
     margin: 8px;
 }
 
-#meta-editor {
+#meta-editor, #help {
     border: 2px solid black;
     border-radius: 16px;
     padding: 4px;

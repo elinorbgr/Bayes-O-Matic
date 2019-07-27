@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>Bayesotron</title>
+        <title>Bayes-O-Matic</title>
         <link rel="stylesheet" href="css/main.css">
         <script src="js/d3.v4.min.js"></script>
         <script src="js/graphlib-dot.min.js"></script>
@@ -14,6 +14,7 @@
                 <li><a href="#" id="btn-reset">Reset</a></li>
                 <li><a href="#" id="btn-export">Export to JSON</a></li>
                 <li><a href="#" id="btn-import">Import from JSON</a></li>
+                <li><a href="help.html">Help</a></li>
             </ul>
         </div>
         <div id="saveload" class="hidden"></div>
@@ -28,7 +29,7 @@
                     <ul class="blocky">
                         <li><a href="#" id="btn-addnode">Add node</a></li>
                         <li><a href="#" id="btn-observations">Set observations</a></li>
-                        <li><a href="#" id="btn-compute">Compute evidences</a></li>
+                        <li><a href="#" id="btn-compute">Compute beliefs</a></li>
                     </ul>
                     <ul id="node-list" class="blocky"></ul>
                 </div>
@@ -41,6 +42,6 @@
             // Create and configure the renderer
             var render = dagreD3.render();
         </script>
-        <script src="bayesotron.js"></script>
+        <script src="bayesomatic.js"></script>
     </body>
 </html>
