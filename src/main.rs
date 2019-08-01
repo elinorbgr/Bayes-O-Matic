@@ -23,6 +23,7 @@ mod draw;
 mod editor;
 mod graph;
 mod handlers;
+mod ui;
 mod utils;
 
 type State = Rc<RefCell<graph::DAG>>;

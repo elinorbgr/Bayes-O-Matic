@@ -10,6 +10,7 @@ use stdweb::{
     },
 };
 
+use crate::ui::*;
 use crate::State;
 
 pub fn add_node(state: &State) {
@@ -18,21 +19,8 @@ pub fn add_node(state: &State) {
         .borrow_mut()
         .set_label(node_id, format!("Node #{}", node_id));
 
-    let list = document().query_selector("#node-list").unwrap().unwrap();
+    NodeList::get().add_node(node_id, state, None);
 
-    let li = document().create_element("li").unwrap();
-    let a = document().create_element("a").unwrap();
-
-    a.class_list().add(&format!("node-{}", node_id)).unwrap();
-    a.append_child(&document().create_text_node(&format!("Node #{}", node_id)));
-    a.set_attribute("href", "#").unwrap();
-
-    a.add_event_listener(enclose!( (state, node_id) move |_: ClickEvent| {
-            node_edit_tab(&state, node_id);
-    }));
-
-    li.append_child(&a);
-    list.append_child(&li);
     crate::draw::redraw_graph(&state);
     // switch the editor to the newly created node
     node_edit_tab(state, node_id);
@@ -40,8 +28,8 @@ pub fn add_node(state: &State) {
 
 pub fn node_edit_tab(state: &State, id: usize) {
     crate::utils::set_selected_button(&format!(".node-{}", id));
-    let panel = document().query_selector("#node-editor").unwrap().unwrap();
-    crate::utils::clear_children(&panel);
+    let panel = Panel::get();
+    panel.clear();
 
     // get the current node
     let graph = state.borrow();
@@ -65,7 +53,7 @@ pub fn node_edit_tab(state: &State, id: usize) {
     }));
     div.append_child(&document().create_text_node("Node name:"));
     div.append_child(&label);
-    panel.append_child(&div);
+    panel.element().append_child(&div);
 
     // Second, a list of values
     let value_list = document().create_element("ul").unwrap();
@@ -109,7 +97,7 @@ pub fn node_edit_tab(state: &State, id: usize) {
     );
     li.append_child(&new_value);
     value_list.append_child(&li);
-    panel.append_child(&value_list);
+    panel.element().append_child(&value_list);
 
     // Third, a list of parents
     let parents_list = document().create_element("ul").unwrap();
@@ -161,7 +149,7 @@ pub fn node_edit_tab(state: &State, id: usize) {
     }));
     li.append_child(&new_parent);
     parents_list.append_child(&li);
-    panel.append_child(&parents_list);
+    panel.element().append_child(&parents_list);
 
     // Fourth, the node description
     let div = document().create_element("div").unwrap();
@@ -178,8 +166,10 @@ pub fn node_edit_tab(state: &State, id: usize) {
         state.borrow_mut().set_description(id, description.value());
     }));
     div.append_child(&description);
-    panel.append_child(&div);
-    panel.append_child(&document().create_element("hr").unwrap());
+    panel.element().append_child(&div);
+    panel
+        .element()
+        .append_child(&document().create_element("hr").unwrap());
 
     // Fifth, the credencies
     let table = document().create_element("table").unwrap();
@@ -361,18 +351,18 @@ pub fn node_edit_tab(state: &State, id: usize) {
         state.borrow_mut().set_cred_descriptions(id, descriptions).unwrap();
     }));
 
-    panel.append_child(&table);
-    panel.append_child(&save_btn);
+    panel.element().append_child(&table);
+    panel.element().append_child(&save_btn);
 }
 
 pub fn set_evidence_tab(state: &State) {
     crate::utils::set_selected_button("#btn-observations");
-    let panel = document().query_selector("#node-editor").unwrap().unwrap();
-    crate::utils::clear_children(&panel);
+    let panel = Panel::get();
+    panel.clear();
     // setup a list of observations for each node:
     let p = document().create_element("p").unwrap();
     p.append_child(&document().create_text_node("Observations for nodes:"));
-    panel.append_child(&p);
+    panel.element().append_child(&p);
 
     let graph = state.borrow();
 
@@ -414,13 +404,13 @@ pub fn set_evidence_tab(state: &State) {
         ul.append_child(&li);
     }
 
-    panel.append_child(&ul);
+    panel.element().append_child(&ul);
 }
 
 pub fn compute_evidences(state: &State) {
     crate::utils::set_selected_button("#btn-compute");
-    let panel = document().query_selector("#node-editor").unwrap().unwrap();
-    crate::utils::clear_children(&panel);
+    let panel = Panel::get();
+    panel.clear();
     // Compute the evidence
     let (mut bayesnet, mapping) = match state.borrow().make_bayesnet() {
         Ok(v) => v,
@@ -429,7 +419,7 @@ pub fn compute_evidences(state: &State) {
             p.append_child(&document().create_text_node(
                 "Inference cannot be performed if a node has 0 possible values.",
             ));
-            panel.append_child(&p);
+            panel.element().append_child(&p);
             return;
         }
     };
@@ -448,7 +438,7 @@ pub fn compute_evidences(state: &State) {
 
     let p = document().create_element("p").unwrap();
     p.append_child(&document().create_text_node("Results of the inference:"));
-    panel.append_child(&p);
+    panel.element().append_child(&p);
     let ul = document().create_element("ul").unwrap();
     ul.class_list().add("silentlist").unwrap();
     ul.class_list().add("widelist").unwrap();
@@ -490,7 +480,7 @@ pub fn compute_evidences(state: &State) {
         ul.append_child(&li);
     }
 
-    panel.append_child(&ul);
+    panel.element().append_child(&ul);
 
     // Redraw the graph
     crate::draw::draw_computed_graph(state, &mapping, &beliefs);

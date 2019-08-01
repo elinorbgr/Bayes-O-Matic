@@ -1,5 +1,6 @@
 use crate::{
     graph::{DeserError, EdgeError, DAG},
+    ui::*,
     State,
 };
 use stdweb::{
@@ -14,11 +15,10 @@ use stdweb::{
 };
 
 pub fn reset_graph(state: &State) {
-    hide_popup();
+    Popup::get().hide();
     state.borrow_mut().reset();
     // Clear the node list in the editor
-    let list = document().query_selector("#node-list").unwrap().unwrap();
-    crate::utils::clear_children(&list);
+    let list = NodeList::get().clear();
     // Clear the drawing board
     crate::draw::redraw_graph(state);
     // clear the buttons
@@ -36,18 +36,9 @@ pub fn load_json_into_state(state: &State, json: &str) -> Result<(), DeserError>
     reset_graph(&state);
     *(state.borrow_mut()) = dag;
     // refill the node list
-    let list = document().query_selector("#node-list").unwrap().unwrap();
+    let list = NodeList::get();
     for (i, node) in state.borrow().iter_nodes() {
-        let li = document().create_element("li").unwrap();
-        let a = document().create_element("a").unwrap();
-        a.class_list().add(&format!("node-{}", i)).unwrap();
-        a.append_child(&document().create_text_node(&node.label));
-        a.set_attribute("href", "#").unwrap();
-        a.add_event_listener(enclose!( (state, i) move |_: ClickEvent| {
-                crate::editor::node_edit_tab(&state, i);
-        }));
-        li.append_child(&a);
-        list.append_child(&li);
+        list.add_node(i, state, Some(&node.label));
     }
     crate::draw::redraw_graph(&state);
     Ok(())
@@ -56,8 +47,8 @@ pub fn load_json_into_state(state: &State, json: &str) -> Result<(), DeserError>
 pub fn select_example(state: &State) {
     const EXAMPLE_LIST: &[&str] = &["insect_bite", "rain", "flat_earth"];
 
-    let popup = document().query_selector("#saveload").unwrap().unwrap();
-    crate::utils::clear_children(&popup);
+    let popup = Popup::get();
+    popup.clear();
 
     let list = document().create_element("ul").unwrap();
 
@@ -75,8 +66,8 @@ pub fn select_example(state: &State) {
         list.append_child(&li);
     }
 
-    popup.append_child(&list);
-    show_popup();
+    popup.element().append_child(&list);
+    popup.show();
 }
 
 fn load_example(state: &State, example: &str) {
@@ -90,8 +81,8 @@ fn load_example(state: &State, example: &str) {
 }
 
 pub fn load_from_json(state: &State) {
-    let popup = document().query_selector("#saveload").unwrap().unwrap();
-    crate::utils::clear_children(&popup);
+    let popup = Popup::get();
+    popup.clear();
 
     let textarea: TextAreaElement = document()
         .create_element("textarea")
@@ -107,7 +98,7 @@ pub fn load_from_json(state: &State) {
     close_btn.append_child(&document().create_text_node("Close"));
     close_btn.set_attribute("href", "#").unwrap();
     close_btn.add_event_listener(|_: ClickEvent| {
-        hide_popup();
+        Popup::get().hide();
     });
 
     let submit_btn = document().create_element("a").unwrap();
@@ -136,27 +127,31 @@ pub fn load_from_json(state: &State) {
         }
     }));
 
-    popup.append_child(&textarea);
-    popup.append_child(&document().create_element("br").unwrap());
-    popup.append_child(&result_p);
-    popup.append_child(&document().create_element("br").unwrap());
-    popup.append_child(&submit_btn);
-    popup.append_child(&close_btn);
+    popup.element().append_child(&textarea);
+    popup
+        .element()
+        .append_child(&document().create_element("br").unwrap());
+    popup.element().append_child(&result_p);
+    popup
+        .element()
+        .append_child(&document().create_element("br").unwrap());
+    popup.element().append_child(&submit_btn);
+    popup.element().append_child(&close_btn);
 
-    show_popup();
+    popup.show();
 }
 
 pub fn export_to_json(state: &State) {
     let json = state.borrow().to_json();
 
-    let popup = document().query_selector("#saveload").unwrap().unwrap();
-    crate::utils::clear_children(&popup);
+    let popup = Popup::get();
+    popup.clear();
 
     let close_btn = document().create_element("a").unwrap();
     close_btn.append_child(&document().create_text_node("Close"));
     close_btn.set_attribute("href", "#").unwrap();
     close_btn.add_event_listener(|_: ClickEvent| {
-        hide_popup();
+        Popup::get().hide();
     });
 
     let textarea: TextAreaElement = document()
@@ -169,25 +164,11 @@ pub fn export_to_json(state: &State) {
     textarea.set_attribute("rows", "20");
     textarea.set_attribute("readonly", "");
 
-    popup.append_child(&textarea);
-    popup.append_child(&document().create_element("br").unwrap());
-    popup.append_child(&close_btn);
+    popup.element().append_child(&textarea);
+    popup
+        .element()
+        .append_child(&document().create_element("br").unwrap());
+    popup.element().append_child(&close_btn);
 
-    show_popup();
-}
-
-fn show_popup() {
-    let content = document().query_selector("#content").unwrap().unwrap();
-    content.class_list().add("hidden").unwrap();
-    content.class_list().remove("flex").unwrap();
-    let popup = document().query_selector("#saveload").unwrap().unwrap();
-    popup.class_list().remove("hidden").unwrap();
-}
-
-fn hide_popup() {
-    let popup = document().query_selector("#saveload").unwrap().unwrap();
-    popup.class_list().add("hidden").unwrap();
-    let content = document().query_selector("#content").unwrap().unwrap();
-    content.class_list().add("flex").unwrap();
-    content.class_list().remove("hidden").unwrap();
+    popup.show();
 }
