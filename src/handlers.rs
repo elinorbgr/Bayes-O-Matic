@@ -34,14 +34,7 @@ pub fn reset_graph(state: &State) {
 pub fn help_page() {
     let popup = Popup::get();
     popup.clear();
-
-    let close_btn = document().create_element("a").unwrap();
-    close_btn.append_child(&document().create_text_node("Close"));
-    close_btn.set_attribute("href", "#").unwrap();
-    close_btn.add_event_listener(|_: ClickEvent| {
-        Popup::get().hide();
-    });
-    popup.element().append_child(&close_btn);
+    popup.add_close_button();
     popup.show();
 
     // load the markdown doc
@@ -94,14 +87,7 @@ pub fn select_example(state: &State) {
         list.append_child(&li);
     }
 
-    let close_btn = document().create_element("a").unwrap();
-    close_btn.append_child(&document().create_text_node("Close"));
-    close_btn.set_attribute("href", "#").unwrap();
-    close_btn.add_event_listener(|_: ClickEvent| {
-        Popup::get().hide();
-    });
-    popup.element().append_child(&close_btn);
-
+    popup.add_close_button();
     popup.element().append_child(&list);
     popup.show();
 }
@@ -129,13 +115,6 @@ pub fn load_from_json(state: &State) {
     textarea.set_attribute("rows", "20");
 
     let result_p = document().create_element("p").unwrap();
-
-    let close_btn = document().create_element("a").unwrap();
-    close_btn.append_child(&document().create_text_node("Close"));
-    close_btn.set_attribute("href", "#").unwrap();
-    close_btn.add_event_listener(|_: ClickEvent| {
-        Popup::get().hide();
-    });
 
     let submit_btn = document().create_element("a").unwrap();
     submit_btn.append_child(&document().create_text_node("Submit"));
@@ -172,8 +151,7 @@ pub fn load_from_json(state: &State) {
         .element()
         .append_child(&document().create_element("br").unwrap());
     popup.element().append_child(&submit_btn);
-    popup.element().append_child(&close_btn);
-
+    popup.add_close_button();
     popup.show();
 }
 
@@ -182,13 +160,6 @@ pub fn export_to_json(state: &State) {
 
     let popup = Popup::get();
     popup.clear();
-
-    let close_btn = document().create_element("a").unwrap();
-    close_btn.append_child(&document().create_text_node("Close"));
-    close_btn.set_attribute("href", "#").unwrap();
-    close_btn.add_event_listener(|_: ClickEvent| {
-        Popup::get().hide();
-    });
 
     let textarea: TextAreaElement = document()
         .create_element("textarea")
@@ -204,7 +175,7 @@ pub fn export_to_json(state: &State) {
     popup
         .element()
         .append_child(&document().create_element("br").unwrap());
-    popup.element().append_child(&close_btn);
+    popup.add_close_button();
 
     popup.show();
 }

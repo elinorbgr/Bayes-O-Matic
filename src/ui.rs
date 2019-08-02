@@ -55,6 +55,16 @@ impl Popup {
         content.class_list().add("flex").unwrap();
         content.class_list().remove("hidden").unwrap();
     }
+
+    pub fn add_close_button(&self) {
+        let close_btn = document().create_element("a").unwrap();
+        close_btn.append_child(&document().create_text_node("Close"));
+        close_btn.set_attribute("href", "#").unwrap();
+        close_btn.add_event_listener(|_: ClickEvent| {
+            Popup::get().hide();
+        });
+        self.elem.append_child(&close_btn);
+    }
 }
 
 pub struct NodeList {
