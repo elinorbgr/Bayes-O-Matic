@@ -31,6 +31,34 @@ pub fn reset_graph(state: &State) {
     panel.append_child(&p);
 }
 
+pub fn help_page() {
+    let popup = Popup::get();
+    popup.clear();
+
+    let close_btn = document().create_element("a").unwrap();
+    close_btn.append_child(&document().create_text_node("Close"));
+    close_btn.set_attribute("href", "#").unwrap();
+    close_btn.add_event_listener(|_: ClickEvent| {
+        Popup::get().hide();
+    });
+    popup.element().append_child(&close_btn);
+    popup.show();
+
+    // load the markdown doc
+    let req = XmlHttpRequest::new();
+    req.open("GET", "help/en.md");
+    req.add_event_listener(enclose!((req) move |_: ProgressLoadEvent| {
+        use pulldown_cmark::{Parser, html};
+
+        let markdown_data = req.response_text().unwrap().unwrap();
+        let parser = Parser::new(&markdown_data);
+        let mut html_out = String::new();
+        html::push_html(&mut html_out, parser);
+        popup.element().append_html(&html_out);
+    }));
+    req.send();
+}
+
 pub fn load_json_into_state(state: &State, json: &str) -> Result<(), DeserError> {
     let mut dag = DAG::from_json(json)?;
     reset_graph(&state);
@@ -65,6 +93,14 @@ pub fn select_example(state: &State) {
         li.append_child(&p);
         list.append_child(&li);
     }
+
+    let close_btn = document().create_element("a").unwrap();
+    close_btn.append_child(&document().create_text_node("Close"));
+    close_btn.set_attribute("href", "#").unwrap();
+    close_btn.add_event_listener(|_: ClickEvent| {
+        Popup::get().hide();
+    });
+    popup.element().append_child(&close_btn);
 
     popup.element().append_child(&list);
     popup.show();

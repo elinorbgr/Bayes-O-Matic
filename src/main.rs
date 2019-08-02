@@ -69,6 +69,14 @@ fn main() {
                 handlers::select_example(&state);
         }));
 
+    document()
+        .query_selector("#btn-help")
+        .unwrap()
+        .unwrap()
+        .add_event_listener(enclose!( () move |_: ClickEvent| {
+                handlers::help_page();
+        }));
+
     /*
      * setup the editor
      */
