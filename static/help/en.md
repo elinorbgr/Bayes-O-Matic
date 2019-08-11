@@ -10,34 +10,34 @@ as a mean to update one's knownledge about the world given new evidence.
 
 In this context, propabilities are no longer linked to randomness, but
 rather reflect one's degree of belief that some proposition is true.
-Having \(P(A) = 0.99\) means "I think that \(A\) is true", while
-\(P(A) = 0.01\) means "I think that \(A\) is false". Similarly
-\(P(A) = 0.5\) means "I don't know at all if \(A\) is true or false".
+Having \\(P(A) = 0.99\\) means "I think that \\(A\\) is true", while
+\\(P(A) = 0.01\\) means "I think that \\(A\\) is false". Similarly
+\\(P(A) = 0.5\\) means "I don't know at all if \\(A\\) is true or false".
 
-Bayesian inference makes heavy use of conditional probability: \(P(A|B)\)
-measures how much you would believe that \(A\) is true if you knew that
-\(B\) was true. And Baye's Theorem allows us to reverse these probabilities.
-Consider some hypothesis \(H\) about the world (a physics heory for example).
-This hypothesis can allow you to make some predictions about some data \(D\)
+Bayesian inference makes heavy use of conditional probability: \\(P(A|B)\\)
+measures how much you would believe that \\(A\\) is true if you knew that
+\\(B\\) was true. And Baye's Theorem allows us to reverse these probabilities.
+Consider some hypothesis \\(H\\) about the world (a physics heory for example).
+This hypothesis can allow you to make some predictions about some data \\(D\\)
 you may observe. You can then compare these predictions to the
-reality, and observe some data \(D\). Your predictions are an evaluation of
-\(P(D|H)\), and using Bayes' Theorem you can then compute \(P(H|D)\): this allows
+reality, and observe some data \\(D\\). Your predictions are an evaluation of
+\\(P(D|H)\\), and using Bayes' Theorem you can then compute \\(P(H|D)\\): this allows
 you to measure how much the data you observed is evidence in favour or
-against your hypothesis \(H\).
+against your hypothesis \\(H\\).
 
 We have some more considerations to take into account though. First, it
 is not really possible to determine how plausible an hypothesis is alone.
 We always need to compare it to other hypotheses. In the Bayesian framework
-one cannot say that "\(H\) is true" or "\(H\) is false", but rather we can obtain
-results like "\(H_1\) is 100 times more plausible than \(H_2\) given the
+one cannot say that "\\(H\\) is true" or "\\(H\\) is false", but rather we can obtain
+results like "\\(H_1\\) is 100 times more plausible than \\(H_2\\) given the
 observed data".
 
 ## Bayesian Networks
 
 Second, applying Bayes' Theorem is in general actually pretty hard. Take
-for example the hypothesis \(H\): "The laws of gravitation are as Newton
-described them", and the data \(D\) as being the various orbits of the planets
-we observe. How would one evaluate \(P(D|H)\)? That would be pretty difficult.
+for example the hypothesis \\(H\\): "The laws of gravitation are as Newton
+described them", and the data \\(D\\) as being the various orbits of the planets
+we observe. How would one evaluate \\(P(D|H)\\)? That would be pretty difficult.
 
 This is where
 [Bayesian Networks](https://en.wikipedia.org/wiki/Bayesian_network) take place:
@@ -50,10 +50,10 @@ any set or mutually-exclusive values. For example a node "color of the car" coul
 take the values "red", "green", "blue", "black".
 
 Each edge of the graph represents a logical dependency of the reasonning. An
-arrow from node \(A\) to node \(B\) means that what we consider as plausible values
-for \(B\) depends on the value of \(A\). As such, fully specifying a Bayesian Network
-requires providing for each node the values of \(P(v | v_p)\), where \(v\) spans over
-all the possible values of the given node, and \(v_p\) all possible values of all
+arrow from node \\(A\\) to node \\(B\\) means that what we consider as plausible values
+for \\(B\\) depends on the value of \\(A\\). As such, fully specifying a Bayesian Network
+requires providing for each node the values of \\(P(v | v_p)\\), where \\(v\\) spans over
+all the possible values of the given node, and \\(v_p\\) all possible values of all
 parents of this node.
 
 Specifying the whole graph should be done independently of any observations,
@@ -73,24 +73,24 @@ practical cases.
 In general, humans often tend to perceive the world in logarithmic scales, and
 our beliefs are no exception. That is why it is generally more natural to talk
 about probabilities in terms of log-odds, also called logits:
-\(logit(A) = \log_{10}\frac{P(A)}{P(\neg A)}\). It gives a rought scale of how
-\(A\) is likely to be true or false: a logit of 0 means we cannot decide, a logit
-of 1 that \(A\) is 10 times more likely to be true than false, a logit of 2 that it is
+\\(logit(A) = \log_{10}\frac{P(A)}{P(\neg A)}\\). It gives a rought scale of how
+\\(A\\) is likely to be true or false: a logit of 0 means we cannot decide, a logit
+of 1 that \\(A\\) is 10 times more likely to be true than false, a logit of 2 that it is
 100 times more likely to be true, etc. Similarly, negative values for the logit are
-in favor of \(A\) being false rather than true.
+in favor of \\(A\\) being false rather than true.
 
 When considering a multi-valued node (for example the color of the car), it can be
 more practical to consider relative log odds from a value to an other. There, rather
-than the log-odds of "red" \(\log_{10}\frac{P(Red)}{P(not Red)}\), we would consider the
+than the log-odds of "red" \\(\log_{10}\frac{P(Red)}{P(not Red)}\\), we would consider the
 log ratio of the probabilities of a given color compared to an other, such as
-\(\log_{10}\frac{P(Red)}{P(Blue)}\). A value of 2 would mean that the car is 100 times
+\\(\log_{10}\frac{P(Red)}{P(Blue)}\\). A value of 2 would mean that the car is 100 times
 more likely to be red than blue. Note that due to the properties of the logarithm, we
 can also write more generally things like so:
 
-\(\log_{10}\frac{P(A = a_i)}{P(A = a_j)} = \log_{10} P(A = a_i) - \log_{10} P(A = a_j)\)
+\\(\log_{10}\frac{P(A = a_i)}{P(A = a_j)} = \log_{10} P(A = a_i) - \log_{10} P(A = a_j)\\)
 
-So describing our belief state on the possible values \(a_1, ... a_k\) for a node \(A\)
-can be done by only giving the value of \(\log_{10} P(A = a_i)\) for all \(i\), and the
+So describing our belief state on the possible values \\(a_1, ... a_k\\) for a node \\(A\\)
+can be done by only giving the value of \\(\log_{10} P(A = a_i)\\) for all \\(i\\), and the
 relative log odds can easily be computed by computing the difference between two values.
 
 This representation also has the advantage of not requiring normalization (in general
@@ -98,11 +98,11 @@ probabilities should sum to 1): as only the difference between two log-probabili
 matter, adding a single constant to everything does not change anything. The
 Bayes-O-Matic takes advantage of this and uses unnormalized log-probabilities. To
 mark this difference, the Bayes-O-Matic uses the term "credency" to represent them,
-and it is noted \(C(A = a_i)\).
+and it is noted \\(C(A = a_i)\\).
 
 Note however that comparing unnormalized log-probabilities only makes sense for comparing
-the different values of a given node. So \(C(A = a_i)\) can be compared to \(C(A = a_j)\),
-but \(C(A = a_i)\) cannot be compared to \(C(B = b_j)\).
+the different values of a given node. So \\(C(A = a_i)\\) can be compared to \\(C(A = a_j)\\),
+but \\(C(A = a_i)\\) cannot be compared to \\(C(B = b_j)\\).
 
 ## How do I use this app?
 

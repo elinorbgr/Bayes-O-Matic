@@ -11,7 +11,7 @@ pub struct Node {
     pub values: Vec<String>,
     pub credencies: Option<ArrayD<f32>>,
     pub cred_description: Vec<String>,
-    pub evidence: Option<usize>,
+    pub observation: Option<usize>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -59,7 +59,7 @@ impl DAG {
             values: Vec::new(),
             credencies: None,
             cred_description: Vec::new(),
-            evidence: None,
+            observation: None,
         };
         if let Some(id) = self.nodes.iter().position(|n| n.is_none()) {
             self.nodes[id] = Some(new_node);
@@ -153,7 +153,7 @@ impl DAG {
             // reset the credencies when changing the values
             node.credencies = None;
             node.cred_description = Vec::new();
-            node.evidence = None;
+            node.observation = None;
             node.children.clone()
         } else {
             Vec::new()
@@ -172,7 +172,7 @@ impl DAG {
             // reset the credencies when changing the values
             node.credencies = None;
             node.cred_description = Vec::new();
-            node.evidence = None;
+            node.observation = None;
         }
     }
 
@@ -201,9 +201,9 @@ impl DAG {
         Ok(())
     }
 
-    pub fn set_evidence(&mut self, node: usize, evidence: Option<usize>) {
+    pub fn set_observation(&mut self, node: usize, observation: Option<usize>) {
         if let Some(&mut Some(ref mut node)) = self.nodes.get_mut(node) {
-            node.evidence = evidence;
+            node.observation = observation;
         }
     }
 
@@ -269,7 +269,7 @@ impl DAG {
         // order now contains a topological ordering of the nodes of the graph,
         // which we will now feed into loopybayesnet
         let mut net = BayesNet::new();
-        let mut evidence = Vec::new();
+        let mut observation = Vec::new();
         // insert the nodes in the bayesnet
         for &n in &order {
             let node = self.nodes[n].as_ref().unwrap();
@@ -291,13 +291,13 @@ impl DAG {
             let log_probas = credencies_data * 10f32.ln();
             let loopy_id = net.add_node_from_log_probabilities(&parent_ids, log_probas);
 
-            // collect the evidence
-            if let Some(ev) = node.evidence {
-                evidence.push((loopy_id, ev));
+            // collect the observation
+            if let Some(ev) = node.observation {
+                observation.push((loopy_id, ev));
             }
         }
 
-        net.set_evidence(&evidence);
+        net.set_evidence(&observation);
 
         Ok((net, order))
     }
@@ -328,7 +328,7 @@ impl DAG {
                     .iter()
                     .map(|&i| map[i].unwrap())
                     .collect::<Vec<_>>(),
-                observation: node.evidence,
+                observation: node.observation,
                 credencies: node
                     .credencies
                     .as_ref()
@@ -354,7 +354,7 @@ impl DAG {
             for v in &node.values {
                 dag.add_value(id, v.into());
             }
-            dag.set_evidence(id, node.observation);
+            dag.set_observation(id, node.observation);
             dag.set_description(id, node.description.clone());
             dag.set_cred_descriptions(id, node.cred_description.clone());
             // and the credencies

@@ -64,7 +64,7 @@ li a:hover {
     background-color: #d0d0d0;
 }
 
-.flex {
+#content {
     display: flex;
 }
 
@@ -113,7 +113,7 @@ th:first-child {
     display: none;
 }
 
-#saveload {
+#popup {
     border: 2px solid black;
     border-radius: 16px;
     padding: 4px;
