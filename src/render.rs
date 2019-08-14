@@ -4,15 +4,14 @@ use ndarray::{ArrayD, IxDyn};
 use stdweb::{
     js,
     traits::*,
-    unstable::{TryFrom, TryInto},
+    unstable::TryInto,
     web::{
         document,
         event::IKeyboardEvent,
         html_element::{InputElement, TextAreaElement},
-        Node,
     },
 };
-use yew::{html, html::ChangeData, virtual_dom::vnode::VNode, Html, Renderable};
+use yew::{html, html::ChangeData, Html, Renderable};
 
 use crate::draw::DotCanvas;
 use crate::graph::{DeserError, EdgeError};
@@ -49,7 +48,7 @@ fn extract_credencies(shape: &[usize], parents: &[usize]) -> (ArrayD<f32>, Vec<S
         descriptions.push(texta.value());
     } else {
         // node has parents
-        let mut parent_values = parents
+        let parent_values = parents
             .iter()
             .enumerate()
             .map(|(n, &p)| (0..shape[n + 1]).map(move |i| (p, i)));
@@ -65,7 +64,7 @@ fn extract_credencies(shape: &[usize], parents: &[usize]) -> (ArrayD<f32>, Vec<S
                 let input: InputElement = input.try_into().unwrap();
                 let val = input.raw_value().parse::<f32>().unwrap_or(0.0);
                 let mut idx = vec![i];
-                idx.extend(values.iter().map(|(p, v)| v));
+                idx.extend(values.iter().map(|(_, v)| v));
                 credencies[IxDyn(&idx)] = val;
             }
             // get the description for the row
@@ -186,7 +185,6 @@ impl BayesOMatic {
     }
 
     fn make_parent_seletor(&self, nodeid: usize) -> Html<Self> {
-        let node = self.dag.get(nodeid).unwrap();
         html! {
             <select onchange=|v| if let ChangeData::Select(v) = v { Msg::AddParent { node: nodeid, parent_id: v.raw_value().parse().unwrap() } } else { Msg::Ignore }>
                 <option selected=true value=""></option>
@@ -320,7 +318,7 @@ impl BayesOMatic {
     fn make_credencies_edit(&self, nodeid: usize) -> Html<Self> {
         let node = self.dag.get(nodeid).unwrap();
         // one line in the table for all possible combination of parent values
-        let mut values_iterator = node
+        let values_iterator = node
             .parents
             .iter()
             .map(|&p| {
@@ -480,11 +478,6 @@ impl BayesOMatic {
             }
             Page::LoadJson => {
                 fn fetch_loadjson_contents() -> String {
-                    use stdweb::{
-                        traits::*,
-                        unstable::TryInto,
-                        web::{document, html_element::TextAreaElement},
-                    };
                     let query = "textarea[name=\"loadjson\"]";
                     let input = document().query_selector(query).unwrap().unwrap();
                     let input: TextAreaElement = input.try_into().unwrap();

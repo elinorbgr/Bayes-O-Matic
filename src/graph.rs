@@ -309,10 +309,6 @@ impl DAG {
         })
     }
 
-    pub fn reset(&mut self) {
-        self.nodes.clear();
-    }
-
     pub fn to_json(&self) -> String {
         let (order, map) = self.compact_ids();
         let mut nodelist: Vec<JsonNode> = Vec::with_capacity(order.len());
@@ -356,7 +352,8 @@ impl DAG {
             }
             dag.set_observation(id, node.observation);
             dag.set_description(id, node.description.clone());
-            dag.set_cred_descriptions(id, node.cred_description.clone());
+            // ingore bad descriptions
+            let _ = dag.set_cred_descriptions(id, node.cred_description.clone());
             // and the credencies
             if let Some(ref array) = node.credencies {
                 let mut shape = vec![node.values.len()];
@@ -367,7 +364,8 @@ impl DAG {
                     Some(a) => a,
                     None => continue, // ignore bad arrays
                 };
-                dag.set_credencies(id, array);
+                // ignore bad arrays
+                let _ = dag.set_credencies(id, array);
             }
         }
 

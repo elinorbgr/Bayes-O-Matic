@@ -1,5 +1,4 @@
 use crate::graph::DAG;
-use loopybayesnet::LogProbVector;
 use std::fmt::Write;
 
 use stdweb::js;
@@ -11,7 +10,7 @@ use yew::{
 pub fn graph_to_dot(graph: &DAG) -> String {
     let mut buffer = String::new();
     writeln!(buffer, "digraph {{").unwrap();
-    writeln!(buffer, "node [rx=16 ry=16]");
+    writeln!(buffer, "node [rx=16 ry=16]").unwrap();
     for (id, node) in graph.iter_nodes() {
         let mut style = String::new();
         if node.observation.is_some() {
@@ -56,7 +55,7 @@ impl Component for DotCanvas {
         DotCanvas { dot: props.dot }
     }
 
-    fn update(&mut self, msg: ()) -> ShouldRender {
+    fn update(&mut self, _msg: ()) -> ShouldRender {
         true
     }
 

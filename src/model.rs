@@ -108,7 +108,7 @@ impl BayesOMatic {
         let callback = self
             .link
             .send_back(move |response: Response<Result<String, Error>>| {
-                let (meta, data) = response.into_parts();
+                let (_, data) = response.into_parts();
                 match data {
                     Ok(data) => {
                         console!(log, "Loading help.");
@@ -133,7 +133,7 @@ impl BayesOMatic {
         let callback = self
             .link
             .send_back(move |response: Response<Result<String, Error>>| {
-                let (meta, data) = response.into_parts();
+                let (_, data) = response.into_parts();
                 match data {
                     Ok(data) => {
                         console!(log, format!("Loading example {}.", name));
