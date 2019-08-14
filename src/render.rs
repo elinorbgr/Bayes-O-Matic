@@ -1,9 +1,20 @@
-use stdweb::{js, traits::*, unstable::{TryInto, TryFrom}, web::{document, Node, event::IKeyboardEvent, html_element::{InputElement, TextAreaElement}}};
-use yew::{html, html::ChangeData, virtual_dom::vnode::VNode, Html, Renderable};
-use loopybayesnet::LogProbVector;
 use itertools::Itertools;
+use loopybayesnet::LogProbVector;
 use ndarray::{ArrayD, IxDyn};
+use stdweb::{
+    js,
+    traits::*,
+    unstable::{TryFrom, TryInto},
+    web::{
+        document,
+        event::IKeyboardEvent,
+        html_element::{InputElement, TextAreaElement},
+        Node,
+    },
+};
+use yew::{html, html::ChangeData, virtual_dom::vnode::VNode, Html, Renderable};
 
+use crate::draw::DotCanvas;
 use crate::graph::{DeserError, EdgeError};
 use crate::model::{BayesOMatic, Msg, Page};
 
@@ -38,11 +49,15 @@ fn extract_credencies(shape: &[usize], parents: &[usize]) -> (ArrayD<f32>, Vec<S
         descriptions.push(texta.value());
     } else {
         // node has parents
-        let mut parent_values = parents.iter().enumerate().map(|(n, &p)| {
-            (0..shape[n+1]).map(move |i| (p, i))
-        });
+        let mut parent_values = parents
+            .iter()
+            .enumerate()
+            .map(|(n, &p)| (0..shape[n + 1]).map(move |i| (p, i)));
         for values in parent_values.multi_cartesian_product() {
-            let label = values.iter().map(|&(p, v)| format!("{}-{}", p, v)).join("_");
+            let label = values
+                .iter()
+                .map(|&(p, v)| format!("{}-{}", p, v))
+                .join("_");
             for i in 0..nval {
                 // get the credencies
                 let query = format!("input[name=\"{}_{}\"]", label, i);
@@ -50,7 +65,7 @@ fn extract_credencies(shape: &[usize], parents: &[usize]) -> (ArrayD<f32>, Vec<S
                 let input: InputElement = input.try_into().unwrap();
                 let val = input.raw_value().parse::<f32>().unwrap_or(0.0);
                 let mut idx = vec![i];
-                idx.extend(values.iter().map(|(p,v)| v));
+                idx.extend(values.iter().map(|(p, v)| v));
                 credencies[IxDyn(&idx)] = val;
             }
             // get the description for the row
@@ -104,37 +119,6 @@ impl BayesOMatic {
                             >{ &node.label }</a></li>
                     }})}
                 </ul>
-            </div>
-        }
-    }
-
-    fn canvas(&self) -> Html<Self> {
-        let dot_graph = crate::draw::graph_to_dot(&self.dag);
-        // create the svg contents:
-        let svg = stdweb::web::document()
-            .create_element_ns("http://www.w3.org/2000/svg", "svg")
-            .unwrap();
-        js! {
-            var g = graphlibDot.read(@{dot_graph});
-            // Set margins
-            g.graph().marginx = 20;
-            g.graph().marginy = 20;
-            var svg = @{&svg};
-            // Hack: only redraw the SVG once it is actually visible,
-            // otherwise firefox throws a NS_FAILURE_ERROR
-            setTimeout(() => {
-                d3.select(svg).call(render, g);
-                // update the viewbox of svg
-                var bbox = svg.getBBox();
-                svg.setAttribute("viewBox", (bbox.x-10)+" "+(bbox.y-10)+" "+(bbox.width+20)+" "+(bbox.height+20));
-                svg.setAttribute("width", (bbox.width+20)  + "px");
-                svg.setAttribute("height",(bbox.height+20) + "px");
-            }, 10);
-        };
-        let vnode = VNode::VRef(svg.into());
-        html! {
-            <div id="canvas">
-                { vnode }
             </div>
         }
     }
@@ -238,7 +222,7 @@ impl BayesOMatic {
     fn make_node_description_edit(&self, nodeid: usize) -> Html<Self> {
         let node = self.dag.get(nodeid).unwrap();
         // HACK: the value is not properly updated otherwise
-        js!{
+        js! {
             setTimeout(() => {
                 document.getElementById("nodedesc").value = @{ &node.description };
             }, 10);
@@ -254,7 +238,11 @@ impl BayesOMatic {
         }
     }
 
-    fn make_credencies_edit_line(&self, nodeid: usize, target: Option<(usize, Vec<(usize, &String, usize, &String)>)>) -> Html<Self> {
+    fn make_credencies_edit_line(
+        &self,
+        nodeid: usize,
+        target: Option<(usize, Vec<(usize, &String, usize, &String)>)>,
+    ) -> Html<Self> {
         let node = self.dag.get(nodeid).unwrap();
         if let Some((line_id, parent_values)) = target {
             let label = parent_values
@@ -262,7 +250,7 @@ impl BayesOMatic {
                 .map(|&(p, _, v, _)| format!("{}-{}", p, v))
                 .join("_");
             // HACK: the value for descriptions may not be properly updated otherwise
-            js!{
+            js! {
                 setTimeout(() => {
                     document.querySelector(@{ format!("textarea[name=\"{}_description\"]", label) }).value = @{ node.cred_description.get(line_id).map(|s| &s[..]).unwrap_or("") };
                 }, 10);
@@ -290,7 +278,7 @@ impl BayesOMatic {
                         }
                     })}
                     <td>
-                        <textarea cols=20 rows=2 name={ format!("{}_description", label) } 
+                        <textarea cols=20 rows=2 name={ format!("{}_description", label) }
                                   placeholder="Descripton for this row...">
                         </textarea>
                     </td>
@@ -298,7 +286,7 @@ impl BayesOMatic {
             }
         } else {
             // HACK: the value for descriptions may not be properly updated otherwise
-            js!{
+            js! {
                 setTimeout(() => {
                     document.querySelector("textarea[name=prior_description]").value = @{ node.cred_description.get(0).map(|s| &s[..]).unwrap_or("") };
                 }, 10);
@@ -320,7 +308,7 @@ impl BayesOMatic {
                         }
                     })}
                     <td>
-                        <textarea cols=20 rows=2 name="prior_description" 
+                        <textarea cols=20 rows=2 name="prior_description"
                                   placeholder="Descripton for this row...">
                         </textarea>
                     </td>
@@ -332,25 +320,36 @@ impl BayesOMatic {
     fn make_credencies_edit(&self, nodeid: usize) -> Html<Self> {
         let node = self.dag.get(nodeid).unwrap();
         // one line in the table for all possible combination of parent values
-        let mut values_iterator = node.parents.iter().map(|&p| {
-            let pnode = self.dag.get(p).unwrap();
-            pnode
-                .values
-                .iter()
-                .enumerate()
-                .map(move |(i, v)| (p, &pnode.label, i, v))
-        }).multi_cartesian_product().enumerate();
+        let mut values_iterator = node
+            .parents
+            .iter()
+            .map(|&p| {
+                let pnode = self.dag.get(p).unwrap();
+                pnode
+                    .values
+                    .iter()
+                    .enumerate()
+                    .map(move |(i, v)| (p, &pnode.label, i, v))
+            })
+            .multi_cartesian_product()
+            .enumerate();
 
         // prepare the metadata for the extraction function
         let mut shape = vec![node.values.len()];
-            shape.extend(node.parents.iter().map(|&p| {
-                self.dag.get(p).unwrap().values.len()
-            }));
+        shape.extend(
+            node.parents
+                .iter()
+                .map(|&p| self.dag.get(p).unwrap().values.len()),
+        );
         let parents = node.parents.clone();
 
         let extract_credencies = move || {
             let (credencies, descriptions) = extract_credencies(&shape, &parents);
-            Msg::UpdateCredencies { node: nodeid, credencies, descriptions }
+            Msg::UpdateCredencies {
+                node: nodeid,
+                credencies,
+                descriptions,
+            }
         };
 
         html! {
@@ -443,7 +442,6 @@ impl BayesOMatic {
                 </li>
             }
         }
-        
     }
 
     fn make_beliefs_tab(&self) -> Html<Self> {
@@ -532,7 +530,7 @@ impl BayesOMatic {
             Page::Idle => {
                 html! {
                     <div id="content">
-                        { self.canvas() }
+                        <DotCanvas dot={ crate::draw::graph_to_dot(&self.dag) } />
                         <div id="editor">
                             { self.editorbar() }
                             <div id="node-editor">
@@ -545,7 +543,7 @@ impl BayesOMatic {
             Page::NodeEdit(id) => {
                 html! {
                     <div id="content">
-                        { self.canvas() }
+                        <DotCanvas dot={ crate::draw::graph_to_dot(&self.dag) } />
                         <div id="editor">
                             { self.editorbar() }
                             { self.make_nodeedit_tab(id) }
@@ -556,7 +554,7 @@ impl BayesOMatic {
             Page::SetObservations => {
                 html! {
                     <div id="content">
-                        { self.canvas() }
+                        <DotCanvas dot={ crate::draw::graph_to_dot(&self.dag) } />
                         <div id="editor">
                             { self.editorbar() }
                             { self.make_observation_tab() }
@@ -567,7 +565,7 @@ impl BayesOMatic {
             Page::ComputeBeliefs => {
                 html! {
                     <div id="content">
-                        { self.canvas() }
+                        <DotCanvas dot={ crate::draw::graph_to_dot(&self.dag) } />
                         <div id="editor">
                             { self.editorbar() }
                             { self.make_beliefs_tab() }

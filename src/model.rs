@@ -1,12 +1,12 @@
 use failure::Error;
 use loopybayesnet::LogProbVector;
+use ndarray::ArrayD;
 use stdweb::{console, web::document};
 use yew::{
     format::Nothing,
     services::fetch::{FetchService, FetchTask, Request, Response},
     Component, ComponentLink, ShouldRender,
 };
-use ndarray::ArrayD;
 
 use crate::graph::{DeserError, DAG};
 
@@ -26,14 +26,39 @@ pub enum Page {
 pub enum Msg {
     Ignore,
     AddNode,
-    SetLabel { node: usize, label: String },
-    AddValue { node: usize, value: String },
-    DelValue { node: usize, value_id: usize },
-    AddParent { node: usize, parent_id: usize },
-    DelParent { node: usize, parent_id: usize },
-    SetDesc { node: usize, desc: String },
-    SetObs { node: usize, obs: Option<usize> },
-    UpdateCredencies { node: usize, credencies: ArrayD<f32>, descriptions: Vec<String> },
+    SetLabel {
+        node: usize,
+        label: String,
+    },
+    AddValue {
+        node: usize,
+        value: String,
+    },
+    DelValue {
+        node: usize,
+        value_id: usize,
+    },
+    AddParent {
+        node: usize,
+        parent_id: usize,
+    },
+    DelParent {
+        node: usize,
+        parent_id: usize,
+    },
+    SetDesc {
+        node: usize,
+        desc: String,
+    },
+    SetObs {
+        node: usize,
+        obs: Option<usize>,
+    },
+    UpdateCredencies {
+        node: usize,
+        credencies: ArrayD<f32>,
+        descriptions: Vec<String>,
+    },
     MoveToPage(Page),
     Reset,
     LoadJson(String),
@@ -173,7 +198,11 @@ impl Component for BayesOMatic {
             Msg::SetObs { node, obs } => {
                 self.dag.set_observation(node, obs);
             }
-            Msg::UpdateCredencies { node, credencies, descriptions } => {
+            Msg::UpdateCredencies {
+                node,
+                credencies,
+                descriptions,
+            } => {
                 self.dag.set_credencies(node, credencies).unwrap();
                 self.dag.set_cred_descriptions(node, descriptions).unwrap();
                 redraw = false;
