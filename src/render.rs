@@ -1,6 +1,7 @@
 use itertools::Itertools;
 use loopybayesnet::LogProbVector;
 use ndarray::{ArrayD, IxDyn};
+use std::borrow::Cow;
 use stdweb::{
     js,
     traits::*,
@@ -15,7 +16,9 @@ use yew::{html, html::ChangeData, Html, Renderable};
 
 use crate::draw::DotCanvas;
 use crate::graph::{DeserError, EdgeError};
-use crate::model::{BayesOMatic, Msg, Page};
+use crate::model::{BayesOMatic, Msg};
+use crate::ui::PushButton;
+use crate::Page;
 
 fn fetch_input_and_clear(name: &str) -> String {
     let query = format!("input[name=\"{}\"]", name);
@@ -83,11 +86,11 @@ impl BayesOMatic {
         html! {
             <div id="menu">
             <ul class="blocky">
-                <li><a href="#" onclick=|_| Msg::Reset>{ "Reset" }</a></li>
-                <li><a href="#" onclick=|_| Msg::MoveToPage(Page::ExportJson)>{ "Export to JSON" }</a></li>
-                <li><a href="#" onclick=|_| Msg::MoveToPage(Page::LoadJson)>{ "Import from JSON" }</a></li>
-                <li><a href="#" onclick=|_| Msg::MoveToPage(Page::LoadExample)>{ "Load an example" }</a></li>
-                <li><a href="#" onclick=|_| Msg::MoveToPage(Page::Help)>{ "Help" }</a></li>
+                <li><PushButton text="Reset" onclick=|_| Msg::Reset /></li>
+                <li><PushButton text="Export to JSON" onclick=|_| Msg::MoveToPage(Page::ExportJson) /></li>
+                <li><PushButton text="Import from JSON" onclick=|_| Msg::MoveToPage(Page::LoadJson) /></li>
+                <li><PushButton text="Load an example" onclick=|_| Msg::MoveToPage(Page::LoadExample) /></li>
+                <li><PushButton text="Help" onclick=|_| Msg::MoveToPage(Page::Help) /></li>
                 <li><a href="https:/github.com/vberger/Bayes-O-Matic/">{ "Project on Github" }</a></li>
             </ul>
             </div>
@@ -98,24 +101,22 @@ impl BayesOMatic {
         html! {
             <div id="meta-editor">
                 <ul class="blocky">
-                    <li><a href="#"
-                           onclick=|_| Msg::AddNode
-                        >{ "Add node" }</a></li>
-                    <li><a href="#"
+                    <li><PushButton text="Add node" onclick=|_| Msg::AddNode /></li>
+                    <li><PushButton text="Set observations"
                            onclick=|_| Msg::MoveToPage(Page::SetObservations)
-                           class={ if self.page == Page::SetObservations { "selected" } else { "" }}
-                        >{ "Set observations" }</a></li>
-                    <li><a href="#"
+                           selected={ self.page == Page::SetObservations}
+                        /></li>
+                    <li><PushButton text="Compute beliefs"
                            onclick=|_| Msg::MoveToPage(Page::ComputeBeliefs)
-                           class={ if self.page == Page::ComputeBeliefs { "selected" } else { "" }}
-                        >{ "Compute beliefs" }</a></li>
+                           selected={ self.page == Page::ComputeBeliefs }
+                        /></li>
                 </ul>
                 <ul id="node-list" class="blocky">
                     { for self.dag.iter_nodes().map(|(id, node)| { html! {
-                        <li><a href="#"
-                               onclick=|_| Msg::MoveToPage(Page::NodeEdit(id))
-                               class={ if self.page == Page::NodeEdit(id) { "selected" } else { "" }}
-                            >{ &node.label }</a></li>
+                        <li><PushButton text={ &node.label }
+                               onclick=move |_| Msg::MoveToPage(Page::NodeEdit(id))
+                               selected={ self.page == Page::NodeEdit(id) }
+                            /></li>
                     }})}
                 </ul>
             </div>
@@ -123,28 +124,26 @@ impl BayesOMatic {
     }
 
     fn print_error(&self) -> Html<Self> {
-        match self.load_error {
-            Some(DeserError::Json(ref e)) => {
-                html! {
-                    <p class="error">{ format!("The provided input is not valid JSON: {}", e) }</p>
+        if let Some(ref error) = self.load_error {
+            let text: Cow<str> = match error {
+                DeserError::Json(ref e) => {
+                    format!("The provided input is not valid JSON: {}", e).into()
                 }
-            }
-            Some(DeserError::Graph(EdgeError::WouldCycle)) => {
-                html! {
-                    <p class="error">{ "The input graph cannot be loaded as it contains a cycle." }</p>
+                DeserError::Graph(EdgeError::WouldCycle) => {
+                    "The input graph cannot be loaded as it contains a cycle.".into()
                 }
-            }
-            Some(DeserError::Graph(EdgeError::BadNode)) => {
-                html! {
-                    <p class="error">{ "The input graph cannot be loaded as it contains references to non-existing nodes." }</p>
+                DeserError::Graph(EdgeError::BadNode) => {
+                    "The input graph cannot be loaded as it contains references to non-existing nodes.".into()
                 }
-            }
-            Some(DeserError::Graph(EdgeError::AlreadyExisting)) => {
-                html! {
-                    <p class="error">{ "The input graph cannot be loaded as it contains duplicate edges." }</p>
+                DeserError::Graph(EdgeError::AlreadyExisting) => {
+                    "The input graph cannot be loaded as it contains duplicate edges.".into()
                 }
+            };
+            html! {
+                <p class="error">{ text }</p>
             }
-            None => html! {},
+        } else {
+            html! {}
         }
     }
 

@@ -8,19 +8,10 @@ use yew::{
     Component, ComponentLink, ShouldRender,
 };
 
-use crate::graph::{DeserError, DAG};
-
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Page {
-    Idle,
-    NodeEdit(usize),
-    SetObservations,
-    ComputeBeliefs,
-    ExportJson,
-    LoadJson,
-    LoadExample,
-    Help,
-}
+use crate::{
+    graph::{DeserError, DAG},
+    Page,
+};
 
 #[derive(Clone, Debug)]
 pub enum Msg {
