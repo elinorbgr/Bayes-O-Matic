@@ -1,7 +1,19 @@
 use loopybayesnet::LogProbVector;
+use ndarray::ArrayView1;
 use yew::{html, html::ChangeData, Html};
 
 use crate::model::{BayesOMatic, Msg};
+
+fn log_sum_exp_vec(x: ArrayView1<f32>) -> f32 {
+    let max_log = x.fold(std::f32::NEG_INFINITY, |old_max, &v| f32::max(old_max, v));
+    if !max_log.is_finite() {
+        // if max_log is +inf, result will be +inf anyway
+        // if max_log is -inf, then all log values are -inf, and the result of the log_sum_exp is too
+        max_log
+    } else {
+        max_log + x.mapv(|v| (v - max_log).exp()).sum().ln()
+    }
+}
 
 impl BayesOMatic {
     fn make_observation_select(&self, id: usize, node: &crate::graph::Node) -> Html<Self> {
@@ -38,26 +50,55 @@ impl BayesOMatic {
         if let Some(obs) = node.observation {
             html! {
                 <li>
-                    { format!("Node \"{}\" is observed to be: \"{}\"", node.label, node.values[obs]) }
+                    <h3>{ format!("Node \"{}\":", node.label) }</h3>
+                    <p>{ format!("Observed to be: \"{}\"", node.values[obs]) }</p>
                 </li>
             }
         } else {
             let log10 = 10f32.ln();
             let log_beliefs = beliefs.log_probabilities();
-            let iter = node.values.iter().zip(log_beliefs.iter());
-            html! {
-                <li>
-                    <p>{ format!("Beliefs for node \"{}\":", node.label) }</p>
-                    <ul class="posterior">
-                        { for iter.map(|(name, belief)| {
-                            html! {
-                                <li>
-                                    { format!("{}: {:.2}", name, belief / log10) }
-                                </li>
-                            }
-                        })}
-                    </ul>
-                </li>
+            if self.logodds {
+                let logodds_iter =
+                    node.values
+                        .iter()
+                        .zip(log_beliefs.iter().enumerate().map(|(i, &belief)| {
+                            let mut all_beliefs = log_beliefs.to_owned();
+                            all_beliefs[i] = std::f32::NEG_INFINITY;
+                            let lse = log_sum_exp_vec(all_beliefs.view());
+                            belief - lse
+                        }));
+                html! {
+                    <li>
+                        <h3>{ format!("Node \"{}\":", node.label) }</h3>
+                        <p>{ "Log-odds:" }</p>
+                        <ul class="posterior">
+                            { for logodds_iter.map(|(name, belief)| {
+                                html! {
+                                    <li>
+                                        { format!("{}: {:.2}", name, belief / log10) }
+                                    </li>
+                                }
+                            })}
+                        </ul>
+                    </li>
+                }
+            } else {
+                let raw_iter = node.values.iter().zip(log_beliefs.iter());
+                html! {
+                    <li>
+                        <h3>{ format!("Node \"{}\":", node.label) }</h3>
+                        <p>{ "Raw beliefs:" }</p>
+                        <ul class="posterior">
+                            { for raw_iter.map(|(name, belief)| {
+                                html! {
+                                    <li>
+                                        { format!("{}: {:.2}", name, belief / log10) }
+                                    </li>
+                                }
+                            })}
+                        </ul>
+                    </li>
+                }
             }
         }
     }
@@ -66,7 +107,13 @@ impl BayesOMatic {
         if let Some(ref results) = self.beliefs {
             html! {
                 <div id="node-editor">
-                    <p>{ "Results of the inference:" }</p>
+                    <h2>{ "Results of the inference:" }</h2>
+                    <p>{ "Result format: " }
+                    <select onchange=|v| if let ChangeData::Select(v) = v { Msg::SetLogOdds(v.raw_value().parse().unwrap()) } else { Msg::Ignore }>
+                        <option selected={ self.logodds } value="true">{ "Log-odds" }</option>
+                        <option selected={ !self.logodds } value="false">{ "Raw beliefs" }</option>
+                    </select>
+                    </p>
                     <ul class="silentlist widelist">
                         { for results.iter().map(|&(ref beliefs, id)| {
                             self.make_belief_node(id, beliefs)

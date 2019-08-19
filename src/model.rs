@@ -55,6 +55,7 @@ pub enum Msg {
     LoadJson(String),
     LoadExample(String),
     ShowHelp(String),
+    SetLogOdds(bool),
 }
 
 pub struct BayesOMatic {
@@ -65,6 +66,7 @@ pub struct BayesOMatic {
     task: Option<FetchTask>,
     link: ComponentLink<BayesOMatic>,
     pub(crate) beliefs: Option<Vec<(LogProbVector, usize)>>,
+    pub(crate) logodds: bool,
     pub help_contents: Option<String>,
 }
 
@@ -154,6 +156,7 @@ impl Component for BayesOMatic {
             task: None,
             link,
             beliefs: None,
+            logodds: true,
             help_contents: None,
         }
     }
@@ -233,6 +236,9 @@ impl Component for BayesOMatic {
             }
             Msg::ShowHelp(help_contents) => {
                 self.help_contents = Some(help_contents);
+            }
+            Msg::SetLogOdds(logodds) => {
+                self.logodds = logodds;
             }
         }
 
