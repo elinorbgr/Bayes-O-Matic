@@ -145,3 +145,8 @@ two beliefs is meaningful, and only within the same node.
 To give some scale, a difference of 1 in belief or credency value is considered as
 a slight preference for a value, while a difference of 5 will be a strong belief
 that one value must be chosen rather than the other.
+
+When displaying the inference result, you can choose to see the "raw beliefs" as
+explained just before, or to dsplay them as log-odds. When choosing to display
+log-odds, the app will compute \\(\log_{10}\frac{P(A = a_i)}{P(A \neq a_i)}\\) for
+each value \\(a_i\\), rather than just displaying \\(\log_{10}P(A = a_i)\\).
