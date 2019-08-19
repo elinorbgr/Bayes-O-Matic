@@ -5,6 +5,7 @@ export-json = Export to JSON
 load-example = Load an example
 help = Help
 github = Project on GitHub
+language = Language:
 
 # Main editor bar
 add-node = Add node
@@ -29,7 +30,7 @@ node-values = Node values:
 add-value = Add a value...
 node-parents = Node parents:
 write-desc = Write a description for this node...
-row-desc = Descripton for this row...
+row-desc = Description for this row...
 parent-values = Parent values
 explanation = Explanation
 save-credencies = Save credencies

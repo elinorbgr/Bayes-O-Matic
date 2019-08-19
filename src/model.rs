@@ -57,6 +57,7 @@ pub enum Msg {
     LoadExample(String),
     ShowHelp(String),
     SetLogOdds(bool),
+    SetLang(String),
 }
 
 pub struct BayesOMatic {
@@ -246,6 +247,9 @@ impl Component for BayesOMatic {
             }
             Msg::SetLogOdds(logodds) => {
                 self.logodds = logodds;
+            }
+            Msg::SetLang(lang) => {
+                self.lang = Lang::load(&lang).unwrap();
             }
         }
 

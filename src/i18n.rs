@@ -1,7 +1,10 @@
 use fluent::{FluentBundle, FluentResource};
 use unic_langid::langid;
 
+pub const AVAILABLE_LANGS: &[&str] = &["en", "fr"];
+
 const EXAMPLE_LIST_EN: &[&str] = &["insect_bite", "rain", "flat_earth"];
+const EXAMPLE_LIST_FR: &[&str] = &[];
 
 pub struct Lang {
     pub(crate) name: String,
@@ -16,6 +19,11 @@ impl Lang {
                 langid!("en-US"),
                 include_str!("../lang/en.ftl"),
                 EXAMPLE_LIST_EN,
+            ),
+            "fr" => (
+                langid!("fr-FR"),
+                include_str!("../lang/fr.ftl"),
+                EXAMPLE_LIST_FR,
             ),
             _ => return Err(()),
         };

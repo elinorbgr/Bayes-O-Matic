@@ -7,6 +7,10 @@ body {
     margin: 8px;
 }
 
+#menu li {
+    margin: 2px;
+}
+
 ul {
     display: block;
     padding: 0;
