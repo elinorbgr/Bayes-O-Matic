@@ -10,7 +10,8 @@ use yew::{
 
 use crate::{
     graph::{DeserError, DAG},
-    Page,
+    i18n::Lang,
+    lang, Page,
 };
 
 #[derive(Clone, Debug)]
@@ -68,6 +69,7 @@ pub struct BayesOMatic {
     pub(crate) beliefs: Option<Vec<(LogProbVector, usize)>>,
     pub(crate) logodds: bool,
     pub help_contents: Option<String>,
+    pub(crate) lang: Lang,
 }
 
 impl BayesOMatic {
@@ -97,7 +99,7 @@ impl BayesOMatic {
         let location = document().location().unwrap();
         let origin = location.origin().unwrap();
         let pathname = location.pathname().unwrap();
-        let url = format!("{}{}/help/en.md", origin, pathname);
+        let url = format!("{}{}/help/{}.md", origin, pathname, self.lang.name);
         let callback = self
             .link
             .send_back(move |response: Response<Result<String, Error>>| {
@@ -121,7 +123,10 @@ impl BayesOMatic {
         let location = document().location().unwrap();
         let origin = location.origin().unwrap();
         let pathname = location.pathname().unwrap();
-        let url = format!("{}{}/examples/{}.json", origin, pathname, name);
+        let url = format!(
+            "{}{}/examples/{}/{}.json",
+            origin, pathname, self.lang.name, name
+        );
         console!(log, format!("Fetching example {}.", url));
         let callback = self
             .link
@@ -158,6 +163,7 @@ impl Component for BayesOMatic {
             beliefs: None,
             logodds: true,
             help_contents: None,
+            lang: Lang::load("en").unwrap(),
         }
     }
 
@@ -167,7 +173,8 @@ impl Component for BayesOMatic {
             Msg::Ignore => {}
             Msg::AddNode => {
                 let id = self.dag.insert_node();
-                self.dag.set_label(id, format!("Node #{}", id));
+                self.dag
+                    .set_label(id, lang!(self.lang, "default-node-name", id = id));
                 self.page = Page::NodeEdit(id);
             }
             Msg::SetLabel { node, label } => {

@@ -3,13 +3,12 @@
 mod draw;
 mod editor;
 mod graph;
+mod i18n;
 mod markdown;
 mod model;
 mod render;
 mod results;
 mod ui;
-
-const EXAMPLE_LIST: &[&str] = &["insect_bite", "rain", "flat_earth"];
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Page {

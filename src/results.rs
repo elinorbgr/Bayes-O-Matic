@@ -2,7 +2,10 @@ use loopybayesnet::LogProbVector;
 use ndarray::ArrayView1;
 use yew::{html, html::ChangeData, Html};
 
-use crate::model::{BayesOMatic, Msg};
+use crate::{
+    lang,
+    model::{BayesOMatic, Msg},
+};
 
 fn log_sum_exp_vec(x: ArrayView1<f32>) -> f32 {
     let max_log = x.fold(std::f32::NEG_INFINITY, |old_max, &v| f32::max(old_max, v));
@@ -30,12 +33,12 @@ impl BayesOMatic {
     pub fn make_observation_tab(&self) -> Html<Self> {
         html! {
             <div id="node-editor">
-                <p>{ "Observations for nodes:" }</p>
+                <p>{ lang!(self.lang, "obs-for-nodes") }</p>
                 <ul class="silentlist">
                     { for self.dag.iter_nodes().map(|(id, node)| {
                         html! {
                             <li>
-                            { format!("Node \"{}\":", node.label) }
+                            { lang!(self.lang, "node", name=&node.label[..]) }
                             { self.make_observation_select(id, node) }
                             </li>
                         }
@@ -50,8 +53,8 @@ impl BayesOMatic {
         if let Some(obs) = node.observation {
             html! {
                 <li>
-                    <h3>{ format!("Node \"{}\":", node.label) }</h3>
-                    <p>{ format!("Observed to be: \"{}\"", node.values[obs]) }</p>
+                    <h3>{ lang!(self.lang, "node", name=&node.label[..]) }</h3>
+                    <p>{ lang!(self.lang, "obs-as", value=&node.values[obs][..]) }</p>
                 </li>
             }
         } else {
@@ -69,8 +72,7 @@ impl BayesOMatic {
                         }));
                 html! {
                     <li>
-                        <h3>{ format!("Node \"{}\":", node.label) }</h3>
-                        <p>{ "Log-odds:" }</p>
+                        <h3>{ lang!(self.lang, "node", name=&node.label[..]) }</h3>
                         <ul class="posterior">
                             { for logodds_iter.map(|(name, belief)| {
                                 html! {
@@ -86,8 +88,7 @@ impl BayesOMatic {
                 let raw_iter = node.values.iter().zip(log_beliefs.iter());
                 html! {
                     <li>
-                        <h3>{ format!("Node \"{}\":", node.label) }</h3>
-                        <p>{ "Raw beliefs:" }</p>
+                        <h3>{ lang!(self.lang, "node", name=&node.label[..]) }</h3>
                         <ul class="posterior">
                             { for raw_iter.map(|(name, belief)| {
                                 html! {
@@ -107,11 +108,11 @@ impl BayesOMatic {
         if let Some(ref results) = self.beliefs {
             html! {
                 <div id="node-editor">
-                    <h2>{ "Results of the inference:" }</h2>
-                    <p>{ "Result format: " }
+                    <h2>{ lang!(self.lang, "inference-results") }</h2>
+                    <p>{ lang!(self.lang, "result-format") }
                     <select onchange=|v| if let ChangeData::Select(v) = v { Msg::SetLogOdds(v.raw_value().parse().unwrap()) } else { Msg::Ignore }>
-                        <option selected={ self.logodds } value="true">{ "Log-odds" }</option>
-                        <option selected={ !self.logodds } value="false">{ "Raw beliefs" }</option>
+                        <option selected={ self.logodds } value="true">{ lang!(self.lang, "log-odds") }</option>
+                        <option selected={ !self.logodds } value="false">{ lang!(self.lang, "raw-beliefs") }</option>
                     </select>
                     </p>
                     <ul class="silentlist widelist">
@@ -124,7 +125,7 @@ impl BayesOMatic {
         } else {
             html! {
                 <div id="node-editor">
-                    <p>{ "Inference cannot be done if a node has no valid value." }</p>
+                    <p>{ lang!(self.lang, "inference-no-value") }</p>
                 </div>
             }
         }

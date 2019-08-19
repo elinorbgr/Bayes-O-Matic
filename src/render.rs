@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use stdweb::{
     traits::*,
     unstable::TryInto,
@@ -8,6 +7,7 @@ use yew::{html, Html, Renderable};
 
 use crate::draw::DotCanvas;
 use crate::graph::{DeserError, EdgeError};
+use crate::lang;
 use crate::model::{BayesOMatic, Msg};
 use crate::ui::PushButton;
 use crate::Page;
@@ -17,12 +17,12 @@ impl BayesOMatic {
         html! {
             <div id="menu">
             <ul class="blocky">
-                <li><PushButton text="Reset" onclick=|_| Msg::Reset /></li>
-                <li><PushButton text="Export to JSON" onclick=|_| Msg::MoveToPage(Page::ExportJson) /></li>
-                <li><PushButton text="Import from JSON" onclick=|_| Msg::MoveToPage(Page::LoadJson) /></li>
-                <li><PushButton text="Load an example" onclick=|_| Msg::MoveToPage(Page::LoadExample) /></li>
-                <li><PushButton text="Help" onclick=|_| Msg::MoveToPage(Page::Help) /></li>
-                <li><a href="https:/github.com/vberger/Bayes-O-Matic/">{ "Project on Github" }</a></li>
+                <li><PushButton text={ lang!(self.lang, "reset") } onclick=|_| Msg::Reset /></li>
+                <li><PushButton text={ lang!(self.lang, "export-json") } onclick=|_| Msg::MoveToPage(Page::ExportJson) /></li>
+                <li><PushButton text={ lang!(self.lang, "load-json") } onclick=|_| Msg::MoveToPage(Page::LoadJson) /></li>
+                <li><PushButton text={ lang!(self.lang, "load-example") } onclick=|_| Msg::MoveToPage(Page::LoadExample) /></li>
+                <li><PushButton text={ lang!(self.lang, "help") } onclick=|_| Msg::MoveToPage(Page::Help) /></li>
+                <li><a href="https:/github.com/vberger/Bayes-O-Matic/">{ lang!(self.lang, "github") }</a></li>
             </ul>
             </div>
         }
@@ -32,12 +32,12 @@ impl BayesOMatic {
         html! {
             <div id="meta-editor">
                 <ul class="blocky">
-                    <li><PushButton text="Add node" onclick=|_| Msg::AddNode /></li>
-                    <li><PushButton text="Set observations"
+                    <li><PushButton text={ lang!(self.lang, "add-node") } onclick=|_| Msg::AddNode /></li>
+                    <li><PushButton text={ lang!(self.lang, "set-observations") }
                            onclick=|_| Msg::MoveToPage(Page::SetObservations)
                            selected={ self.page == Page::SetObservations}
                         /></li>
-                    <li><PushButton text="Compute beliefs"
+                    <li><PushButton text={ lang!(self.lang, "compute-beliefs") }
                            onclick=|_| Msg::MoveToPage(Page::ComputeBeliefs)
                            selected={ self.page == Page::ComputeBeliefs }
                         /></li>
@@ -56,19 +56,11 @@ impl BayesOMatic {
 
     fn print_error(&self) -> Html<Self> {
         if let Some(ref error) = self.load_error {
-            let text: Cow<str> = match error {
-                DeserError::Json(ref e) => {
-                    format!("The provided input is not valid JSON: {}", e).into()
-                }
-                DeserError::Graph(EdgeError::WouldCycle) => {
-                    "The input graph cannot be loaded as it contains a cycle.".into()
-                }
-                DeserError::Graph(EdgeError::BadNode) => {
-                    "The input graph cannot be loaded as it contains references to non-existing nodes.".into()
-                }
-                DeserError::Graph(EdgeError::AlreadyExisting) => {
-                    "The input graph cannot be loaded as it contains duplicate edges.".into()
-                }
+            let text: String = match error {
+                DeserError::Json(ref e) => format!("{}: {}", lang!(self.lang, "invalid-json"), e),
+                DeserError::Graph(EdgeError::WouldCycle) => lang!(self.lang, "err-cycle"),
+                DeserError::Graph(EdgeError::BadNode) => lang!(self.lang, "err-nodenotfound"),
+                DeserError::Graph(EdgeError::AlreadyExisting) => lang!(self.lang, "err-edges"),
             };
             html! {
                 <p class="error">{ text }</p>
@@ -87,7 +79,7 @@ impl BayesOMatic {
                             { self.dag.to_json() }
                         </textarea>
                         <br/>
-                        <a href="#" onclick=|_| Msg::MoveToPage(Page::Idle)>{ "Close" }</a>
+                        <a href="#" onclick=|_| Msg::MoveToPage(Page::Idle)>{ lang!(self.lang, "close") }</a>
                     </div>
                 }
             }
@@ -103,8 +95,8 @@ impl BayesOMatic {
                         { self.print_error() }
                         <textarea name="loadjson" cols=110 rows=20></textarea>
                         <br/>
-                        <a href="#" onclick=|_| { Msg::LoadJson(fetch_loadjson_contents()) }>{ "Load" }</a>
-                        <a href="#" onclick=|_| Msg::MoveToPage(Page::Idle)>{ "Close" }</a>
+                        <a href="#" onclick=|_| { Msg::LoadJson(fetch_loadjson_contents()) }>{ lang!(self.lang, "load") }</a>
+                        <a href="#" onclick=|_| Msg::MoveToPage(Page::Idle)>{ lang!(self.lang, "close") }</a>
                     </div>
                 }
             }
@@ -112,7 +104,7 @@ impl BayesOMatic {
                 html! {
                     <div id="popup">
                         <ul>
-                        { for crate::EXAMPLE_LIST.iter().cloned().map(|name| {
+                        { for self.lang.examples.iter().cloned().map(|name| {
                             html! { <li><p><a href="#" onclick=|_| Msg::LoadExample(name.into())>{ name }</a></p></li> }
                         })}
                         </ul>
@@ -130,7 +122,7 @@ impl BayesOMatic {
                 } else {
                     html! {
                         <div id="popup">
-                            <p>{ "Help content is loading..." }</p>
+                            <p>{ lang!(self.lang, "loading-help") }</p>
                         </div>
                     }
                 }
@@ -142,7 +134,7 @@ impl BayesOMatic {
                         <div id="editor">
                             { self.editorbar() }
                             <div id="node-editor">
-                                <p>{ "Select a node to edit..." }</p>
+                                <p>{ lang!(self.lang, "select-node") }</p>
                             </div>
                         </div>
                     </div>

@@ -12,7 +12,10 @@ use stdweb::{
 };
 use yew::{html, html::ChangeData, Html};
 
-use crate::model::{BayesOMatic, Msg};
+use crate::{
+    lang,
+    model::{BayesOMatic, Msg},
+};
 
 pub fn fetch_input_and_clear(name: &str) -> String {
     let query = format!("input[name=\"{}\"]", name);
@@ -80,7 +83,7 @@ impl BayesOMatic {
         let node = self.dag.get(nodeid).unwrap();
         html! {
             <div>
-                { "Node Name:" }
+                { lang!(self.lang, "node-name") }
                 <input size=16
                         oninput=|evt| Msg::SetLabel { node: nodeid, label: evt.value }
                         value={ &node.label }>
@@ -93,7 +96,7 @@ impl BayesOMatic {
         let node = self.dag.get(nodeid).unwrap();
         html! {
             <ul class="blocky vlist">
-                <li>{ "Node values:" }</li>
+                <li>{ lang!(self.lang, "node-values") }</li>
                 { for node.values.iter().enumerate().map(|(i,v)| {
                     html! {
                         <li>
@@ -102,7 +105,7 @@ impl BayesOMatic {
                     }
                 })}
                 <li>
-                    <input placeholder="Add a value"
+                    <input placeholder={ lang!(self.lang, "add-value") }
                         size=16
                         name="addvalue"
                         onkeypress=|evt| if evt.key() == "Enter" { Msg::AddValue { node: nodeid, value: fetch_input_and_clear("addvalue") } } else { Msg::Ignore }
@@ -133,7 +136,7 @@ impl BayesOMatic {
         let node = self.dag.get(nodeid).unwrap();
         html! {
             <ul class="blocky vlist">
-                <li>{ "Node parents:" }</li>
+                <li>{ lang!(self.lang, "node-parents") }</li>
                 { for node.parents.iter().map(|&p| {
                     let parent = self.dag.get(p).unwrap();
                     html! {
@@ -155,7 +158,7 @@ impl BayesOMatic {
         }
         html! {
             <div>
-                <textarea cols=40 rows=4 placeholder="Write a description for your node..."
+                <textarea cols=40 rows=4 placeholder={ lang!(self.lang, "write-desc") }
                           oninput=|evt| Msg::SetDesc { node: nodeid, desc: evt.value }
                           id="nodedesc">
                     { &node.description }
@@ -205,7 +208,7 @@ impl BayesOMatic {
                     })}
                     <td>
                         <textarea cols=20 rows=2 name={ format!("{}_description", label) }
-                                  placeholder="Descripton for this row...">
+                                  placeholder={ lang!(self.lang, "row-desc") }>
                         </textarea>
                     </td>
                 </tr>
@@ -235,7 +238,7 @@ impl BayesOMatic {
                     })}
                     <td>
                         <textarea cols=20 rows=2 name="prior_description"
-                                  placeholder="Descripton for this row...">
+                                  placeholder={ lang!(self.lang, "row-desc") }>
                         </textarea>
                     </td>
                 </tr>
@@ -283,19 +286,19 @@ impl BayesOMatic {
             <table>
                 <tr>
                     <th>
-                    { if !node.parents.is_empty() { "Parent values" } else { "" } }
+                    { if !node.parents.is_empty() { lang!(self.lang, "parent-values") } else { "".into() } }
                     </th>
                     { for node.values.iter().map(|v| {
                         html! {
                             <th>{ format!("C({})", v) }</th>
                         }
                     })}
-                    <th>{ "Explanation" }</th>
+                    <th>{ lang!(self.lang, "explanation") }</th>
                 </tr>
                 { if node.parents.is_empty() { self.make_credencies_edit_line(nodeid, None) } else { html!{} }}
                 { for values_iterator.map(|(iv, values)| self.make_credencies_edit_line(nodeid, Some((iv, values)))) }
             </table>
-            <a href="#" onclick=move |_| extract_credencies()> { "Save credencies" }</a>
+            <a href="#" onclick=move |_| extract_credencies()>{ lang!(self.lang, "save-credencies") }</a>
             </div>
         }
     }
