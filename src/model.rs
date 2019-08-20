@@ -215,8 +215,6 @@ impl Component for BayesOMatic {
                 } else if page == Page::Help {
                     if self.help_contents.is_none() {
                         self.load_help();
-                        // only redraw when help is loaded
-                        redraw = false;
                     }
                 }
                 self.page = page;
@@ -250,6 +248,11 @@ impl Component for BayesOMatic {
             }
             Msg::SetLang(lang) => {
                 self.lang = Lang::load(&lang).unwrap();
+                // Invalidate the help & reload if relevant
+                self.help_contents = None;
+                if self.page == Page::Help {
+                    self.load_help();
+                }
             }
         }
 
