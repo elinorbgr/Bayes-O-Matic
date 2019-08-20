@@ -50,6 +50,10 @@ impl BayesOMatic {
                            onclick=|_| Msg::MoveToPage(Page::ComputeBeliefs)
                            selected={ self.page == Page::ComputeBeliefs }
                         /></li>
+                    <li><PushButton text={ lang!(self.lang, "mutual-info") }
+                           onclick=|_| Msg::MoveToPage(Page::MutualInformation(None))
+                           selected={ if let &Page::MutualInformation(_) = &self.page { true } else { false } }
+                        /></li>
                 </ul>
                 <ul id="node-list" class="blocky">
                     { for self.dag.iter_nodes().map(|(id, node)| { html! {
@@ -178,6 +182,17 @@ impl BayesOMatic {
                         <div id="editor">
                             { self.editorbar() }
                             { self.make_beliefs_tab() }
+                        </div>
+                    </div>
+                }
+            }
+            Page::MutualInformation(_) => {
+                html! {
+                    <div id="content">
+                        <DotCanvas dot={ crate::draw::graph_to_dot(&self.dag) } />
+                        <div id="editor">
+                            { self.editorbar() }
+                            { self.make_mutualinfo_tab() }
                         </div>
                     </div>
                 }

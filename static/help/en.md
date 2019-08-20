@@ -106,6 +106,8 @@ but \\(C(A = a_i)\\) cannot be compared to \\(C(B = b_j)\\).
 
 ## How do I use this app?
 
+#### Designing the graph
+
 To use the Bayes-O-Matic, you first need to describe the graph of your model. You
 can add several nodes using the "Add node" button, and then select the node you
 wish to edit in the node list.
@@ -129,6 +131,8 @@ value withing a row matters. To help filling them, you can for example choose a 
 as a reference and describe all other values relative to it. Or you can decide to always
 put 0 for the least likely value of the row and fill the other values relative to it.
 
+#### Observations and beliefs
+
 Once your have defined the values and credencies for all your nodes, your model is
 in place. You can then go to the "Set observations" tab and set the values for the
 nodes that are observed, and thus for which you know their values. Nodes that are
@@ -150,3 +154,18 @@ When displaying the inference result, you can choose to see the "raw beliefs" as
 explained just before, or to dsplay them as log-odds. When choosing to display
 log-odds, the app will compute \\(\log_{10}\frac{P(A = a_i)}{P(A \neq a_i)}\\) for
 each value \\(a_i\\), rather than just displaying \\(\log_{10}P(A = a_i)\\).
+
+#### Mutual information
+
+An other capability provided is the ability to compute the
+[mutual information](https://en.wikipedia.org/wiki/Mutual_information) between
+unobserved nodes. Suppose you have designed your graph, are particularly interested
+in the value of one particular node, and have not run any experiment yet. If you have
+designed a few potential observations as nodes in your graph, this tab will compute
+for you the amount of information observing each of them would give you about your node
+of interest. This way you can target the more informative observations first.
+
+The information is expressed in the Bayes-O-Matic in bits (so using a logarithm in base 2,
+as opposed to credencies which are in base 10) as they are more explicit in this base:
+one bit is the amount of information required to discriminate with full certitude between
+two values.

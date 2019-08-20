@@ -11,6 +11,7 @@ language = Language:
 add-node = Add node
 set-observations = Set observations
 compute-beliefs = Compute beliefs
+mutual-info = Mutual information
 
 # Loading messages
 invalid-json = The provided input is not valid JSON
@@ -45,3 +46,7 @@ raw-beliefs = Raw beliefs
 inference-results = Results of the inference:
 result-format = Result format:
 inference-no-value = Inference cannot be done if a node has no valid value.
+mutual-info-result = Results of mutual information computation:
+target-node = Target node:
+mi-no-value = Mutual information cannot be computed if no node is unobserved.
+with-node = With node "{$name}"

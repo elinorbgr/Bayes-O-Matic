@@ -50,6 +50,10 @@ impl DAG {
         DAG { nodes: Vec::new() }
     }
 
+    pub fn estimate_iteration_number(&self) -> usize {
+        2 * self.nodes.len()
+    }
+
     pub fn insert_node(&mut self) -> usize {
         let new_node = Node {
             parents: Vec::new(),

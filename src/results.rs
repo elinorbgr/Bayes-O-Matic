@@ -5,6 +5,7 @@ use yew::{html, html::ChangeData, Html};
 use crate::{
     lang,
     model::{BayesOMatic, Msg},
+    Page,
 };
 
 fn log_sum_exp_vec(x: ArrayView1<f32>) -> f32 {
@@ -126,6 +127,38 @@ impl BayesOMatic {
             html! {
                 <div id="node-editor">
                     <p>{ lang!(self.lang, "inference-no-value") }</p>
+                </div>
+            }
+        }
+    }
+
+    pub fn make_mutualinfo_tab(&self) -> Html<Self> {
+        if let Some(ref results) = self.mutual_info {
+            html! {
+                <div id="node-editor">
+                    <h2> { lang!(self.lang, "mutual-info-result") }</h2>
+                    <p>{ lang!(self.lang, "target-node") }
+                    <select onchange=|v| if let ChangeData::Select(v) = v { Msg::MoveToPage(Page::MutualInformation(Some(v.raw_value().parse().unwrap()))) } else { Msg::Ignore }>
+                    { for self.dag.iter_nodes().filter(|&(id, node)| node.observation.is_none()).map(|(id, node)| {
+                        html! {
+                            <option selected={ self.page == Page::MutualInformation(Some(id)) } value={ format!("{}", id) }>{ &node.label }</option>
+                        }
+                    }) }
+                    </select>
+                    </p>
+                    <ul class="silentlist widelist">
+                        { for results.iter().map(|&(id, mi)| {
+                            html! {
+                                <li>{ format!("{} {:.5}", lang!(self.lang, "with-node", name=&self.dag.get(id).unwrap().label[..]), mi) }</li>
+                            }
+                        })}
+                    </ul>
+                </div>
+            }
+        } else {
+            html! {
+                <div id="node-editor">
+                    <p>{ lang!(self.lang, "mi-no-value") }</p>
                 </div>
             }
         }

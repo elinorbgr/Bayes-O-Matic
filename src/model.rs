@@ -68,23 +68,23 @@ pub struct BayesOMatic {
     task: Option<FetchTask>,
     link: ComponentLink<BayesOMatic>,
     pub(crate) beliefs: Option<Vec<(LogProbVector, usize)>>,
+    pub(crate) mutual_info: Option<Vec<(usize, f32)>>,
     pub(crate) logodds: bool,
     pub help_contents: Option<String>,
     pub(crate) lang: Lang,
 }
 
 impl BayesOMatic {
-    fn compute_beliefs(&mut self) {
+    fn compute_beliefs(&self) -> Option<Vec<(LogProbVector, usize)>> {
         let (mut bayesnet, mapping) = match self.dag.make_bayesnet() {
             Ok(v) => v,
             Err(()) => {
                 // beliefs cannnot be computed,
-                self.beliefs = None;
-                return;
+                return None;
             }
         };
 
-        for _ in 0..100 {
+        for _ in 0..(self.dag.estimate_iteration_number()) {
             bayesnet.step();
         }
         let mut beliefs = bayesnet.beliefs();
@@ -93,7 +93,84 @@ impl BayesOMatic {
             b.renormalize();
         }
 
-        self.beliefs = Some(beliefs.into_iter().zip(mapping.into_iter()).collect());
+        Some(beliefs.into_iter().zip(mapping.into_iter()).collect())
+    }
+
+    fn compute_mutual_info(&mut self, id: usize) -> Option<Vec<(usize, f32)>> {
+        if self.dag.get(id).unwrap().observation.is_some() {
+            return None;
+        }
+        let non_observed_nodes: Vec<_> = self
+            .dag
+            .iter_nodes()
+            .filter(|&(_, node)| node.observation.is_none())
+            .map(|(id, _)| id)
+            .collect();
+        // retreive the base beliefs
+        let mut base_belief: Vec<_> = self
+            .compute_beliefs()
+            .unwrap()
+            .into_iter()
+            .filter(|&(_, id)| non_observed_nodes.contains(&id))
+            .collect();
+        base_belief.sort_by_key(|&(_, id)| id);
+
+        // compute the beliefs for all possible value of current node
+        let values_count = self.dag.get(id).unwrap().values.len();
+        let mut kl_tems = Vec::new();
+        for i in 0..values_count {
+            self.dag.set_observation(id, Some(i));
+            let mut belief: Vec<_> = self
+                .compute_beliefs()
+                .unwrap()
+                .into_iter()
+                .filter(|&(_, id)| non_observed_nodes.contains(&id))
+                .collect();
+            belief.sort_by_key(|&(_, id)| id);
+            let kl_term: Vec<_> = belief
+                .iter()
+                .zip(base_belief.iter())
+                .map(|((cond_belief, _), (base_belief, _))| {
+                    let log_ratio = (&cond_belief.log_probabilities()
+                        - &base_belief.log_probabilities())
+                        * cond_belief.as_probabilities();
+                    log_ratio.sum()
+                })
+                .collect();
+            kl_tems.push(kl_term);
+        }
+        self.dag.set_observation(id, None);
+        // conditional_beliefs contains a vec of KL(P(Y|x) || P(Y))
+        // first dimension runs accross the values of x, second dimension accross the nodes Y
+        // we need to multiply by P(X) & sum accross the first dimension
+        let pxs = base_belief
+            .iter()
+            .find(|&(_, nid)| *nid == id)
+            .unwrap()
+            .0
+            .as_probabilities();
+        let kls = kl_tems.into_iter().zip(pxs.into_iter()).fold(
+            vec![0f32; non_observed_nodes.len()],
+            |mut acc, (kl_term, &px)| {
+                for (a, kl) in acc.iter_mut().zip(kl_term.iter()) {
+                    if px > 0.0001 {
+                        // numerical stability px=0 should crush a log's infinity
+                        // so if px is too close to 0 we just stip this term
+                        *a += kl * px / 2f32.ln();
+                    }
+                }
+                acc
+            },
+        );
+
+        Some(
+            kls.into_iter()
+                .zip(base_belief.iter())
+                // if kl gets < 0.0 it is a numerical instability issue, just clamp it to 0
+                .map(|(kl, &(_, id))| (id, if kl < 0.0 { 0.0 } else { kl }))
+                .filter(|&(nid, _)| nid != id)
+                .collect(),
+        )
     }
 
     fn load_help(&mut self) {
@@ -162,6 +239,7 @@ impl Component for BayesOMatic {
             task: None,
             link,
             beliefs: None,
+            mutual_info: None,
             logodds: true,
             help_contents: None,
             lang: Lang::load("en").unwrap(),
@@ -211,10 +289,26 @@ impl Component for BayesOMatic {
             }
             Msg::MoveToPage(page) => {
                 if page == Page::ComputeBeliefs {
-                    self.compute_beliefs();
+                    self.beliefs = self.compute_beliefs();
                 } else if page == Page::Help {
                     if self.help_contents.is_none() {
                         self.load_help();
+                    }
+                } else if let Page::MutualInformation(id) = page {
+                    if let Some(id) = id {
+                        self.mutual_info = self.compute_mutual_info(id);
+                    } else {
+                        let id = self
+                            .dag
+                            .iter_nodes()
+                            .filter(|&(_, node)| node.observation.is_none())
+                            .map(|(id, _)| id)
+                            .next();
+                        if let Some(id) = id {
+                            self.mutual_info = self.compute_mutual_info(id);
+                        } else {
+                            self.mutual_info = None;
+                        }
                     }
                 }
                 self.page = page;

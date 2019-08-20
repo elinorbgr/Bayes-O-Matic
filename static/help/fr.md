@@ -33,7 +33,7 @@ on ne peut pas dire « \\(H\\) est vrai » or « \\(H\\) est faux » ; nous
 des résultats comme « \\(H_1\\) est 100 fois plus plausible que \\(H_2\\) sachant les
 observations ».
 
-# Les Réseaux Bayésiens
+## Les Réseaux Bayésiens
 
 De plus, appliquer le Théorème de Bayes est en général plutôt difficile. Prenez
 par exemple l'hypothèse \\(H\\) : « Les lois de la gravitation sont telles que
@@ -114,6 +114,8 @@ que si on compare les différentes valeurs d'un même nœud. Donc  \\(C(A = a_i)
 
 ## Comment utiliser cette application ?
 
+#### Conception du graphe
+
 Pour utiliser le Bayes-O-Matic, vous devez tout d'abord décrire le graphe de votre
 modèle. Vous pouvez créer des nœuds à l'ide du bouton « Ajouter nœud », et ensuite
 choisir le nœud que vous voulez modifier en cliquant dessus dans la liste des nœuds.
@@ -140,6 +142,8 @@ décrire les autres relativement à elle. Ou bient vous pouvez décider de toujo
 mettre 0 pour la valeur la moins probable et remplir les autres valeurs relativement
 à elle.
 
+#### Observations et croyances
+
 Une fois définies les valeurs et les crédences pour tous vos nœuds, votre modèle
 est en place. Vous pouvez maintenant vous rendre sur l'onglet « Fixer les
 observations » et remplir les valeurs des nœuds que vous avez observé, et donc
@@ -164,3 +168,20 @@ Lors de l'affichage du résultat, vous pouvez choisir de voir les « croyances 
 comme expliqué à instance, out de plutôt afficher les log-cotes. Lors de l'affichage
 des log-cotes, l'application va calculer \\(\log_{10}\frac{P(A = a_i)}{P(A \neq a_i)}\\)
 pour chaque valeur, plutôt que de simplement afficher \\(\log_{10}P(A = a_i)\\).
+
+#### Information mutuelle
+
+une autre fonctionnalité proposée est le calcul des
+[informations mutuelles](https://fr.wikipedia.org/wiki/Information_mutuelle) entre
+des nœuds non observés du graphe. Supponsons que vous ayez conçu votre graphe,
+êtes particulièrement intéressés par la valeur d'un nœud en particulier, et n'avez
+pas encore fait d'expérimentations. Si vous avez imaginé des observations potentielles
+et les avez intégrés à votre graphe sous forme de nœuds, cet onglet va calculer pour vous
+la quantité d'information qu'observer chacun de ces nœuds apporterait à propos de
+votre nœud d'intérêt. Ainsi vous pouvez cibler en priorité les observations qui
+apporteraient le plus d'information.
+
+L'information est exprimée dans le bayes-O-matic en bits (donc en utilisant un logarithme
+de base 2, à la différence des crédences qui sont en base 10) car elle est plus explicite
+dans cette base : un bit correspond à la quantité d'information nécéssaire pour discriminer
+deux valeurs avec une certitude absolue.

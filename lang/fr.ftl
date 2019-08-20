@@ -11,6 +11,7 @@ language = Langage:
 add-node = Ajouter un nœud
 set-observations = Fixer les observations
 compute-beliefs = Calculer les croyances
+mutual-info = Information mutuelle
 
 # Loading messages
 invalid-json = Le text entré n'est pas du JSON valide
@@ -45,3 +46,7 @@ raw-beliefs = Croyances brutes
 inference-results = Résultats de l'inférence :
 result-format = Format de résultats :
 inference-no-value = L'inférence ne peut pas être effectuée si un nœud n'a pas de valeur valide.
+mutual-info-result = Résultats du calcul d'information mutuelle:
+target-node = Nœud cible :
+mi-no-value = L'information mutuelle ne peut pas être calculée si tous les nœuds sont observés.
+with-node = Avec le nœud « {$name} »
