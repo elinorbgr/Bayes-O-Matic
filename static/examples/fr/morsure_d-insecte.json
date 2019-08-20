@@ -1,0 +1,135 @@
+[
+    {
+      "label": "Mordu par",
+      "description": "Quel est l'insecte qui m'a mordu ?",
+      "values": [
+        "Moustique",
+        "Araignée",
+        "Abeille",
+        "Guêpe"
+      ],
+      "parents": [],
+      "observation": null,
+      "credencies": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "cred_description": [
+        "Les moustiques sont plutôt communs à cette période de l'année, plus que les autres."
+      ]
+    },
+    {
+      "label": "Dard restant",
+      "description": "Y a-t-il un dard resté sur ma peau ?",
+      "values": [
+        "Non",
+        "Oui"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": 1,
+      "credencies": [
+        2.0,
+        2.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "cred_description": [
+        "Les moustiques de laissent normalement rien sur la peau en mordant.",
+        "Les araignées ne laissent rien non plus.",
+        "Les abeilles laissent généralement leur dard dans la piqûre, et en meurent.",
+        "Les guêpes utilisent leur dard pour la chasse, et donc ne le perdent pas en piquant."
+      ]
+    },
+    {
+      "label": "Gonflement",
+      "description": "Y a-t-il un gonflement de ma peau ?",
+      "values": [
+        "Non",
+        "Oui"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": 1,
+      "credencies": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5,
+        1.5,
+        1.0,
+        1.0
+      ],
+      "cred_description": [
+        "Les piqûres de moustiquent peuvent causer de petits conflements, rarement notables.",
+        "Les morsures d'araignée laissent souvent un onflement conséquent.",
+        "Il n'est pas rare que les piqûres d'abeilles soient accompagnées de gonflements.",
+        "Les piqûres de guêpes peuvent causer des conflements notables pour certaines personnes."
+      ]
+    },
+    {
+      "label": "Douleur",
+      "description": "Est-ce douloureux ?",
+      "values": [
+        "Non",
+        "Oui"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": 1,
+      "credencies": [
+        2.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        3.0,
+        3.0
+      ],
+      "cred_description": [
+        "Les piqûres de moustique ne font pas mal.",
+        "Certaines morsures d'araignée peuvent être douloureuses, d'autres non.",
+        "Les piqûres d'abeilles sont très douloureuses.",
+        "Les piqûres de guêpe également."
+      ]
+    },
+    {
+      "label": "Démangeaisons",
+      "description": "Est-ce que ça gratte ?",
+      "values": [
+        "Non",
+        "Oui"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": 0,
+      "credencies": [
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        2.0,
+        2.0,
+        0.0,
+        0.0
+      ],
+      "cred_description": [
+        "Les piqûres de moustique grattent souvent.",
+        "Les morsures d'araignée provoquent souvent des démangeaisons également.",
+        "Les piqûres d'abeilles de grattent pas en général.",
+        "Les piqûres de guêpe non plus."
+      ]
+    }
+  ]

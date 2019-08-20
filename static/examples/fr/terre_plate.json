@@ -1,0 +1,136 @@
+[
+    {
+      "label": "Forme",
+      "description": "La forme de la Terre, que l'on essaie de déterminer.",
+      "values": [
+        "Plate",
+        "Ronde"
+      ],
+      "parents": [],
+      "observation": null,
+      "credencies": [
+        0.0,
+        0.0
+      ],
+      "cred_description": [
+        "En ignorant toute observation, nous n'avons pas d'a-priori sur la forme de la Terre."
+      ]
+    },
+    {
+      "label": "Avec horizon",
+      "description": "Observe-t-on la présence d'un horizon à la surface de la Terre ?",
+      "values": [
+        "Non",
+        "Oui"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": 1,
+      "credencies": [
+        0.0,
+        0.0,
+        0.0,
+        5.0
+      ],
+      "cred_description": [
+        "Si la Terre est plate, nous n'avons pas vraiment d'arguemnt pour ou contre un horizon (il pourrait y avoir des effets optiques subtils ?).",
+        "Si la Terre est ronde, on doit voir un horizon, c'est une conséquence géométrique."
+      ]
+    },
+    {
+      "label": "A l'air plate",
+      "description": "Est-ce que la Terre a l'air plate vu du sol ?",
+      "values": [
+        "Non",
+        "Oui"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": 1,
+      "credencies": [
+        0.0,
+        0.0,
+        5.0,
+        2.0
+      ],
+      "cred_description": [
+        "Si la Terre *est* plate, c'est parfaitement normale qu'elle *ait l'air* plate.",
+        "Si la Terre est ronde, il serait plus surprenant qu'elle ai l'air plate, mais pas improbable non plus si elle est suffisament grande."
+      ]
+    },
+    {
+      "label": "Complot",
+      "description": "L'existence d'un complot pour nous faire croire que la Terre est ronde alors qu'elle est plate.",
+      "values": [
+        "Absent",
+        "Présent"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": null,
+      "credencies": [
+        2.0,
+        5.0,
+        0.0,
+        0.0
+      ],
+      "cred_description": [
+        "Si la Terre est plate, un telle complot pourrait exister, mais ses motivations sont peu claires, donc il reste plus probable qu'il n'existe pas.",
+        "Si la Terre est ronde, ce complot n'a aucune raison d'être, et donc ne devrait pas exister."
+      ]
+    },
+    {
+      "label": "Photos de l'espace",
+      "description": "Voit-on des photos prises d el'espace montrant la Terre ronde ?",
+      "values": [
+        "Non",
+        "Oui"
+      ],
+      "parents": [
+        0,
+        3
+      ],
+      "observation": 1,
+      "credencies": [
+        4.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        5.0,
+        4.0,
+        4.0
+      ],
+      "cred_description": [
+        "Si la Terre est plate et qu'il n'y a pas de complot, il serait extrèmement surprenant de la voire ronde sur les photos !",
+        "Si la Terre est plate et qu'il y a un complot, il est parfaitement normal de voir des photos de la Terre ronde, après tout c'est la raison d'être de ce complot.",
+        "Si la Terre est ronde, il n'est pas surprenant qu'elle ait l'air ronde sur les photos depuis l'espace, indépendamment de tout complot.",
+        "Si la Terre est ronde, il n'est pas surprenant qu'elle ait l'air ronde sur les photos depuis l'espace, indépendamment de tout complot."
+      ]
+    },
+    {
+      "label": "Complot fuité",
+      "description": "A-t-on observé une fuite crédible révélant l'existence d'un complot ?",
+      "values": [
+        "Non",
+        "Oui"
+      ],
+      "parents": [
+        3
+      ],
+      "observation": 0,
+      "credencies": [
+        4.0,
+        0.0,
+        0.0,
+        2.0
+      ],
+      "cred_description": [
+        "Si le complot n'existe pas, il est extrèement improbable d'observer une telle fuite, même si des faux existent.",
+        "S'il existe un tel complot d'échelle mondiale, il est très peu probable qu'il ait pu exister aussi longtemps sans qu'il y ait eu la moindre fuite."
+      ]
+    }
+  ]
