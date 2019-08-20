@@ -91,7 +91,8 @@ can also write more generally things like so:
 
 So describing our belief state on the possible values \\(a_1, ... a_k\\) for a node \\(A\\)
 can be done by only giving the value of \\(\log_{10} P(A = a_i)\\) for all \\(i\\), and the
-relative log odds can easily be computed by computing the difference between two values.
+relative log odds can easily be computed by computing the difference between two
+log-probabilities.
 
 This representation also has the advantage of not requiring normalization (in general
 probabilities should sum to 1): as only the difference between two log-probabilities
