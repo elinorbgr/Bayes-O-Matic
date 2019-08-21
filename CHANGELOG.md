@@ -6,6 +6,7 @@
 - Display inference results as log-odds or raw beliefs, at the user's choice
 - Language selection & french translation
 - Mutual information tab
+- Add the ability to duplicate a node, for observations that can be made multiple times
 
 ## Version 0.1 -- 2019-08-02
 

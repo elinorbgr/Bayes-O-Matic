@@ -2,7 +2,7 @@ use loopybayesnet::BayesNet;
 use ndarray::{ArrayD, IxDyn};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Node {
     pub parents: Vec<usize>,
     pub children: Vec<usize>,
@@ -92,6 +92,32 @@ impl DAG {
             self.nodes.push(Some(new_node));
             self.nodes.len() - 1
         }
+    }
+
+    pub fn duplicate_node(&mut self, node: usize) -> Option<usize> {
+        if self.get(node).is_none() {
+            return None;
+        }
+        let new_node = self.insert_node();
+        // duplicate the node
+        self.nodes[new_node] = self.nodes[node].clone();
+        // properly update the parents & children though
+        let (new_parents, new_children, label) = {
+            let new_node = self.nodes[new_node].as_mut().unwrap();
+            let new_parents = std::mem::replace(&mut new_node.parents, Vec::new());
+            let new_children = std::mem::replace(&mut new_node.children, Vec::new());
+            let new_label = std::mem::replace(&mut new_node.label, String::new());
+            (new_parents, new_children, new_label)
+        };
+        for p in new_parents {
+            self.add_edge(new_node, p).unwrap();
+        }
+        for c in new_children {
+            self.add_edge(c, new_node).unwrap();
+        }
+        // update the label to differentiate
+        self.set_label(new_node, format!("{} (bis)", label));
+        Some(new_node)
     }
 
     pub fn check_edge_addition(&self, child: usize, parent: usize) -> Result<(), EdgeError> {

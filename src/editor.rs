@@ -15,6 +15,7 @@ use yew::{html, html::ChangeData, Html};
 use crate::{
     lang,
     model::{BayesOMatic, Msg},
+    ui::PushButton,
 };
 
 pub fn fetch_input_and_clear(name: &str) -> String {
@@ -306,6 +307,7 @@ impl BayesOMatic {
     pub fn make_nodeedit_tab(&self, nodeid: usize) -> Html<Self> {
         html! {
             <div id="node-editor">
+                <PushButton text={ lang!(self.lang, "duplicate-node") } onclick=move |_| Msg::DuplicateNode(nodeid) />
                 { self.make_label_edit(nodeid) }
                 { self.make_values_edit(nodeid) }
                 { self.make_parents_edit(nodeid) }

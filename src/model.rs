@@ -18,6 +18,7 @@ use crate::{
 pub enum Msg {
     Ignore,
     AddNode,
+    DuplicateNode(usize),
     SetLabel {
         node: usize,
         label: String,
@@ -255,6 +256,10 @@ impl Component for BayesOMatic {
                 self.dag
                     .set_label(id, lang!(self.lang, "default-node-name", id = id));
                 self.page = Page::NodeEdit(id);
+            }
+            Msg::DuplicateNode(id) => {
+                let new_id = self.dag.duplicate_node(id);
+                self.page = Page::NodeEdit(new_id.unwrap());
             }
             Msg::SetLabel { node, label } => {
                 self.dag.set_label(node, label);
