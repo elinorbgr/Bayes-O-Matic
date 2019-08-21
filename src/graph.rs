@@ -102,12 +102,13 @@ impl DAG {
         // duplicate the node
         self.nodes[new_node] = self.nodes[node].clone();
         // properly update the parents & children though
-        let (new_parents, new_children, label) = {
+        let (new_parents, new_children, label, credencies) = {
             let new_node = self.nodes[new_node].as_mut().unwrap();
             let new_parents = std::mem::replace(&mut new_node.parents, Vec::new());
             let new_children = std::mem::replace(&mut new_node.children, Vec::new());
             let new_label = std::mem::replace(&mut new_node.label, String::new());
-            (new_parents, new_children, new_label)
+            let credencies = new_node.credencies.take();
+            (new_parents, new_children, new_label, credencies)
         };
         for p in new_parents {
             self.add_edge(new_node, p).unwrap();
@@ -117,6 +118,8 @@ impl DAG {
         }
         // update the label to differentiate
         self.set_label(new_node, format!("{} (bis)", label));
+        // set back the credency matrix that was lost in the process
+        self.nodes[new_node].as_mut().unwrap().credencies = credencies;
         Some(new_node)
     }
 
