@@ -120,6 +120,21 @@ impl DAG {
         Some(new_node)
     }
 
+    pub fn remove_node(&mut self, node: usize) {
+        let (old_parents, old_children) = if let Some(old_node) = self.get(node) {
+            (old_node.parents.clone(), old_node.children.clone())
+        } else {
+            return;
+        };
+        for p in old_parents {
+            self.remove_edge(node, p);
+        }
+        for c in old_children {
+            self.remove_edge(c, node);
+        }
+        self.nodes[node] = None;
+    }
+
     pub fn check_edge_addition(&self, child: usize, parent: usize) -> Result<(), EdgeError> {
         if let Some(&Some(ref node)) = self.nodes.get(parent) {
             if parent == child {

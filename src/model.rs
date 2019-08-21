@@ -19,6 +19,7 @@ pub enum Msg {
     Ignore,
     AddNode,
     DuplicateNode(usize),
+    RemoveNode(usize),
     SetLabel {
         node: usize,
         label: String,
@@ -260,6 +261,10 @@ impl Component for BayesOMatic {
             Msg::DuplicateNode(id) => {
                 let new_id = self.dag.duplicate_node(id);
                 self.page = Page::NodeEdit(new_id.unwrap());
+            }
+            Msg::RemoveNode(id) => {
+                self.dag.remove_node(id);
+                self.page = Page::Idle;
             }
             Msg::SetLabel { node, label } => {
                 self.dag.set_label(node, label);

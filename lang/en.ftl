@@ -37,6 +37,7 @@ explanation = Explanation
 save-credencies = Save credencies
 default-node-name = Node #{$id}
 duplicate-node = Duplicate this node
+remove-node = Delete this node
 
 # Result messages
 obs-for-nodes = Observations for nodes:

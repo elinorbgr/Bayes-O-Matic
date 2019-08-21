@@ -308,6 +308,7 @@ impl BayesOMatic {
         html! {
             <div id="node-editor">
                 <PushButton text={ lang!(self.lang, "duplicate-node") } onclick=move |_| Msg::DuplicateNode(nodeid) />
+                <PushButton text={ lang!(self.lang, "remove-node") } onclick=move |_| Msg::RemoveNode(nodeid) />
                 { self.make_label_edit(nodeid) }
                 { self.make_values_edit(nodeid) }
                 { self.make_parents_edit(nodeid) }
