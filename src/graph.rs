@@ -26,6 +26,26 @@ pub struct DAG {
     nodes: Vec<Option<Node>>,
 }
 
+#[derive(Serialize, Deserialize, Clone, Copy)]
+#[serde(into = "f32", from = "OptFloat")]
+struct Float(f32);
+
+#[derive(Deserialize, Clone, Copy)]
+#[serde(transparent)]
+struct OptFloat(Option<f32>);
+
+impl From<OptFloat> for Float {
+    fn from(o: OptFloat) -> Float {
+        Float(o.0.unwrap_or(std::f32::NEG_INFINITY))
+    }
+}
+
+impl Into<f32> for Float {
+    fn into(self) -> f32 {
+        self.0
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct JsonNode {
     label: String,
@@ -34,7 +54,7 @@ pub struct JsonNode {
     values: Vec<String>,
     parents: Vec<usize>,
     observation: Option<usize>,
-    credencies: Option<Vec<f32>>,
+    credencies: Option<Vec<Float>>,
     #[serde(default)]
     cred_description: Vec<String>,
 }
@@ -332,7 +352,7 @@ impl DAG {
                 credencies: node
                     .credencies
                     .as_ref()
-                    .map(|a| a.iter().cloned().collect()),
+                    .map(|a| a.iter().map(|&f| Float(f)).collect()),
                 cred_description: node.cred_description.clone(),
             });
         }
@@ -364,7 +384,12 @@ impl DAG {
                 for &p in &node.parents {
                     shape.push(contents[p].values.len());
                 }
-                let array = match ArrayD::from_shape_vec(IxDyn(&shape), array.clone()).ok() {
+                let array = match ArrayD::from_shape_vec(
+                    IxDyn(&shape),
+                    array.into_iter().map(|&f| f.into()).collect::<Vec<f32>>(),
+                )
+                .ok()
+                {
                     Some(a) => a,
                     None => continue, // ignore bad arrays
                 };
