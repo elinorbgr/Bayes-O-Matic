@@ -1,5 +1,5 @@
 # Title buttons
-reset = Remse à zéro
+reset = Remise à zéro
 load-json = Charger depuis du JSON
 export-json = Exporter en JSON
 load-example = Charger un example
