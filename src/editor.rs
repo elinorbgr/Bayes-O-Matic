@@ -198,7 +198,7 @@ impl BayesOMatic {
                         html! {
                             <td>
                                 <input name={ format!("{}_{}", label, i) }
-                                       size=4
+                                       size=2
                                        value={
                                     node.credencies.as_ref()
                                         .map(|array| array[IxDyn(&idx)])
@@ -227,7 +227,7 @@ impl BayesOMatic {
                     { for (0..node.values.len()).map(|i| {
                         html! {
                         <td>
-                            <input name={ format!("prior_{}", i) } size=4 value={
+                            <input name={ format!("prior_{}", i) } size=2 value={
                                 node.credencies
                                     .as_ref()
                                     .map(|array| array[i])
