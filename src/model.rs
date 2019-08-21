@@ -129,16 +129,24 @@ impl BayesOMatic {
                 .filter(|&(_, id)| non_observed_nodes.contains(&id))
                 .collect();
             belief.sort_by_key(|&(_, id)| id);
+
             let kl_term: Vec<_> = belief
                 .iter()
                 .zip(base_belief.iter())
                 .map(|((cond_belief, _), (base_belief, _))| {
-                    let log_ratio = (&cond_belief.log_probabilities()
+                    let mut log_ratio = (&cond_belief.log_probabilities()
                         - &base_belief.log_probabilities())
                         * cond_belief.as_probabilities();
+                    // fixup the NaNs that come out of inf * 0 (should be 0 here)
+                    for v in log_ratio.iter_mut() {
+                        if v.is_nan() {
+                            *v = 0.0;
+                        }
+                    }
                     log_ratio.sum()
                 })
                 .collect();
+
             kl_tems.push(kl_term);
         }
         self.dag.set_observation(id, None);
