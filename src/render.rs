@@ -22,7 +22,7 @@ impl BayesOMatic {
                 <li><PushButton text={ lang!(self.lang, "load-json") } onclick=|_| Msg::MoveToPage(Page::LoadJson) /></li>
                 <li><PushButton text={ lang!(self.lang, "load-example") } onclick=|_| Msg::MoveToPage(Page::LoadExample) /></li>
                 <li><PushButton text={ lang!(self.lang, "help") } onclick=|_| Msg::MoveToPage(Page::Help) /></li>
-                <li><a href="https:/github.com/vberger/Bayes-O-Matic/">{ lang!(self.lang, "github") }</a></li>
+                <li><a href="https://github.com/vberger/Bayes-O-Matic/">{ lang!(self.lang, "github") }</a></li>
                 <li>{ lang!(self.lang, "language") }
                     <select onchange=|v| if let ChangeData::Select(v) = v { Msg::SetLang(v.raw_value().into()) } else { Msg::Ignore }>
                         { for crate::i18n::AVAILABLE_LANGS.iter().map(|&lang| {
