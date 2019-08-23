@@ -52,3 +52,4 @@ mutual-info-result = Results of mutual information computation:
 target-node = Target node:
 mi-no-value = Mutual information cannot be computed if no node is unobserved.
 with-node = With node "{$name}"
+probabilities = Probabilities

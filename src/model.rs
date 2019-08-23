@@ -58,8 +58,26 @@ pub enum Msg {
     LoadJson(String),
     LoadExample(String),
     ShowHelp(String),
-    SetLogOdds(bool),
+    SetBeliefsDisplay(BeliefsDisplay),
     SetLang(String),
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum BeliefsDisplay {
+    LogOdds,
+    RawCredencies,
+    Probabilities,
+}
+
+impl BeliefsDisplay {
+    pub fn from_str(s: &str) -> Option<BeliefsDisplay> {
+        match s {
+            "log-odds" => Some(BeliefsDisplay::LogOdds),
+            "raw-creds" => Some(BeliefsDisplay::RawCredencies),
+            "probabilities" => Some(BeliefsDisplay::Probabilities),
+            _ => None,
+        }
+    }
 }
 
 pub struct BayesOMatic {
@@ -71,7 +89,7 @@ pub struct BayesOMatic {
     link: ComponentLink<BayesOMatic>,
     pub(crate) beliefs: Option<Vec<(LogProbVector, usize)>>,
     pub(crate) mutual_info: Option<Vec<(usize, f32)>>,
-    pub(crate) logodds: bool,
+    pub(crate) beliefs_display: BeliefsDisplay,
     pub help_contents: Option<String>,
     pub(crate) lang: Lang,
 }
@@ -250,7 +268,7 @@ impl Component for BayesOMatic {
             link,
             beliefs: None,
             mutual_info: None,
-            logodds: true,
+            beliefs_display: BeliefsDisplay::LogOdds,
             help_contents: None,
             lang: Lang::load("en").unwrap(),
         }
@@ -355,8 +373,8 @@ impl Component for BayesOMatic {
             Msg::ShowHelp(help_contents) => {
                 self.help_contents = Some(help_contents);
             }
-            Msg::SetLogOdds(logodds) => {
-                self.logodds = logodds;
+            Msg::SetBeliefsDisplay(disp) => {
+                self.beliefs_display = disp;
             }
             Msg::SetLang(lang) => {
                 self.lang = Lang::load(&lang).unwrap();

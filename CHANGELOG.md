@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Make it possible to display the inference results as probabilities as well
+
 ## Version 0.2 -- 2019-08-02
 
 - Migrate the app to Yew & refactor it

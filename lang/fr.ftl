@@ -52,3 +52,4 @@ mutual-info-result = Résultats du calcul d'information mutuelle:
 target-node = Nœud cible :
 mi-no-value = L'information mutuelle ne peut pas être calculée si tous les nœuds sont observés.
 with-node = Avec le nœud « {$name} »
+probabilities = Probabilitiés

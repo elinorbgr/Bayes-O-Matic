@@ -4,7 +4,7 @@ use yew::{html, html::ChangeData, Html};
 
 use crate::{
     lang,
-    model::{BayesOMatic, Msg},
+    model::{BayesOMatic, BeliefsDisplay, Msg},
     Page,
 };
 
@@ -61,7 +61,7 @@ impl BayesOMatic {
         } else {
             let log10 = 10f32.ln();
             let log_beliefs = beliefs.log_probabilities();
-            if self.logodds {
+            if self.beliefs_display == BeliefsDisplay::LogOdds {
                 let logodds_iter =
                     node.values
                         .iter()
@@ -92,10 +92,18 @@ impl BayesOMatic {
                         <h3>{ lang!(self.lang, "node", name=&node.label[..]) }</h3>
                         <ul class="posterior">
                             { for raw_iter.map(|(name, belief)| {
-                                html! {
-                                    <li>
-                                        { format!("{}: {:.2}", name, belief / log10) }
-                                    </li>
+                                if self.beliefs_display == BeliefsDisplay::Probabilities {
+                                    html! {
+                                        <li>
+                                            { format!("{}: {:.2}", name, belief.exp()) }
+                                        </li>
+                                    }
+                                } else {
+                                    html! {
+                                        <li>
+                                            { format!("{}: {:.2}", name, belief / log10) }
+                                        </li>
+                                    }
                                 }
                             })}
                         </ul>
@@ -111,9 +119,13 @@ impl BayesOMatic {
                 <div id="node-editor">
                     <h2>{ lang!(self.lang, "inference-results") }</h2>
                     <p>{ lang!(self.lang, "result-format") }
-                    <select onchange=|v| if let ChangeData::Select(v) = v { Msg::SetLogOdds(v.raw_value().parse().unwrap()) } else { Msg::Ignore }>
-                        <option selected={ self.logodds } value="true">{ lang!(self.lang, "log-odds") }</option>
-                        <option selected={ !self.logodds } value="false">{ lang!(self.lang, "raw-beliefs") }</option>
+                    <select onchange=|v| if let ChangeData::Select(v) = v { Msg::SetBeliefsDisplay(BeliefsDisplay::from_str(&v.raw_value()).unwrap()) } else { Msg::Ignore }>
+                        <option selected={ self.beliefs_display == BeliefsDisplay::LogOdds }
+                                value="log-odds">{ lang!(self.lang, "log-odds") }</option>
+                        <option selected={ self.beliefs_display == BeliefsDisplay::RawCredencies }
+                                value="raw-creds">{ lang!(self.lang, "raw-beliefs") }</option>
+                        <option selected={ self.beliefs_display == BeliefsDisplay::Probabilities }
+                                value="probabilities">{ lang!(self.lang, "probabilities") }</option>
                     </select>
                     </p>
                     <ul class="silentlist widelist">
