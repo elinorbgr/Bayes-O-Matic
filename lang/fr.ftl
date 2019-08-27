@@ -38,6 +38,7 @@ save-credencies = Enregistrer les crédences
 default-node-name = Nœud #{$id}
 duplicate-node = Dupliquer ce nœud
 remove-node = Supprimer ce nœud
+press-enter = Appuyez sur Entrée pour valider
 
 # Result messages
 obs-for-nodes = Observations pour les nœuds:

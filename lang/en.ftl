@@ -38,6 +38,7 @@ save-credencies = Save credencies
 default-node-name = Node #{$id}
 duplicate-node = Duplicate this node
 remove-node = Delete this node
+press-enter = Press Enter to submit
 
 # Result messages
 obs-for-nodes = Observations for nodes:

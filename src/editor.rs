@@ -111,6 +111,7 @@ impl BayesOMatic {
                         name="addvalue"
                         onkeypress=|evt| if evt.key() == "Enter" { Msg::AddValue { node: nodeid, value: fetch_input_and_clear("addvalue") } } else { Msg::Ignore }
                     ></input>
+                    { format!("({})", lang!(self.lang, "press-enter")) }
                 </li>
             </ul>
         }
