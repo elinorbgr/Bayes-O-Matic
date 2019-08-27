@@ -13,7 +13,7 @@ Au contraire, elles servent ici à mesurer nos degrés de croyance qu'une certai
 proposition peut être vraie.
 Avoir \\(P(A) = 0.99\\) signifiera « Je pense que \\(A\\) est vrai », alors que
 \\(P(A) = 0.01\\) signifiera plutôt « Je pense que \\(A\\) est faux ». De manière similaire
-\\(P(A) = 0.5\\) veut dique « Je ne sais pas du tout si \\(A\\) est vrai ou faux ».
+\\(P(A) = 0.5\\) veut dire « Je ne sais pas du tout si \\(A\\) est vrai ou faux ».
 
 L'inférence Bayésienne repose énormément sur les probabilités conditionnelles :
 \\(P(A|B)\\) mesure à quel point on croira que \\(A\\) est vrai si on sait que
@@ -28,7 +28,7 @@ de l'hypothèse \\(H\\).
 
 Il y a cependant quelques considérations supplémentaires à prendre en compte. Tout
 d'abord, il n'est pas vraiment possible de déterminer si une hypothèse est plausible
-dans l'absolu, il nsou faut toujours la comparer à d'autres. Dans le context Bayésien
+dans l'absolu, il nous faut toujours la comparer à d'autres. Dans le context Bayésien
 on ne peut pas dire « \\(H\\) est vrai » or « \\(H\\) est faux » ; nous obtenons plutôt
 des résultats comme « \\(H_1\\) est 100 fois plus plausible que \\(H_2\\) sachant les
 observations ».
@@ -46,11 +46,11 @@ C'est ici que les
 en scène : ils rendent possible de découper un raisonnement un plusieurs sous-hypothèses
 et prédictions, toutes organisées ensemble sous la forme d'un graphe acyclique non-orienté.
 
-Chaque nœud du graphe représente une variable, qui peut prendre un ensemble pré-détemriné
+Chaque nœud du graphe représente une variable, qui peut prendre un ensemble pré-déterminé
 de valeurs. Celà peut être « vrai »/« faux » si la variable est une affirmation logique,
 mais elles peuvent également être n'importe quel ensemble de valeurs mutuellement exclusives.
 Par exemple, un nœud « Couleur de la voiture » pourrait prendre les valeurs « rouge »,
-« vert », « bleu », « noir ».
+« vert », « bleu » ou « noir ».
 
 Chaque arrête du graphe représente une dépendance logique de raisonnement. Une flèche
 du nœud \\(A\\) au nœud \\(B\\) veut dire que les valeurs que l'on considèrera plausible
@@ -117,7 +117,7 @@ que si on compare les différentes valeurs d'un même nœud. Donc  \\(C(A = a_i)
 #### Conception du graphe
 
 Pour utiliser le Bayes-O-Matic, vous devez tout d'abord décrire le graphe de votre
-modèle. Vous pouvez créer des nœuds à l'ide du bouton « Ajouter nœud », et ensuite
+modèle. Vous pouvez créer des nœuds à l'aide du bouton « Ajouter nœud », et ensuite
 choisir le nœud que vous voulez modifier en cliquant dessus dans la liste des nœuds.
 
 Lors de l'édition d'un nœud, vous pouvez changer son nom pour mieux le reconnaître.
@@ -171,7 +171,7 @@ pour chaque valeur, plutôt que de simplement afficher \\(\log_{10}P(A = a_i)\\)
 
 #### Information mutuelle
 
-une autre fonctionnalité proposée est le calcul des
+Une autre fonctionnalité proposée est le calcul des
 [informations mutuelles](https://fr.wikipedia.org/wiki/Information_mutuelle) entre
 des nœuds non observés du graphe. Supponsons que vous ayez conçu votre graphe,
 êtes particulièrement intéressés par la valeur d'un nœud en particulier, et n'avez
@@ -181,7 +181,7 @@ la quantité d'information qu'observer chacun de ces nœuds apporterait à propo
 votre nœud d'intérêt. Ainsi vous pouvez cibler en priorité les observations qui
 apporteraient le plus d'information.
 
-L'information est exprimée dans le bayes-O-matic en bits (donc en utilisant un logarithme
+L'information est exprimée dans le Bayes-O-Matic en bits (donc en utilisant un logarithme
 de base 2, à la différence des crédences qui sont en base 10) car elle est plus explicite
 dans cette base : un bit correspond à la quantité d'information nécéssaire pour discriminer
 deux valeurs avec une certitude absolue.
