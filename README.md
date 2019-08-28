@@ -12,29 +12,14 @@ the app is available in-app via the "Help" button, or as a
 
 ## How to install
 
+### Prerequisites
+
+Before start installation, be sure the *C++ tools* is installed on your system. You can download it into the [Build Tools for Visual Studio 2019](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16).
+
+### Installation
+
 1. Go on https://www.rust-lang.org/tools/install and download Rust.
 2. Follow the installation instruction to install Rust.
 3. Go on root directory and use the command line `cargo install cargo-web`.
 4. Continue under root directory and use the command line `cargo web start`.
-5. Go on `http://[::1]:8000` accross your browser
-
-
-
-## Troubleshooting
-
-### error: linker `link.exe` not found
-
-When you use `cargo run` if you have the following error “error: linker `link.exe` not found” you can solve it as following
-
-> I downloaded and installed the Build Tools for Visual Studio 2019. During installation I selected the C++ tools. It downloaded almost 5GB of data. I restarted the machine after installation and compiling the code worked fine:
-
-```
-> cargo run
-Compiling helloworld v0.1.0 (C:\Users\DELL\helloworld)
-Finished dev [unoptimized + debuginfo] target(s) in 12.05s
-  Running `target\debug\helloworld.exe`
-Hello, world!
-```
-
-Source: [Stackoverflow](https://stackoverflow.com/questions/55603111/unable-to-compile-rust-hello-world-on-windows-linker-link-exe-not-found)
-
+5. Go on `http://[::1]:8000` accross your browser.
