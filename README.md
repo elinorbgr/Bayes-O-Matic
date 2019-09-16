@@ -14,7 +14,11 @@ the app is available in-app via the "Help" button, or as a
 
 ### Prerequisites
 
-Before start installation, be sure the *C++ tools* is installed on your system. You can download it into the [Build Tools for Visual Studio 2019](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16).
+You will need to install the compiler for the Rust programming language. Do to so there are some prerequisites:
+
+- On Windows, you need the *C++ tools* is installed on your system. You can download it into the [Build Tools for Visual Studio 2019](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16).
+- On Linux you'll need a working compilation toolchain. Your distribution likely provides the necessary package (for example `build-essential` on Debian).
+- 
 
 ### Installation
 
