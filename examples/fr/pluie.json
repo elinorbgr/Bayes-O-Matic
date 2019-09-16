@@ -1,0 +1,92 @@
+[
+    {
+      "label": "Pluie récente",
+      "description": "A-t-il plu récemment ?",
+      "values": [
+        "Non",
+        "Oui"
+      ],
+      "parents": [],
+      "observation": null,
+      "credencies": [
+        1.0,
+        0.0
+      ],
+      "cred_description": [
+        "Nous sommes dans une région assez sèche, il ne pleut que ~10% du temps."
+      ]
+    },
+    {
+      "label": "Arroseur déclenché",
+      "description": "Est-ce que l'arroseur automatique s'est déclenché récemment ?",
+      "values": [
+        "Non",
+        "Oui"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": null,
+      "credencies": [
+        0.0,
+        2.0,
+        0.5,
+        0.0
+      ],
+      "cred_description": [
+        "S'il n'a pas plu, il est légèrement probable que l'arroseur se soit déclenché récemment puisqu'il le fait une fois par jour.",
+        "s'il a plu, il est assez improbable que l'arroseur se soit déclenché."
+      ]
+    },
+    {
+      "label": "Herbe mouillée",
+      "description": "Est-ce que l'herbe du parc est mouillée ?",
+      "values": [
+        "Non",
+        "Oui"
+      ],
+      "parents": [
+        0,
+        1
+      ],
+      "observation": 1,
+      "credencies": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.0,
+        1.0,
+        3.0
+      ],
+      "cred_description": [
+        "",
+        "Si l'arroseur s'est déclenché récemment, l'herbe est très probablement mouillée.",
+        "S'il a plu récemment, l'herde doit encore être mouillée.",
+        "S'il a plu et que l'arroseur s'est déclenché, l'herbe devrait être trempée !."
+      ]
+    },
+    {
+      "label": "Nuages dans le ciel",
+      "description": "Y a-t-il des nuages dans le ciel ?",
+      "values": [
+        "Non",
+        "Oui"
+      ],
+      "parents": [
+        0
+      ],
+      "observation": 1,
+      "credencies": [
+        0.5,
+        0.0,
+        0.0,
+        2.0
+      ],
+      "cred_description": [
+        "Comme la pluie est rare ici, il est inhabituel de voir des nuages qui ne s'accompagnent pas de pluie.",
+        "S'il a plu récemment, il est très probable que l'on voie encore des nuages."
+      ]
+    }
+  ]

@@ -1,0 +1,136 @@
+[
+  {
+    "label": "Shape",
+    "description": "The shape of the Earth, which we try to figure out.",
+    "values": [
+      "Flat",
+      "Spherical"
+    ],
+    "parents": [],
+    "observation": null,
+    "credencies": [
+      0.0,
+      0.0
+    ],
+    "cred_description": [
+      "Ignoring observations, we have no a prior reason to believe any given shape for the Earth."
+    ]
+  },
+  {
+    "label": "Has horizon",
+    "description": "Do we observe the presence of an horizon on the surface of Earth?",
+    "values": [
+      "False",
+      "True"
+    ],
+    "parents": [
+      0
+    ],
+    "observation": 1,
+    "credencies": [
+      0.0,
+      0.0,
+      0.0,
+      5.0
+    ],
+    "cred_description": [
+      "If the Earth is flat, we don't really have any clear reason to believe in the presence or absence of an horizon (there could be optical effects making it looks like there is one?).",
+      "If the Earth is spherical, it is completely expected we see a horizon. It's a geometrical consequence of the shape."
+    ]
+  },
+  {
+    "label": "Looks flat",
+    "description": "Does the Earth look flat when seen from the ground?",
+    "values": [
+      "False",
+      "True"
+    ],
+    "parents": [
+      0
+    ],
+    "observation": 1,
+    "credencies": [
+      0.0,
+      0.0,
+      5.0,
+      2.0
+    ],
+    "cred_description": [
+      "If the Earth *is* flat, then it is perfectly natural that it would *look* flat.",
+      "If the Earth is round, it would be more surprising for it to appear flat, but it is not completely impossible, if it is very large it would look locally flat."
+    ]
+  },
+  {
+    "label": "Conspiracy",
+    "description": "The possible existence of a conspiracy to make use believe that the Earth is spherical.",
+    "values": [
+      "Absent",
+      "Present"
+    ],
+    "parents": [
+      0
+    ],
+    "observation": null,
+    "credencies": [
+      2.0,
+      5.0,
+      0.0,
+      0.0
+    ],
+    "cred_description": [
+      "If the Earth is flat, such a conspiracy might exist, but its motivations remain quite unclear, hence a higher credency for its absence.",
+      "If the Earth is indeed spherical, such a conspiracy has no reason to exist at all, hence a very high credency for its absence."
+    ]
+  },
+  {
+    "label": "Space pictures",
+    "description": "Do we see pictures of the Earth from space showing it as round?",
+    "values": [
+      "Don't exist",
+      "Exist"
+    ],
+    "parents": [
+      0,
+      3
+    ],
+    "observation": 1,
+    "credencies": [
+      4.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      5.0,
+      4.0,
+      4.0
+    ],
+    "cred_description": [
+      "If the Earth is flat and there is no conspiracy, it'd be very surprising to see pictures showing it as round!",
+      "If the earth is flat and there is a conspiracy, it is completely expect that we see pictures of the Earth being shown as round, that is the whole point of the conspiracy!",
+      "If the Earth is spherical, it is not surprising to see it as spherical on the pictures, independently or any conspiracy.",
+      "If the Earth is spherical, it is not surprising to see it as spherical on the pictures, independently or any conspiracy."
+    ]
+  },
+  {
+    "label": "Conspiracy leaked",
+    "description": "Did we see any credible leak revealing the existence of a conspiracy?",
+    "values": [
+      "False",
+      "True"
+    ],
+    "parents": [
+      3
+    ],
+    "observation": 0,
+    "credencies": [
+      4.0,
+      0.0,
+      0.0,
+      2.0
+    ],
+    "cred_description": [
+      "If the conspiracy does not exist, it is very unlikely that we see such leaks, even though fakes exist.",
+      "If such a large-scale conspiracy exists, given its supposed long time of existence, it is actually quite likely that we should have seen some kind of leak about it."
+    ]
+  }
+]

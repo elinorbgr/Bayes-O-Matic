@@ -1,0 +1,158 @@
+body {
+    max-width: 1600px;
+    margin: auto;
+}
+
+#menu {
+    margin: 8px;
+}
+
+#menu li {
+    margin: 2px;
+}
+
+ul {
+    display: block;
+    padding: 0;
+}
+
+.blocky li {
+    display: inline-block;
+}
+
+.vlist li {
+    margin-right: 16px;
+}
+
+.posterior li {
+    display: inline-block;
+    margin: 0;
+    padding: 4px;
+    border: 1px solid black;
+}
+
+.silentlist {
+    list-style: none;
+}
+
+.widelist li {
+    padding: 8px;
+}
+
+a {
+    display: inline-block;
+    border: 2px solid black;
+    border-radius: 16px;
+    padding: 8px;
+    color: black;
+    text-decoration: none;
+}
+
+p a {
+    display: inline;
+    border: 0;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.vlist li a {
+    padding: 2px;
+    margin-left: 2px;
+}
+
+li a:hover {
+    background-color: #d0d0d0;
+}
+
+.selected {
+    background-color: #d0d0d0;
+}
+
+#content {
+    display: flex;
+}
+
+#canvas {
+    border: 2px solid black;
+    border-radius: 16px;
+    flex: 50%;
+    margin: 8px;
+    max-width: 800px;
+    overflow: scroll;
+}
+
+#editor {
+    flex: 50%;
+    margin: 8px;
+    max-width: 800px;
+    overflow: scroll;
+}
+
+#meta-editor, #help {
+    border: 2px solid black;
+    border-radius: 16px;
+    padding: 4px;
+}
+
+#node-editor {
+    border: 2px solid black;
+    border-radius: 16px;
+    padding: 4px;
+    margin-top: 16px;
+}
+
+table, tr, td {
+    text-align: center;
+    border-bottom: 1px solid black;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 2px;
+}
+
+th:first-child {
+    border-right: 1px solid black;
+}
+
+.hidden {
+    display: none;
+}
+
+#popup {
+    border: 2px solid black;
+    border-radius: 16px;
+    padding: 4px;
+    margin-top: 16px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 16px;
+}
+
+/* graph style */
+svg {
+    display: block;
+    margin: auto;
+}
+.node {
+    white-space: nowrap;
+}
+.node rect,
+.node circle,
+.node ellipse {
+    stroke: #333;
+    fill: #fff;
+    stroke-width: 1.5px;
+}
+.cluster rect {
+    stroke: #333;
+    fill: #000;
+    fill-opacity: 0.1;
+    stroke-width: 1.5px;
+}
+.edgePath path.path {
+    stroke: #333;
+    stroke-width: 1.5px;
+    fill: none;
+}
