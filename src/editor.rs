@@ -188,14 +188,6 @@ impl BayesOMatic {
 
     fn make_node_description_edit(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         let node = self.dag.get(nodeid).unwrap();
-        // HACK: the value is not properly updated otherwise
-        /*
-        js! {
-            setTimeout(() => {
-                document.getElementById("nodedesc").value = @{ &node.description };
-            }, 10);
-        }
-        */
         html! {
             <div>
                 <textarea cols=40 rows=4 placeholder={ lang!(self.lang, "write-desc") }
@@ -221,14 +213,6 @@ impl BayesOMatic {
                 .iter()
                 .map(|&(p, _, v, _)| format!("{}-{}", p, v))
                 .join("_");
-            // HACK: the value for descriptions may not be properly updated otherwise
-            /*
-            js! {
-                setTimeout(() => {
-                    document.querySelector(@{ format!("textarea[name=\"{}_description\"]", label) }).value = @{ node.cred_description.get(line_id).map(|s| &s[..]).unwrap_or("") };
-                }, 10);
-            }
-            */
             html! {
                 <tr>
                     <th>
@@ -260,14 +244,6 @@ impl BayesOMatic {
                 </tr>
             }
         } else {
-            // HACK: the value for descriptions may not be properly updated otherwise
-            /*
-            js! {
-                setTimeout(() => {
-                    document.querySelector("textarea[name=prior_description]").value = @{ node.cred_description.get(0).map(|s| &s[..]).unwrap_or("") };
-                }, 10);
-            }
-            */
             html! {
                 <tr>
                     <th>{ "Prior" }</th>
