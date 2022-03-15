@@ -1,13 +1,17 @@
-use crate::graph::DAG;
+use crate::graph::Dag;
 use std::fmt::Write;
 
-use stdweb::js;
-use yew::{
-    html, virtual_dom::vnode::VNode, Component, ComponentLink, Html, Properties, Renderable,
-    ShouldRender,
-};
+use yew::{html, virtual_dom::vnode::VNode, Component, Context, Html, Properties};
 
-pub fn graph_to_dot(graph: &DAG) -> String {
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen(module = "/src/graph_render.js")]
+extern "C" {
+    #[wasm_bindgen(js_name = "graph_render")]
+    pub fn graph_render(dot: JsValue, svg: JsValue);
+}
+
+pub fn graph_to_dot(graph: &Dag) -> String {
     let mut buffer = String::new();
     writeln!(buffer, "digraph {{").unwrap();
     writeln!(buffer, "node [rx=16 ry=16]").unwrap();
@@ -37,13 +41,10 @@ pub fn graph_to_dot(graph: &DAG) -> String {
     buffer
 }
 
-pub struct DotCanvas {
-    dot: String,
-}
+pub struct DotCanvas;
 
 #[derive(PartialEq, Properties)]
 pub struct Props {
-    #[props(required)]
     pub dot: String,
 }
 
@@ -51,43 +52,22 @@ impl Component for DotCanvas {
     type Message = ();
     type Properties = Props;
 
-    fn create(props: Props, _: ComponentLink<Self>) -> Self {
-        DotCanvas { dot: props.dot }
+    fn create(_: &Context<Self>) -> Self {
+        DotCanvas
     }
 
-    fn update(&mut self, _msg: ()) -> ShouldRender {
-        true
-    }
-
-    fn change(&mut self, props: Props) -> ShouldRender {
-        self.dot = props.dot;
-        true
-    }
-}
-
-impl Renderable<DotCanvas> for DotCanvas {
-    fn view(&self) -> Html<Self> {
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let dot = &ctx.props().dot;
         // create the svg contents:
-        let svg = stdweb::web::document()
-            .create_element_ns("http://www.w3.org/2000/svg", "svg")
+        let svg = web_sys::window()
+            .unwrap()
+            .document()
+            .unwrap()
+            .create_element_ns(Some("http://www.w3.org/2000/svg"), "svg")
             .unwrap();
-        js! {
-            var g = graphlibDot.read(@{&self.dot});
-            // Set margins
-            g.graph().marginx = 20;
-            g.graph().marginy = 20;
-            var svg = @{&svg};
-            // Hack: only redraw the SVG once it is actually visible,
-            // otherwise firefox throws a NS_FAILURE_ERROR
-            setTimeout(() => {
-                d3.select(svg).call(render, g);
-                // update the viewbox of svg
-                var bbox = svg.getBBox();
-                svg.setAttribute("viewBox", (bbox.x-10)+" "+(bbox.y-10)+" "+(bbox.width+20)+" "+(bbox.height+20));
-                svg.setAttribute("width", (bbox.width+20)  + "px");
-                svg.setAttribute("height",(bbox.height+20) + "px");
-            }, 10);
-        };
+
+        graph_render(JsValue::from_str(dot), svg.clone().into());
+
         let vnode = VNode::VRef(svg.into());
         html! {
             <div id="canvas">

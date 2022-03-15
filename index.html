@@ -3,7 +3,13 @@
     <head>
         <meta charset="utf-8">
         <title>Bayes-O-Matic</title>
-        <link rel="stylesheet" href="css/main.css">
+
+        <link data-trunk rel="copy-dir" href="static/css/" />
+        <link data-trunk rel="copy-dir" href="static/js/" />
+        <link data-trunk rel="copy-dir" href="static/examples/" />
+        <link data-trunk rel="copy-dir" href="static/help/" />
+
+        <link rel="stylesheet" href="css/main.css" />
         <script src="js/d3.v4.min.js"></script>
         <script src="js/graphlib-dot.min.js"></script>
         <script src="js/dagre-d3.min.js"></script>
@@ -13,6 +19,5 @@
         </script>
     </head>
     <body>
-        <script src="bayesomatic.js"></script>
     </body>
 </html>

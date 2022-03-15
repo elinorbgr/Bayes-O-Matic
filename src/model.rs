@@ -1,15 +1,12 @@
-use failure::Error;
+use std::future::Future;
+
 use loopybayesnet::LogProbVector;
 use ndarray::ArrayD;
-use stdweb::{console, web::document};
-use yew::{
-    format::Nothing,
-    services::fetch::{FetchService, FetchTask, Request, Response},
-    Component, ComponentLink, ShouldRender,
-};
+use reqwasm::http::Request;
+use yew::{html, Component, Context, Html};
 
 use crate::{
-    graph::{DeserError, DAG},
+    graph::{Dag, DeserError},
     i18n::Lang,
     lang, Page,
 };
@@ -81,12 +78,9 @@ impl BeliefsDisplay {
 }
 
 pub struct BayesOMatic {
-    pub(crate) dag: DAG,
+    pub(crate) dag: Dag,
     pub(crate) page: Page,
     pub(crate) load_error: Option<DeserError>,
-    fetch_service: FetchService,
-    task: Option<FetchTask>,
-    link: ComponentLink<BayesOMatic>,
     pub(crate) beliefs: Option<Vec<(LogProbVector, usize)>>,
     pub(crate) mutual_info: Option<Vec<(usize, f32)>>,
     pub(crate) beliefs_display: BeliefsDisplay,
@@ -179,7 +173,7 @@ impl BayesOMatic {
             .as_probabilities();
         let kls = kl_tems.into_iter().zip(pxs.into_iter()).fold(
             vec![0f32; non_observed_nodes.len()],
-            |mut acc, (kl_term, &px)| {
+            |mut acc, (kl_term, px)| {
                 for (a, kl) in acc.iter_mut().zip(kl_term.iter()) {
                     if px > 0.0001 {
                         // numerical stability px=0 should crush a log's infinity
@@ -201,56 +195,58 @@ impl BayesOMatic {
         )
     }
 
-    fn load_help(&mut self) {
-        let location = document().location().unwrap();
+    fn load_help(&self) -> impl Future<Output = Msg> {
+        let location = web_sys::window()
+            .unwrap()
+            .document()
+            .unwrap()
+            .location()
+            .unwrap();
         let origin = location.origin().unwrap();
         let pathname = location.pathname().unwrap();
         let url = format!("{}{}/help/{}.md", origin, pathname, self.lang.name);
-        let callback = self
-            .link
-            .send_back(move |response: Response<Result<String, Error>>| {
-                let (_, data) = response.into_parts();
-                match data {
-                    Ok(data) => {
-                        console!(log, "Loading help.");
-                        Msg::ShowHelp(data)
-                    }
-                    Err(e) => {
-                        console!(log, format!("Failed to load help: {}", e));
-                        Msg::Ignore
-                    }
+        async move {
+            let response = Request::get(&url).send().await.unwrap();
+            match response.text().await {
+                Ok(data) => {
+                    weblog::console_log!("Loading help.");
+                    Msg::ShowHelp(data)
                 }
-            });
-        let request = Request::get(url).body(Nothing).unwrap();
-        self.task = Some(self.fetch_service.fetch(request, callback));
+                Err(e) => {
+                    weblog::console_log!(format!("Failed to load help: {}", e));
+                    Msg::Ignore
+                }
+            }
+        }
     }
 
-    fn load_example(&mut self, name: String) {
-        let location = document().location().unwrap();
+    fn load_example(&self, name: String) -> impl Future<Output = Msg> {
+        let location = web_sys::window()
+            .unwrap()
+            .document()
+            .unwrap()
+            .location()
+            .unwrap();
         let origin = location.origin().unwrap();
         let pathname = location.pathname().unwrap();
         let url = format!(
             "{}{}/examples/{}/{}.json",
             origin, pathname, self.lang.name, name
         );
-        console!(log, format!("Fetching example {}.", url));
-        let callback = self
-            .link
-            .send_back(move |response: Response<Result<String, Error>>| {
-                let (_, data) = response.into_parts();
-                match data {
-                    Ok(data) => {
-                        console!(log, format!("Loading example {}.", name));
-                        Msg::LoadJson(data)
-                    }
-                    Err(e) => {
-                        console!(log, format!("Failed to load example {}: {}", name, e));
-                        Msg::Ignore
-                    }
+        weblog::console_log!(format!("Fetching example {}.", url));
+        async move {
+            let response = Request::get(&url).send().await.unwrap();
+            match response.text().await {
+                Ok(data) => {
+                    weblog::console_log!(format!("Loading example {}.", name));
+                    Msg::LoadJson(data)
                 }
-            });
-        let request = Request::get(&url).body(Nothing).unwrap();
-        self.task = Some(self.fetch_service.fetch(request, callback));
+                Err(e) => {
+                    weblog::console_log!(format!("Failed to load example {}: {}", name, e));
+                    Msg::Ignore
+                }
+            }
+        }
     }
 }
 
@@ -258,14 +254,11 @@ impl Component for BayesOMatic {
     type Message = Msg;
     type Properties = ();
 
-    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(_: &Context<Self>) -> Self {
         BayesOMatic {
-            dag: DAG::new(),
+            dag: Dag::new(),
             page: Page::Idle,
             load_error: None,
-            fetch_service: FetchService::new(),
-            task: None,
-            link,
             beliefs: None,
             mutual_info: None,
             beliefs_display: BeliefsDisplay::LogOdds,
@@ -274,8 +267,9 @@ impl Component for BayesOMatic {
         }
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         let mut redraw = true;
+        weblog::console_log!(format!("Processing message: {:?}", msg));
         match msg {
             Msg::Ignore => {}
             Msg::AddNode => {
@@ -328,7 +322,7 @@ impl Component for BayesOMatic {
                     self.beliefs = self.compute_beliefs();
                 } else if page == Page::Help {
                     if self.help_contents.is_none() {
-                        self.load_help();
+                        ctx.link().send_future(self.load_help())
                     }
                 } else if let Page::MutualInformation(id) = page {
                     if let Some(id) = id {
@@ -351,11 +345,11 @@ impl Component for BayesOMatic {
                 self.load_error = None;
             }
             Msg::Reset => {
-                self.dag = DAG::new();
+                self.dag = Dag::new();
                 self.load_error = None;
                 self.page = Page::Idle;
             }
-            Msg::LoadJson(json) => match DAG::from_json(&json) {
+            Msg::LoadJson(json) => match Dag::from_json(&json) {
                 Ok(dag) => {
                     self.dag = dag;
                     self.page = Page::Idle;
@@ -366,7 +360,7 @@ impl Component for BayesOMatic {
                 }
             },
             Msg::LoadExample(name) => {
-                self.load_example(name);
+                ctx.link().send_future(self.load_example(name));
                 // only redraw when loading is finished
                 redraw = false;
             }
@@ -381,11 +375,20 @@ impl Component for BayesOMatic {
                 // Invalidate the help & reload if relevant
                 self.help_contents = None;
                 if self.page == Page::Help {
-                    self.load_help();
+                    ctx.link().send_future(self.load_help())
                 }
             }
         }
 
         redraw
+    }
+
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        html! {
+            <div id="main">
+                { self.topbar(ctx.link()) }
+                { self.content(ctx.link()) }
+            </div>
+        }
     }
 }

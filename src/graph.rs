@@ -22,7 +22,7 @@ pub enum EdgeError {
 }
 
 #[derive(Debug)]
-pub struct DAG {
+pub struct Dag {
     nodes: Vec<Option<Node>>,
 }
 
@@ -40,9 +40,9 @@ impl From<OptFloat> for Float {
     }
 }
 
-impl Into<f32> for Float {
-    fn into(self) -> f32 {
-        self.0
+impl From<Float> for f32 {
+    fn from(f: Float) -> f32 {
+        f.0
     }
 }
 
@@ -65,9 +65,9 @@ pub enum DeserError {
     Graph(EdgeError),
 }
 
-impl DAG {
-    pub fn new() -> DAG {
-        DAG { nodes: Vec::new() }
+impl Dag {
+    pub fn new() -> Dag {
+        Dag { nodes: Vec::new() }
     }
 
     pub fn estimate_iteration_number(&self) -> usize {
@@ -95,18 +95,16 @@ impl DAG {
     }
 
     pub fn duplicate_node(&mut self, node: usize) -> Option<usize> {
-        if self.get(node).is_none() {
-            return None;
-        }
+        self.get(node)?;
         let new_node = self.insert_node();
         // duplicate the node
         self.nodes[new_node] = self.nodes[node].clone();
         // properly update the parents & children though
         let (new_parents, new_children, label, credencies) = {
             let new_node = self.nodes[new_node].as_mut().unwrap();
-            let new_parents = std::mem::replace(&mut new_node.parents, Vec::new());
-            let new_children = std::mem::replace(&mut new_node.children, Vec::new());
-            let new_label = std::mem::replace(&mut new_node.label, String::new());
+            let new_parents = std::mem::take(&mut new_node.parents);
+            let new_children = std::mem::take(&mut new_node.children);
+            let new_label = std::mem::take(&mut new_node.label);
             let credencies = new_node.credencies.take();
             (new_parents, new_children, new_label, credencies)
         };
@@ -150,11 +148,7 @@ impl DAG {
             let mut visited = vec![parent];
             // iteratively check all ancestors for equality with the child, if we find
             // any adding this edge would create a cycle
-            loop {
-                let id = match ancestors.pop() {
-                    Some(v) => v,
-                    None => break,
-                };
+            while let Some(id) = ancestors.pop() {
                 if id == child {
                     return Err(EdgeError::WouldCycle);
                 }
@@ -176,9 +170,9 @@ impl DAG {
             for &p in &node.parents {
                 values *= self.nodes[p].as_ref().unwrap().values.len();
             }
-            return values;
+            values
         } else {
-            return 0;
+            0
         }
     }
 
@@ -342,7 +336,7 @@ impl DAG {
         for &n in &order {
             let node = self.nodes[n].as_ref().unwrap();
             // early return if any node has no values
-            if node.values.len() == 0 {
+            if node.values.is_empty() {
                 return Err(());
             }
 
@@ -353,7 +347,7 @@ impl DAG {
                 values_count.push(self.nodes[p].as_ref().unwrap().values.len());
             }
             let credencies_data = node.credencies.clone().unwrap_or_else(|| {
-                let count = values_count.iter().fold(1, |a, b| a * b);
+                let count = values_count.iter().product();
                 ArrayD::from_shape_vec(IxDyn(&values_count), vec![0.0; count]).unwrap()
             });
             let log_probas = credencies_data * 10f32.ln();
@@ -371,10 +365,10 @@ impl DAG {
     }
 
     pub fn iter_nodes(&self) -> impl Iterator<Item = (usize, &Node)> {
-        self.nodes.iter().enumerate().filter_map(|(i, n)| match n {
-            Some(ref n) => Some((i, n)),
-            None => None,
-        })
+        self.nodes
+            .iter()
+            .enumerate()
+            .filter_map(|(i, n)| n.as_ref().map(|n| (i, n)))
     }
 
     pub fn to_json(&self) -> String {
@@ -404,10 +398,10 @@ impl DAG {
         serde_json::to_string_pretty(&nodelist).unwrap()
     }
 
-    pub fn from_json(json: &str) -> Result<DAG, DeserError> {
+    pub fn from_json(json: &str) -> Result<Dag, DeserError> {
         let contents: Vec<JsonNode> = serde_json::from_str(json).map_err(DeserError::Json)?;
 
-        let mut dag = DAG::new();
+        let mut dag = Dag::new();
 
         for node in &contents {
             let id = dag.insert_node();
@@ -430,7 +424,7 @@ impl DAG {
                 }
                 let array = match ArrayD::from_shape_vec(
                     IxDyn(&shape),
-                    array.into_iter().map(|&f| f.into()).collect::<Vec<f32>>(),
+                    array.iter().map(|&f| f.into()).collect::<Vec<f32>>(),
                 )
                 .ok()
                 {

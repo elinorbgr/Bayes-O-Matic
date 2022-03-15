@@ -1,20 +1,16 @@
-use yew::{html, Callback, Component, ComponentLink, Html, Properties, Renderable, ShouldRender};
+use yew::{html, Callback, Component, Context, Html, Properties};
 
 /*
  * A button for selecting a page that has a "selected" state
  */
 
-pub struct PushButton {
-    text: String,
-    selected: bool,
-    onclick: Callback<()>,
-}
+pub struct PushButton;
 
-#[derive(Properties)]
+#[derive(PartialEq, Properties)]
 pub struct PushButtonProps {
     pub text: String,
+    #[prop_or(false)]
     pub selected: bool,
-    #[props(required)]
     pub onclick: Callback<()>,
 }
 
@@ -22,34 +18,23 @@ impl Component for PushButton {
     type Message = ();
     type Properties = PushButtonProps;
 
-    fn create(props: PushButtonProps, _: ComponentLink<Self>) -> Self {
-        PushButton {
-            text: props.text,
-            selected: props.selected,
-            onclick: props.onclick,
-        }
+    fn create(_: &Context<Self>) -> Self {
+        PushButton
     }
 
-    fn update(&mut self, _msg: ()) -> ShouldRender {
-        self.onclick.emit(());
+    fn update(&mut self, ctx: &Context<Self>, _msg: ()) -> bool {
+        ctx.props().onclick.emit(());
         false
     }
 
-    fn change(&mut self, props: PushButtonProps) -> ShouldRender {
-        self.text = props.text;
-        self.selected = props.selected;
-        self.onclick = props.onclick;
-        true
-    }
-}
-
-impl Renderable<PushButton> for PushButton {
-    fn view(&self) -> Html<PushButton> {
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let props = ctx.props();
+        let link = ctx.link();
         html! {
             <a href="#"
-               onclick=|_| ()
-               class={ if self.selected { "selected" } else { "" }}
-               > { &self.text }</a>
+               onclick={ link.callback(|_| ()) }
+               class={ if props.selected { "selected" } else { "" }}
+               > { &props.text }</a>
         }
     }
 }

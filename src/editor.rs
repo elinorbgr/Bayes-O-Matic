@@ -1,16 +1,15 @@
 use itertools::Itertools;
 use ndarray::{ArrayD, IxDyn};
-use stdweb::{
-    js,
-    traits::*,
-    unstable::TryInto,
-    web::{
-        document,
-        event::IKeyboardEvent,
-        html_element::{InputElement, TextAreaElement},
-    },
+use wasm_bindgen::JsCast;
+use web_sys::{
+    window, Event, HtmlInputElement, HtmlSelectElement, HtmlTextAreaElement, InputEvent,
+    KeyboardEvent,
 };
-use yew::{html, html::ChangeData, Html};
+use yew::{
+    html,
+    html::{Scope, TargetCast},
+    Html,
+};
 
 use crate::{
     lang,
@@ -20,32 +19,50 @@ use crate::{
 
 pub fn fetch_input_and_clear(name: &str) -> String {
     let query = format!("input[name=\"{}\"]", name);
-    let input = document().query_selector(&query).unwrap().unwrap();
-    let input: InputElement = input.try_into().unwrap();
-    let value = input.raw_value();
-    input.set_raw_value("");
+    let input = window()
+        .unwrap()
+        .document()
+        .unwrap()
+        .query_selector(&query)
+        .unwrap()
+        .unwrap();
+    let input: HtmlInputElement = input.dyn_into().unwrap();
+    let value = input.value();
+    input.set_value("");
     value
 }
 
 fn extract_credencies(shape: &[usize], parents: &[usize]) -> (ArrayD<f32>, Vec<String>) {
     let nval = shape[0];
-    let count = shape.iter().fold(1, |a, b| a * b);
-    let mut credencies = ArrayD::from_shape_vec(IxDyn(&shape), vec![0.0; count]).unwrap();
+    let count = shape.iter().product();
+    let mut credencies = ArrayD::from_shape_vec(IxDyn(shape), vec![0.0; count]).unwrap();
     let mut descriptions = Vec::new();
     if shape.len() == 1 {
         // node has no parents
         for i in 0..nval {
             // get the credencies
             let query = format!("input[name=\"prior_{}\"]", i);
-            let input = document().query_selector(&query).unwrap().unwrap();
-            let input: InputElement = input.try_into().unwrap();
-            let val = input.raw_value().parse::<f32>().unwrap_or(0.0);
+            let input = window()
+                .unwrap()
+                .document()
+                .unwrap()
+                .query_selector(&query)
+                .unwrap()
+                .unwrap();
+            let input: HtmlInputElement = input.dyn_into().unwrap();
+            let val = input.value().parse::<f32>().unwrap_or(0.0);
             credencies[i] = val;
         }
         // get the description for the row
         let query = "textarea[name=\"prior_description\"]";
-        let texta = document().query_selector(query).unwrap().unwrap();
-        let texta: TextAreaElement = texta.try_into().unwrap();
+        let texta = window()
+            .unwrap()
+            .document()
+            .unwrap()
+            .query_selector(query)
+            .unwrap()
+            .unwrap();
+        let texta: HtmlTextAreaElement = texta.dyn_into().unwrap();
         descriptions.push(texta.value());
     } else {
         // node has parents
@@ -61,17 +78,29 @@ fn extract_credencies(shape: &[usize], parents: &[usize]) -> (ArrayD<f32>, Vec<S
             for i in 0..nval {
                 // get the credencies
                 let query = format!("input[name=\"{}_{}\"]", label, i);
-                let input = document().query_selector(&query).unwrap().unwrap();
-                let input: InputElement = input.try_into().unwrap();
-                let val = input.raw_value().parse::<f32>().unwrap_or(0.0);
+                let input = window()
+                    .unwrap()
+                    .document()
+                    .unwrap()
+                    .query_selector(&query)
+                    .unwrap()
+                    .unwrap();
+                let input: HtmlInputElement = input.dyn_into().unwrap();
+                let val = input.value().parse::<f32>().unwrap_or(0.0);
                 let mut idx = vec![i];
                 idx.extend(values.iter().map(|(_, v)| v));
                 credencies[IxDyn(&idx)] = val;
             }
             // get the description for the row
             let query = format!("textarea[name=\"{}_description\"]", label);
-            let texta = document().query_selector(&query).unwrap().unwrap();
-            let texta: TextAreaElement = texta.try_into().unwrap();
+            let texta = window()
+                .unwrap()
+                .document()
+                .unwrap()
+                .query_selector(&query)
+                .unwrap()
+                .unwrap();
+            let texta: HtmlTextAreaElement = texta.dyn_into().unwrap();
             descriptions.push(texta.value());
         }
     }
@@ -80,20 +109,22 @@ fn extract_credencies(shape: &[usize], parents: &[usize]) -> (ArrayD<f32>, Vec<S
 }
 
 impl BayesOMatic {
-    fn make_label_edit(&self, nodeid: usize) -> Html<Self> {
+    fn make_label_edit(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         html! {
             <div>
                 { lang!(self.lang, "node-name") }
                 <input size=16
-                        oninput=|evt| Msg::SetLabel { node: nodeid, label: evt.value }
-                        value={ &node.label }>
-                </input>
+                        oninput={ link.callback(move |evt: InputEvent| Msg::SetLabel {
+                            node: nodeid,
+                            label: evt.target_dyn_into::<HtmlInputElement>().unwrap().value()
+                        }) }
+                        value={ node.label.clone() } />
             </div>
         }
     }
 
-    fn make_values_edit(&self, nodeid: usize) -> Html<Self> {
+    fn make_values_edit(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         html! {
             <ul class="blocky vlist">
@@ -101,7 +132,7 @@ impl BayesOMatic {
                 { for node.values.iter().enumerate().map(|(i,v)| {
                     html! {
                         <li>
-                            { v } <a href="#" onclick=|_| Msg::DelValue { node: nodeid, value_id: i }>{ "×" }</a>
+                            { v } <a href="#" onclick={ link.callback(move |_| Msg::DelValue { node: nodeid, value_id: i })}>{ "×" }</a>
                         </li>
                     }
                 })}
@@ -109,17 +140,22 @@ impl BayesOMatic {
                     <input placeholder={ lang!(self.lang, "add-value") }
                         size=16
                         name="addvalue"
-                        onkeypress=|evt| if evt.key() == "Enter" { Msg::AddValue { node: nodeid, value: fetch_input_and_clear("addvalue") } } else { Msg::Ignore }
-                    ></input>
+                        onkeypress={ link.callback(move |evt: KeyboardEvent| if evt.key() == "Enter" {
+                            Msg::AddValue { node: nodeid, value: fetch_input_and_clear("addvalue") }
+                        } else { Msg::Ignore }) } />
                     { format!("({})", lang!(self.lang, "press-enter")) }
                 </li>
             </ul>
         }
     }
 
-    fn make_parent_seletor(&self, nodeid: usize) -> Html<Self> {
+    fn make_parent_seletor(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         html! {
-            <select onchange=|v| if let ChangeData::Select(v) = v { Msg::AddParent { node: nodeid, parent_id: v.raw_value().parse().unwrap() } } else { Msg::Ignore }>
+            <select onchange={link.callback(move |e: Event| if let Some(select) = e.target_dyn_into::<HtmlSelectElement>() {
+                    Msg::AddParent { node: nodeid, parent_id: select.value().parse().unwrap() }
+                } else {
+                    Msg::Ignore
+                })}>
                 <option selected=true value=""></option>
                 { for self.dag.iter_nodes().map(|(i, potential)| {
                     if self.dag.check_edge_addition(nodeid, i).is_ok() {
@@ -134,7 +170,7 @@ impl BayesOMatic {
         }
     }
 
-    fn make_parents_edit(&self, nodeid: usize) -> Html<Self> {
+    fn make_parents_edit(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         html! {
             <ul class="blocky vlist">
@@ -142,28 +178,33 @@ impl BayesOMatic {
                 { for node.parents.iter().map(|&p| {
                     let parent = self.dag.get(p).unwrap();
                     html! {
-                        <li>{ &parent.label }<a href="#" onclick=|_| Msg::DelParent { node: nodeid, parent_id: p }>{ "×" }</a></li>
+                        <li>{ &parent.label }<a href="#" onclick={ link.callback(move |_| Msg::DelParent { node: nodeid, parent_id: p })}>{ "×" }</a></li>
                     }
                 })}
-                <li>{ self.make_parent_seletor(nodeid) }</li>
+                <li>{ self.make_parent_seletor(nodeid, link) }</li>
             </ul>
         }
     }
 
-    fn make_node_description_edit(&self, nodeid: usize) -> Html<Self> {
+    fn make_node_description_edit(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         // HACK: the value is not properly updated otherwise
+        /*
         js! {
             setTimeout(() => {
                 document.getElementById("nodedesc").value = @{ &node.description };
             }, 10);
         }
+        */
         html! {
             <div>
                 <textarea cols=40 rows=4 placeholder={ lang!(self.lang, "write-desc") }
-                          oninput=|evt| Msg::SetDesc { node: nodeid, desc: evt.value }
-                          id="nodedesc">
-                    { &node.description }
+                          oninput={ link.callback(move |evt: InputEvent| Msg::SetDesc {
+                              node: nodeid,
+                              desc: evt.target_dyn_into::<HtmlTextAreaElement>().unwrap().value()
+                          }) }
+                          id="nodedesc"
+                          value={ node.description.clone() }>
                 </textarea>
             </div>
         }
@@ -173,7 +214,7 @@ impl BayesOMatic {
         &self,
         nodeid: usize,
         target: Option<(usize, Vec<(usize, &String, usize, &String)>)>,
-    ) -> Html<Self> {
+    ) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         if let Some((line_id, parent_values)) = target {
             let label = parent_values
@@ -181,11 +222,13 @@ impl BayesOMatic {
                 .map(|&(p, _, v, _)| format!("{}-{}", p, v))
                 .join("_");
             // HACK: the value for descriptions may not be properly updated otherwise
+            /*
             js! {
                 setTimeout(() => {
                     document.querySelector(@{ format!("textarea[name=\"{}_description\"]", label) }).value = @{ node.cred_description.get(line_id).map(|s| &s[..]).unwrap_or("") };
                 }, 10);
             }
+            */
             html! {
                 <tr>
                     <th>
@@ -210,18 +253,21 @@ impl BayesOMatic {
                     })}
                     <td>
                         <textarea cols=20 rows=2 name={ format!("{}_description", label) }
-                                  placeholder={ lang!(self.lang, "row-desc") }>
+                                  placeholder={ lang!(self.lang, "row-desc") }
+                                  value={ node.cred_description.get(line_id).cloned().unwrap_or_default() }>
                         </textarea>
                     </td>
                 </tr>
             }
         } else {
             // HACK: the value for descriptions may not be properly updated otherwise
+            /*
             js! {
                 setTimeout(() => {
                     document.querySelector("textarea[name=prior_description]").value = @{ node.cred_description.get(0).map(|s| &s[..]).unwrap_or("") };
                 }, 10);
             }
+            */
             html! {
                 <tr>
                     <th>{ "Prior" }</th>
@@ -240,7 +286,8 @@ impl BayesOMatic {
                     })}
                     <td>
                         <textarea cols=20 rows=2 name="prior_description"
-                                  placeholder={ lang!(self.lang, "row-desc") }>
+                                  placeholder={ lang!(self.lang, "row-desc") }
+                                  value={ node.cred_description.get(0).cloned().unwrap_or_default() }>
                         </textarea>
                     </td>
                 </tr>
@@ -248,7 +295,7 @@ impl BayesOMatic {
         }
     }
 
-    fn make_credencies_edit(&self, nodeid: usize) -> Html<Self> {
+    fn make_credencies_edit(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         // one line in the table for all possible combination of parent values
         let values_iterator = node
@@ -300,21 +347,21 @@ impl BayesOMatic {
                 { if node.parents.is_empty() { self.make_credencies_edit_line(nodeid, None) } else { html!{} }}
                 { for values_iterator.map(|(iv, values)| self.make_credencies_edit_line(nodeid, Some((iv, values)))) }
             </table>
-            <a href="#" onclick=move |_| extract_credencies()>{ lang!(self.lang, "save-credencies") }</a>
+            <a href="#" onclick={ link.callback(move |_| extract_credencies())}>{ lang!(self.lang, "save-credencies") }</a>
             </div>
         }
     }
 
-    pub fn make_nodeedit_tab(&self, nodeid: usize) -> Html<Self> {
+    pub fn make_nodeedit_tab(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         html! {
             <div id="node-editor">
-                <PushButton text={ lang!(self.lang, "duplicate-node") } onclick=move |_| Msg::DuplicateNode(nodeid) />
-                <PushButton text={ lang!(self.lang, "remove-node") } onclick=move |_| Msg::RemoveNode(nodeid) />
-                { self.make_label_edit(nodeid) }
-                { self.make_values_edit(nodeid) }
-                { self.make_parents_edit(nodeid) }
-                { self.make_node_description_edit(nodeid) }
-                { self.make_credencies_edit(nodeid) }
+                <PushButton text={ lang!(self.lang, "duplicate-node") } onclick={ link.callback(move |_| Msg::DuplicateNode(nodeid)) } />
+                <PushButton text={ lang!(self.lang, "remove-node") } onclick={ link.callback(move |_| Msg::RemoveNode(nodeid)) } />
+                { self.make_label_edit(nodeid, link) }
+                { self.make_values_edit(nodeid, link) }
+                { self.make_parents_edit(nodeid, link) }
+                { self.make_node_description_edit(nodeid, link) }
+                { self.make_credencies_edit(nodeid, link) }
             </div>
         }
     }

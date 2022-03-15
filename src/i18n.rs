@@ -29,7 +29,7 @@ impl Lang {
         };
         let resource =
             FluentResource::try_new(ftl.into()).expect("Failed to parse the FTL resource.");
-        let mut bundle = FluentBundle::new(&[id]);
+        let mut bundle = FluentBundle::new(vec![id]);
         bundle
             .add_resource(resource)
             .expect("Failed to add the FTL resource to the bundle.");
@@ -47,11 +47,10 @@ macro_rules! lang {
         let msg = $lang.bundle.get_message($msgid)
             .unwrap_or_else(|| panic!("Message \"{}\" does not exist.", $msgid));
         let mut errors = Vec::new();
-        let pattern = msg.value.unwrap_or_else(|| panic!("Message \"{}\" has no value.", $msgid));
+        let pattern = msg.value().unwrap_or_else(|| panic!("Message \"{}\" has no value.", $msgid));
         let value = $lang.bundle.format_pattern(&pattern, None, &mut errors);
         for error in errors {
-            use stdweb::console;
-            console!(log, format!("Translation error in message \"{}\": {:?}", $msgid, error));
+            weblog::console_log!(format!("Translation error in message \"{}\": {:?}", $msgid, error));
         }
         value.to_string()
     } };
@@ -60,15 +59,14 @@ macro_rules! lang {
         let msg = $lang.bundle.get_message($msgid)
             .unwrap_or_else(|| panic!("Message \"{}\" does not exist.", $msgid));
         let mut errors = Vec::new();
-        let pattern = msg.value.unwrap_or_else(|| panic!("Message \"{}\" has no value.", $msgid));
+        let pattern = msg.value().unwrap_or_else(|| panic!("Message \"{}\" has no value.", $msgid));
         let mut args = FluentArgs::new();
         $(
-            args.insert(stringify!($var), FluentValue::from($val));
+            args.set(stringify!($var), FluentValue::from($val));
         )*
         let value = $lang.bundle.format_pattern(&pattern, Some(&args), &mut errors);
         for error in errors {
-            use stdweb::console;
-            console!(log, format!("Translation error in message \"{}\": {:?}", $msgid, error));
+            weblog::console_log!(format!("Translation error in message \"{}\": {:?}", $msgid, error));
         }
         value.to_string()
     } };

@@ -1,6 +1,12 @@
 use loopybayesnet::LogProbVector;
 use ndarray::ArrayView1;
-use yew::{html, html::ChangeData, Html};
+use yew::{
+    html,
+    html::{Scope, TargetCast},
+    Html,
+};
+
+use web_sys::{Event, HtmlSelectElement};
 
 use crate::{
     lang,
@@ -20,18 +26,28 @@ fn log_sum_exp_vec(x: ArrayView1<f32>) -> f32 {
 }
 
 impl BayesOMatic {
-    fn make_observation_select(&self, id: usize, node: &crate::graph::Node) -> Html<Self> {
+    fn make_observation_select(
+        &self,
+        id: usize,
+        node: &crate::graph::Node,
+        link: &Scope<Self>,
+    ) -> Html {
         html! {
-            <select onchange=|v| if let ChangeData::Select(v) = v { Msg::SetObs { node: id, obs: v.raw_value().parse().ok() }} else { Msg::Ignore }>
+            <select onchange={ link.callback(move |e: Event| if let Some(select) = e.target_dyn_into::<HtmlSelectElement>() {
+                    Msg::SetObs { node: id, obs: select.value().parse().ok() }
+                } else {
+                    Msg::Ignore
+                })
+            }>
                 <option selected={ node.observation.is_none() } value=""></option>
                 { for node.values.iter().enumerate().map(|(i,v)| {
-                    html! { <option selected={ node.observation == Some(i) } value={ i }>{ v }</option> }
+                    html! { <option selected={ node.observation == Some(i) } value={ i.to_string() }>{ v }</option> }
                 })}
             </select>
         }
     }
 
-    pub fn make_observation_tab(&self) -> Html<Self> {
+    pub fn make_observation_tab(&self, link: &Scope<Self>) -> Html {
         html! {
             <div id="node-editor">
                 <p>{ lang!(self.lang, "obs-for-nodes") }</p>
@@ -40,7 +56,7 @@ impl BayesOMatic {
                         html! {
                             <li>
                             { lang!(self.lang, "node", name=&node.label[..]) }
-                            { self.make_observation_select(id, node) }
+                            { self.make_observation_select(id, node, link) }
                             </li>
                         }
                     })}
@@ -49,7 +65,7 @@ impl BayesOMatic {
         }
     }
 
-    fn make_belief_node(&self, nodeid: usize, beliefs: &LogProbVector) -> Html<Self> {
+    fn make_belief_node(&self, nodeid: usize, beliefs: &LogProbVector) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         if let Some(obs) = node.observation {
             html! {
@@ -113,13 +129,18 @@ impl BayesOMatic {
         }
     }
 
-    pub fn make_beliefs_tab(&self) -> Html<Self> {
+    pub fn make_beliefs_tab(&self, link: &Scope<Self>) -> Html {
         if let Some(ref results) = self.beliefs {
             html! {
                 <div id="node-editor">
                     <h2>{ lang!(self.lang, "inference-results") }</h2>
                     <p>{ lang!(self.lang, "result-format") }
-                    <select onchange=|v| if let ChangeData::Select(v) = v { Msg::SetBeliefsDisplay(BeliefsDisplay::from_str(&v.raw_value()).unwrap()) } else { Msg::Ignore }>
+                    <select onchange={ link.callback(|e: Event| if let Some(select) = e.target_dyn_into::<HtmlSelectElement>() {
+                                Msg::SetBeliefsDisplay(BeliefsDisplay::from_str(&select.value()).unwrap())
+                            } else {
+                                Msg::Ignore
+                            }
+                        ) }>
                         <option selected={ self.beliefs_display == BeliefsDisplay::LogOdds }
                                 value="log-odds">{ lang!(self.lang, "log-odds") }</option>
                         <option selected={ self.beliefs_display == BeliefsDisplay::RawCredencies }
@@ -144,14 +165,19 @@ impl BayesOMatic {
         }
     }
 
-    pub fn make_mutualinfo_tab(&self) -> Html<Self> {
+    pub fn make_mutualinfo_tab(&self, link: &Scope<Self>) -> Html {
         if let Some(ref results) = self.mutual_info {
             html! {
                 <div id="node-editor">
                     <h2> { lang!(self.lang, "mutual-info-result") }</h2>
                     <p>{ lang!(self.lang, "target-node") }
-                    <select onchange=|v| if let ChangeData::Select(v) = v { Msg::MoveToPage(Page::MutualInformation(Some(v.raw_value().parse().unwrap()))) } else { Msg::Ignore }>
-                    { for self.dag.iter_nodes().filter(|&(id, node)| node.observation.is_none()).map(|(id, node)| {
+                    <select onchange={ link.callback(|e: Event| if let Some(select) = e.target_dyn_into::<HtmlSelectElement>() {
+                            Msg::MoveToPage(Page::MutualInformation(Some(select.value().parse().unwrap())))
+                        } else {
+                            Msg::Ignore
+                        }
+                    )}>
+                    { for self.dag.iter_nodes().filter(|&(_, node)| node.observation.is_none()).map(|(id, node)| {
                         html! {
                             <option selected={ self.page == Page::MutualInformation(Some(id)) } value={ format!("{}", id) }>{ &node.label }</option>
                         }
