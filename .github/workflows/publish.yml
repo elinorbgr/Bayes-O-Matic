@@ -27,10 +27,11 @@ jobs:
         with:
           toolchain: stable
           override: true
-      
+          target: wasm32-unknown-unknown
+
       - name: Install trunk
         run: cargo install trunk
-      
+
       - name: Build app
         run: trunk build --release
 
