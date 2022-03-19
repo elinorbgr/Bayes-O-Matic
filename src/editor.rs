@@ -316,7 +316,7 @@ impl BayesOMatic {
                     </th>
                     { for node.values.iter().map(|v| {
                         html! {
-                            <th>{ format!("C({})", v) }</th>
+                            <th>{ format!("\\(\\mathcal{{P}}\\)({})", v) }</th>
                         }
                     })}
                     <th>{ lang!(self.lang, "explanation") }</th>

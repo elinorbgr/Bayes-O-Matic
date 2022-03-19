@@ -4,6 +4,7 @@ mod draw;
 mod editor;
 mod graph;
 mod i18n;
+mod js;
 mod markdown;
 mod model;
 mod render;

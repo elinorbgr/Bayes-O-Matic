@@ -14,3 +14,7 @@ export function graph_render(dot, svg) {
         svg.setAttribute("height",(bbox.height+20) + "px");
     }, 10);
 }
+
+export function mathjax_typeset() {
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+}

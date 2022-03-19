@@ -1,15 +1,8 @@
 use crate::graph::Dag;
 use std::fmt::Write;
 
+use wasm_bindgen::JsValue;
 use yew::{html, virtual_dom::vnode::VNode, Component, Context, Html, Properties};
-
-use wasm_bindgen::prelude::*;
-
-#[wasm_bindgen(module = "/src/graph_render.js")]
-extern "C" {
-    #[wasm_bindgen(js_name = "graph_render")]
-    pub fn graph_render(dot: JsValue, svg: JsValue);
-}
 
 pub fn graph_to_dot(graph: &Dag) -> String {
     let mut buffer = String::new();
@@ -66,7 +59,7 @@ impl Component for DotCanvas {
             .create_element_ns(Some("http://www.w3.org/2000/svg"), "svg")
             .unwrap();
 
-        graph_render(JsValue::from_str(dot), svg.clone().into());
+        crate::js::graph_render(JsValue::from_str(dot), svg.clone().into());
 
         let vnode = VNode::VRef(svg.into());
         html! {
@@ -75,4 +68,6 @@ impl Component for DotCanvas {
             </div>
         }
     }
+
+    fn rendered(&mut self, _ctx: &Context<Self>, _first_render: bool) {}
 }

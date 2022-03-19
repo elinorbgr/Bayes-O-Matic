@@ -138,7 +138,6 @@ impl BayesOMatic {
                     html! {
                         <div id="popup">
                             { crate::markdown::render_markdown(help) }
-                            <script>{ "MathJax.Hub.Queue([\"Typeset\",MathJax.Hub]);" }</script>
                         </div>
                     }
                 } else {

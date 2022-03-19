@@ -390,4 +390,8 @@ impl Component for BayesOMatic {
             </div>
         }
     }
+
+    fn rendered(&mut self, _ctx: &Context<Self>, _first_render: bool) {
+        crate::js::mathjax_typeset();
+    }
 }
