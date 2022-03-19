@@ -11,10 +11,10 @@
       "parents": [],
       "observation": null,
       "credencies": [
+        5.0,
         1.0,
-        0.0,
-        0.0,
-        0.0
+        1.0,
+        1.0
       ],
       "cred_description": [
         "Les moustiques sont plutôt communs à cette période de l'année, plus que les autres."
@@ -32,14 +32,14 @@
       ],
       "observation": 1,
       "credencies": [
-        2.0,
-        2.0,
-        0.0,
+        100.0,
+        100.0,
         1.0,
-        0.0,
-        0.0,
+        10.0,
         1.0,
-        0.0
+        1.0,
+        10.0,
+        1.0
       ],
       "cred_description": [
         "Les moustiques de laissent normalement rien sur la peau en mordant.",
@@ -60,14 +60,14 @@
       ],
       "observation": 1,
       "credencies": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.5,
-        1.5,
         1.0,
-        1.0
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        10.0,
+        8.0,
+        8.0
       ],
       "cred_description": [
         "Les piqûres de moustiquent peuvent causer de petits conflements, rarement notables.",
@@ -88,14 +88,14 @@
       ],
       "observation": 1,
       "credencies": [
-        2.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        3.0,
-        3.0
+        20.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        100.0,
+        100.0
       ],
       "cred_description": [
         "Les piqûres de moustique ne font pas mal.",

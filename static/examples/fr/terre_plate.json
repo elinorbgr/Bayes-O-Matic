@@ -9,8 +9,8 @@
       "parents": [],
       "observation": null,
       "credencies": [
-        0.0,
-        0.0
+        1.0,
+        1.0
       ],
       "cred_description": [
         "En ignorant toute observation, nous n'avons pas d'a-priori sur la forme de la Terre."
@@ -28,10 +28,10 @@
       ],
       "observation": 1,
       "credencies": [
-        0.0,
-        0.0,
-        0.0,
-        5.0
+        1.0,
+        1.0,
+        1.0,
+        1000.0
       ],
       "cred_description": [
         "Si la Terre est plate, nous n'avons pas vraiment d'arguemnt pour ou contre un horizon (il pourrait y avoir des effets optiques subtils ?).",
@@ -50,10 +50,10 @@
       ],
       "observation": 1,
       "credencies": [
-        0.0,
-        0.0,
-        5.0,
-        2.0
+        1.0,
+        1.0,
+        1000.0,
+        10.0
       ],
       "cred_description": [
         "Si la Terre *est* plate, c'est parfaitement normale qu'elle *ait l'air* plate.",
@@ -72,10 +72,10 @@
       ],
       "observation": null,
       "credencies": [
-        2.0,
-        5.0,
-        0.0,
-        0.0
+        10.0,
+        1000.0,
+        1.0,
+        1.0
       ],
       "cred_description": [
         "Si la Terre est plate, un telle complot pourrait exister, mais ses motivations sont peu claires, donc il reste plus probable qu'il n'existe pas.",
@@ -95,14 +95,14 @@
       ],
       "observation": 1,
       "credencies": [
-        4.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        5.0,
-        4.0,
-        4.0
+        1000.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1000.0,
+        100.0,
+        100.0
       ],
       "cred_description": [
         "Si la Terre est plate et qu'il n'y a pas de complot, il serait extrèmement surprenant de la voire ronde sur les photos !",
@@ -123,10 +123,10 @@
       ],
       "observation": 0,
       "credencies": [
-        4.0,
-        0.0,
-        0.0,
-        2.0
+        1000.0,
+        1.0,
+        1.0,
+        100.0
       ],
       "cred_description": [
         "Si le complot n'existe pas, il est extrèement improbable d'observer une telle fuite, même si des faux existent.",

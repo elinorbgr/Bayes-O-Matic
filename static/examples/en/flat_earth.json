@@ -9,8 +9,8 @@
     "parents": [],
     "observation": null,
     "credencies": [
-      0.0,
-      0.0
+      1.0,
+      1.0
     ],
     "cred_description": [
       "Ignoring observations, we have no a prior reason to believe any given shape for the Earth."
@@ -28,10 +28,10 @@
     ],
     "observation": 1,
     "credencies": [
-      0.0,
-      0.0,
-      0.0,
-      5.0
+      1.0,
+      1.0,
+      1.0,
+      1000.0
     ],
     "cred_description": [
       "If the Earth is flat, we don't really have any clear reason to believe in the presence or absence of an horizon (there could be optical effects making it looks like there is one?).",
@@ -50,10 +50,10 @@
     ],
     "observation": 1,
     "credencies": [
-      0.0,
-      0.0,
-      5.0,
-      2.0
+      1.0,
+      1.0,
+      1000.0,
+      10.0
     ],
     "cred_description": [
       "If the Earth *is* flat, then it is perfectly natural that it would *look* flat.",
@@ -72,10 +72,10 @@
     ],
     "observation": null,
     "credencies": [
-      2.0,
-      5.0,
-      0.0,
-      0.0
+      10.0,
+      1000.0,
+      1.0,
+      1.0
     ],
     "cred_description": [
       "If the Earth is flat, such a conspiracy might exist, but its motivations remain quite unclear, hence a higher credency for its absence.",
@@ -95,14 +95,14 @@
     ],
     "observation": 1,
     "credencies": [
-      4.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      5.0,
-      4.0,
-      4.0
+      1000.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1000.0,
+      100.0,
+      100.0
     ],
     "cred_description": [
       "If the Earth is flat and there is no conspiracy, it'd be very surprising to see pictures showing it as round!",
@@ -123,10 +123,10 @@
     ],
     "observation": 0,
     "credencies": [
-      4.0,
-      0.0,
-      0.0,
-      2.0
+      1000.0,
+      1.0,
+      1.0,
+      100.0
     ],
     "cred_description": [
       "If the conspiracy does not exist, it is very unlikely that we see such leaks, even though fakes exist.",
