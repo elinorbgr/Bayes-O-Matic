@@ -2,7 +2,7 @@ use wasm_bindgen::JsCast;
 use yew::html::{Scope, TargetCast};
 use yew::{html, Html};
 
-use web_sys::{window, Event, HtmlSelectElement, HtmlTextAreaElement};
+use web_sys::{window, Event, HtmlInputElement, HtmlSelectElement, HtmlTextAreaElement};
 
 use crate::draw::DotCanvas;
 use crate::graph::{DeserError, EdgeError};
@@ -95,35 +95,15 @@ impl BayesOMatic {
 
     pub fn content(&self, link: &Scope<Self>) -> Html {
         match self.page {
-            Page::ExportJson => {
-                html! {
-                    <div id="popup">
-                        <textarea cols=110 rows=20 readonly=true value={ self.dag.to_json() }>
-                        </textarea>
-                        <br/>
-                        <a href="#" onclick={ link.callback(|_| Msg::MoveToPage(Page::Idle)) }>{ lang!(self.lang, "close") }</a>
-                    </div>
-                }
-            }
             Page::LoadJson => {
-                fn fetch_loadjson_contents() -> String {
-                    let query = "textarea[name=\"loadjson\"]";
-                    let input = window()
-                        .unwrap()
-                        .document()
-                        .unwrap()
-                        .query_selector(query)
-                        .unwrap()
-                        .unwrap();
-                    let input: HtmlTextAreaElement = input.dyn_into().unwrap();
-                    input.value()
-                }
                 html! {
                     <div id="popup">
-                        { self.print_error() }
-                        <textarea name="loadjson" cols=110 rows=20></textarea>
-                        <br/>
-                        <a href="#" onclick={ link.callback(|_| Msg::LoadJson(fetch_loadjson_contents())) }>{ lang!(self.lang, "load") }</a>
+                        <input type="file" id="load-json" accept="application/json" onchange={ link.callback_future(|evt: Event| async move {
+                            let fileinput = evt.target_dyn_into::<HtmlInputElement>().unwrap();
+                            let file = fileinput.files()?.get(0)?;
+                            let text = wasm_bindgen_futures::JsFuture::from(file.text()).await.ok()?;
+                            Some(Msg::LoadJson(text.as_string()?))
+                        })} />
                         <a href="#" onclick={ link.callback(|_| Msg::MoveToPage(Page::Idle)) }>{ lang!(self.lang, "close") }</a>
                     </div>
                 }

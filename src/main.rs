@@ -17,7 +17,6 @@ pub enum Page {
     NodeEdit(usize),
     ComputeBeliefs,
     MutualInformation(Option<usize>),
-    ExportJson,
     LoadJson,
     LoadExample,
     Help,

@@ -3,6 +3,7 @@ use std::future::Future;
 use loopybayesnet::LogProbVector;
 use ndarray::ArrayD;
 use reqwasm::http::Request;
+use wasm_bindgen::JsValue;
 use yew::{html, Component, Context, Html};
 
 use crate::{
@@ -57,6 +58,16 @@ pub enum Msg {
     ShowHelp(String),
     SetBeliefsDisplay(BeliefsDisplay),
     SetLang(String),
+    Export,
+}
+
+impl From<Option<Msg>> for Msg {
+    fn from(opt: Option<Msg>) -> Msg {
+        match opt {
+            Some(msg) => msg,
+            None => Msg::Ignore,
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -376,6 +387,21 @@ impl Component for BayesOMatic {
                 if self.page == Page::Help {
                     ctx.link().send_future(self.load_help())
                 }
+            }
+            Msg::Export => {
+                let now = js_sys::Date::new_0();
+                let filename = format!(
+                    "bayesomatic-export-{:04}-{:02}-{:02}-{:02}{:02}.json",
+                    now.get_full_year(),
+                    now.get_month(),
+                    now.get_date(),
+                    now.get_hours(),
+                    now.get_minutes(),
+                );
+                crate::js::make_json_download(
+                    JsValue::from_str(&filename),
+                    JsValue::from_str(&self.dag.to_json()),
+                )
             }
         }
 
