@@ -39,9 +39,9 @@ default-node-name = Nœud #{$id}
 duplicate-node = Dupliquer ce nœud
 remove-node = Supprimer ce nœud
 press-enter = Appuyez sur Entrée pour valider
+obs-for-node = Observation :
 
 # Result messages
-obs-for-nodes = Observations pour les nœuds:
 node = Nœud « {$name} » :
 obs-as = Observé comme étant : « {$value} »
 odds-ratios = Cote

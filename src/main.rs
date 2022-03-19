@@ -15,7 +15,6 @@ mod ui;
 pub enum Page {
     Idle,
     NodeEdit(usize),
-    SetObservations,
     ComputeBeliefs,
     MutualInformation(Option<usize>),
     ExportJson,

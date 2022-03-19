@@ -17,10 +17,27 @@ impl BayesOMatic {
             <div id="menu">
             <ul class="blocky">
                 <li><PushButton text={ lang!(self.lang, "reset") } onclick={ link.callback(|_| Msg::Reset) } /></li>
-                <li><PushButton text={ lang!(self.lang, "export-json") } onclick={ link.callback(|_| Msg::MoveToPage(Page::ExportJson)) } /></li>
-                <li><PushButton text={ lang!(self.lang, "load-json") } onclick={ link.callback(|_| Msg::MoveToPage(Page::LoadJson)) } /></li>
-                <li><PushButton text={ lang!(self.lang, "load-example") } onclick={ link.callback(|_| Msg::MoveToPage(Page::LoadExample)) } /></li>
-                <li><PushButton text={ lang!(self.lang, "help") } onclick={ link.callback(|_| Msg::MoveToPage(Page::Help)) } /></li>
+                <li><PushButton text={ lang!(self.lang, "export-json") }onclick={ link.callback(|_| Msg::Export) } /></li>
+                <li><PushButton text={ lang!(self.lang, "load-json") }
+                        onclick={ link.callback(|_| Msg::MoveToPage(Page::LoadJson)) }
+                        selected={ self.page == Page::LoadJson }
+                    /></li>
+                <li><PushButton text={ lang!(self.lang, "load-example") }
+                        onclick={ link.callback(|_| Msg::MoveToPage(Page::LoadExample)) }
+                        selected={ self.page == Page::LoadExample }
+                    /></li>
+                <li><PushButton text={ lang!(self.lang, "compute-beliefs") }
+                        onclick={ link.callback(|_| Msg::MoveToPage(Page::ComputeBeliefs)) }
+                        selected={ self.page == Page::ComputeBeliefs }
+                    /></li>
+                <li><PushButton text={ lang!(self.lang, "mutual-info") }
+                        onclick={ link.callback(|_| Msg::MoveToPage(Page::MutualInformation(None))) }
+                        selected={ matches!(&self.page, &Page::MutualInformation(_)) }
+                    /></li>
+                <li><PushButton text={ lang!(self.lang, "help") }
+                        onclick={ link.callback(|_| Msg::MoveToPage(Page::Help)) }
+                        selected={ self.page == Page::Help }
+                    /></li>
                 <li><a href="https://github.com/vberger/Bayes-O-Matic/">{ lang!(self.lang, "github") }</a></li>
                 <li>{ lang!(self.lang, "language") }
                     <select onchange={ link.callback(|e: Event| if let Some(select) = e.target_dyn_into::<HtmlSelectElement>() {
@@ -45,19 +62,7 @@ impl BayesOMatic {
         html! {
             <div id="meta-editor">
                 <ul class="blocky">
-                    <li><PushButton text={ lang!(self.lang, "add-node") } onclick={ link.callback(|_| Msg::AddNode) } /></li>
-                    <li><PushButton text={ lang!(self.lang, "set-observations") }
-                           onclick={ link.callback(|_| Msg::MoveToPage(Page::SetObservations)) }
-                           selected={ self.page == Page::SetObservations}
-                        /></li>
-                    <li><PushButton text={ lang!(self.lang, "compute-beliefs") }
-                           onclick={ link.callback(|_| Msg::MoveToPage(Page::ComputeBeliefs)) }
-                           selected={ self.page == Page::ComputeBeliefs }
-                        /></li>
-                    <li><PushButton text={ lang!(self.lang, "mutual-info") }
-                           onclick={ link.callback(|_| Msg::MoveToPage(Page::MutualInformation(None))) }
-                           selected={ matches!(&self.page, &Page::MutualInformation(_)) }
-                        /></li>
+
                 </ul>
                 <ul id="node-list" class="blocky">
                     { for self.dag.iter_nodes().map(|(id, node)| { html! {
@@ -66,6 +71,7 @@ impl BayesOMatic {
                                selected={ self.page == Page::NodeEdit(id) }
                             /></li>
                     }})}
+                    <li><PushButton text="+" title={ lang!(self.lang, "add-node") } onclick={ link.callback(|_| Msg::AddNode) } /></li>
                 </ul>
             </div>
         }
@@ -171,17 +177,6 @@ impl BayesOMatic {
                         <div id="editor">
                             { self.editorbar(link) }
                             { self.make_nodeedit_tab(id, link) }
-                        </div>
-                    </div>
-                }
-            }
-            Page::SetObservations => {
-                html! {
-                    <div id="content">
-                        <DotCanvas dot={ crate::draw::graph_to_dot(&self.dag) } />
-                        <div id="editor">
-                            { self.editorbar(link) }
-                            { self.make_observation_tab(link) }
                         </div>
                     </div>
                 }

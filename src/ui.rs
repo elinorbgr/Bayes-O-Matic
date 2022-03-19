@@ -12,6 +12,8 @@ pub struct PushButtonProps {
     #[prop_or(false)]
     pub selected: bool,
     pub onclick: Callback<()>,
+    #[prop_or_default]
+    pub title: Option<String>,
 }
 
 impl Component for PushButton {
@@ -30,11 +32,21 @@ impl Component for PushButton {
     fn view(&self, ctx: &Context<Self>) -> Html {
         let props = ctx.props();
         let link = ctx.link();
-        html! {
-            <a href="#"
-               onclick={ link.callback(|_| ()) }
-               class={ if props.selected { "selected" } else { "" }}
-               > { &props.text }</a>
+        if let Some(ref title) = props.title {
+            html! {
+                <a href="#"
+                   onclick={ link.callback(|_| ()) }
+                   title={ title.clone() }
+                   class={ if props.selected { "selected" } else { "" }}
+                   > { &props.text }</a>
+            }
+        } else {
+            html! {
+                <a href="#"
+                   onclick={ link.callback(|_| ()) }
+                   class={ if props.selected { "selected" } else { "" }}
+                   > { &props.text }</a>
+            }
         }
     }
 }

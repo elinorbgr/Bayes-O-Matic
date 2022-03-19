@@ -329,6 +329,28 @@ impl BayesOMatic {
         }
     }
 
+    fn make_observation_select(&self, nodeid: usize, link: &Scope<Self>) -> Html {
+        let node = self.dag.get(nodeid).unwrap();
+        html! {
+            <ul class="blocky vlist">
+            <li>{ lang!(self.lang, "obs-for-node") }</li>
+            <li>
+                <select onchange={ link.callback(move |e: Event| if let Some(select) = e.target_dyn_into::<HtmlSelectElement>() {
+                        Msg::SetObs { node: nodeid, obs: select.value().parse().ok() }
+                    } else {
+                        Msg::Ignore
+                    })
+                }>
+                    <option selected={ node.observation.is_none() } value=""></option>
+                    { for node.values.iter().enumerate().map(|(i,v)| {
+                        html! { <option selected={ node.observation == Some(i) } value={ i.to_string() }>{ v }</option> }
+                    })}
+                </select>
+            </li>
+            </ul>
+        }
+    }
+
     pub fn make_nodeedit_tab(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         html! {
             <div id="node-editor">
@@ -336,6 +358,7 @@ impl BayesOMatic {
                 <PushButton text={ lang!(self.lang, "remove-node") } onclick={ link.callback(move |_| Msg::RemoveNode(nodeid)) } />
                 { self.make_label_edit(nodeid, link) }
                 { self.make_values_edit(nodeid, link) }
+                { self.make_observation_select(nodeid, link) }
                 { self.make_parents_edit(nodeid, link) }
                 { self.make_node_description_edit(nodeid, link) }
                 { self.make_credencies_edit(nodeid, link) }

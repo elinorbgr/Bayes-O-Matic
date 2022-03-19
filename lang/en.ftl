@@ -39,9 +39,9 @@ default-node-name = Node #{$id}
 duplicate-node = Duplicate this node
 remove-node = Delete this node
 press-enter = Press Enter to submit
+obs-for-node = Observation:
 
 # Result messages
-obs-for-nodes = Observations for nodes:
 node = Node "{$name}":
 obs-as = Observed to be: "{$value}"
 odds-ratios = Odds ratios

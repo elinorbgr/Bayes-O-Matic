@@ -26,45 +26,6 @@ fn log_sum_exp_vec(x: ArrayView1<f32>) -> f32 {
 }
 
 impl BayesOMatic {
-    fn make_observation_select(
-        &self,
-        id: usize,
-        node: &crate::graph::Node,
-        link: &Scope<Self>,
-    ) -> Html {
-        html! {
-            <select onchange={ link.callback(move |e: Event| if let Some(select) = e.target_dyn_into::<HtmlSelectElement>() {
-                    Msg::SetObs { node: id, obs: select.value().parse().ok() }
-                } else {
-                    Msg::Ignore
-                })
-            }>
-                <option selected={ node.observation.is_none() } value=""></option>
-                { for node.values.iter().enumerate().map(|(i,v)| {
-                    html! { <option selected={ node.observation == Some(i) } value={ i.to_string() }>{ v }</option> }
-                })}
-            </select>
-        }
-    }
-
-    pub fn make_observation_tab(&self, link: &Scope<Self>) -> Html {
-        html! {
-            <div id="node-editor">
-                <p>{ lang!(self.lang, "obs-for-nodes") }</p>
-                <ul class="silentlist">
-                    { for self.dag.iter_nodes().map(|(id, node)| {
-                        html! {
-                            <li>
-                            { lang!(self.lang, "node", name=&node.label[..]) }
-                            { self.make_observation_select(id, node, link) }
-                            </li>
-                        }
-                    })}
-                </ul>
-            </div>
-        }
-    }
-
     fn make_belief_node(&self, nodeid: usize, beliefs: &LogProbVector) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         if let Some(obs) = node.observation {
