@@ -202,6 +202,7 @@ impl BayesOMatic {
         }
     }
 
+    #[allow(clippy::type_complexity)]
     fn make_credencies_edit_line(
         &self,
         nodeid: usize,
@@ -230,7 +231,7 @@ impl BayesOMatic {
                                        value={
                                     node.credencies.as_ref()
                                         .map(|array| array[IxDyn(&idx)])
-                                        .unwrap_or(0.0).to_string()
+                                        .unwrap_or(1.0).to_string()
                                 } />
                             </td>
                         }
@@ -254,7 +255,7 @@ impl BayesOMatic {
                                 node.credencies
                                     .as_ref()
                                     .map(|array| array[i])
-                                    .unwrap_or(0.0)
+                                    .unwrap_or(1.0)
                                     .to_string()
                             } />
                         </td>

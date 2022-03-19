@@ -75,9 +75,8 @@ impl BayesOMatic {
                 </li>
             }
         } else {
-            let log10 = 10f32.ln();
             let log_beliefs = beliefs.log_probabilities();
-            if self.beliefs_display == BeliefsDisplay::LogOdds {
+            if self.beliefs_display == BeliefsDisplay::OddsRatio {
                 let logodds_iter =
                     node.values
                         .iter()
@@ -94,7 +93,7 @@ impl BayesOMatic {
                             { for logodds_iter.map(|(name, belief)| {
                                 html! {
                                     <li>
-                                        { format!("{}: {:.2}", name, belief / log10) }
+                                        { format!("{}: {:.2}", name, belief.exp()) }
                                     </li>
                                 }
                             })}
@@ -103,6 +102,11 @@ impl BayesOMatic {
                 }
             } else {
                 let raw_iter = node.values.iter().zip(log_beliefs.iter());
+                let min_log_belief = log_beliefs
+                    .iter()
+                    .copied()
+                    .filter(|v| v.is_finite())
+                    .fold(0.0, f32::min);
                 html! {
                     <li>
                         <h3>{ lang!(self.lang, "node", name=&node.label[..]) }</h3>
@@ -117,7 +121,7 @@ impl BayesOMatic {
                                 } else {
                                     html! {
                                         <li>
-                                            { format!("{}: {:.2}", name, belief / log10) }
+                                            { format!("{}: {:.2}", name, (belief - min_log_belief).exp()) }
                                         </li>
                                     }
                                 }
@@ -141,10 +145,10 @@ impl BayesOMatic {
                                 Msg::Ignore
                             }
                         ) }>
-                        <option selected={ self.beliefs_display == BeliefsDisplay::LogOdds }
-                                value="log-odds">{ lang!(self.lang, "log-odds") }</option>
-                        <option selected={ self.beliefs_display == BeliefsDisplay::RawCredencies }
-                                value="raw-creds">{ lang!(self.lang, "raw-beliefs") }</option>
+                        <option selected={ self.beliefs_display == BeliefsDisplay::RawBeliefs }
+                                value="raw-beliefs">{ lang!(self.lang, "raw-beliefs") }</option>
+                        <option selected={ self.beliefs_display == BeliefsDisplay::OddsRatio }
+                                value="odds-ratios">{ lang!(self.lang, "odds-ratios") }</option>
                         <option selected={ self.beliefs_display == BeliefsDisplay::Probabilities }
                                 value="probabilities">{ lang!(self.lang, "probabilities") }</option>
                     </select>

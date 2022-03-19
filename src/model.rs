@@ -61,16 +61,16 @@ pub enum Msg {
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum BeliefsDisplay {
-    LogOdds,
-    RawCredencies,
+    OddsRatio,
+    RawBeliefs,
     Probabilities,
 }
 
 impl BeliefsDisplay {
     pub fn from_str(s: &str) -> Option<BeliefsDisplay> {
         match s {
-            "log-odds" => Some(BeliefsDisplay::LogOdds),
-            "raw-creds" => Some(BeliefsDisplay::RawCredencies),
+            "odds-ratios" => Some(BeliefsDisplay::OddsRatio),
+            "raw-beliefs" => Some(BeliefsDisplay::RawBeliefs),
             "probabilities" => Some(BeliefsDisplay::Probabilities),
             _ => None,
         }
@@ -261,7 +261,7 @@ impl Component for BayesOMatic {
             load_error: None,
             beliefs: None,
             mutual_info: None,
-            beliefs_display: BeliefsDisplay::LogOdds,
+            beliefs_display: BeliefsDisplay::RawBeliefs,
             help_contents: None,
             lang: Lang::load("en").unwrap(),
         }
@@ -269,7 +269,6 @@ impl Component for BayesOMatic {
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         let mut redraw = true;
-        weblog::console_log!(format!("Processing message: {:?}", msg));
         match msg {
             Msg::Ignore => {}
             Msg::AddNode => {

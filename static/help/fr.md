@@ -73,44 +73,36 @@ calcule une approximation de cette probabilité pour chaque nœud. Cette approxi
 n'est pas toujours parfaitement bonne, mais elle est suffisante pour l'inférence
 Bayésienne dans de nombreux cas.
 
-## Log-cotes et Crédences
+## Cotes et Probabilités non-normalisées
 
-En général, les humains ont tendance à percevoir le monde de manière logarithmique,
-et nos croyances ne font pas exception. C'est pourquoi it est généralement plus
-naturel de parler de probabilités en termes de log-cote, également appelées logits :
-\\(logit(A) = \log_{10}\frac{P(A)}{P(\neg A)}\\). Celà donne une idée d'à quel point
-\\(A\\) est probablement vrai ou faux : une log-cote de 0 signifie que l'on ne peut pas
-décider, une log-cote de 1 que \\(A\\) a 10 fois plus de chances d'être vrai que faux,
-une log-cote de 2 qu'il est 100 plus probable d'être vrai, etc. De manière similaire,
-une log-cote négative est en faveur du fait que \\(A\\) soit faux plutôt que vrai.
+Les probabilités très proches de 0 ou 1 sont souvent assez difficiles à se représenter
+et il est souvent plus simple de les exprimer en termes de ratios, que l'on nomme des
+cotes : \\(cote(A) = \frac{P(A)}{P(\neg A)}\\). Cette cote représentent à quel point
+\\(A\\) est plus probablement vraie que fausse. Une cote de 10 veut dire qu'on pense
+qu'il est 10 fois plus probable que \\(A\\) soit vraie, plutôt que fausse. Une cote
+de 0.1 veut dire au contraire qu'on pense que \\(A\\) a 10 fois plus de chances d'être
+fausse que vraie.
 
 Quand on considère un nœud à plus de deux valeurs (par exemple la couleur de la voiture),
-il peut être plus pratique de considérer des log-cotes relatives entre deux valeurs.
-Ici, plutôt que de considérer la log-cote de « rouge »
-\\(\log_{10}\frac{P(Rouge)}{P(pas Rouge)}\\) on va plutôt considérer le log-ratio des
+il peut être plus pratique de considérer des cotes relatives entre deux valeurs.
+Ici, plutôt que de considérer la cote de « rouge »
+\\(\frac{P(Rouge)}{P(pas Rouge)}\\) on va plutôt considérer le ratio des
 probabilités d'une couleur donnée comparée à une autre, comme par exemple
-\\(\log_{10}\frac{P(Rouge)}{P(Bleu)}\\). Une valeur de 2 voudrait dire que la voiture a
-100 fois plus de chances d'être rouge que bleue. On peut noter que grâce aux propriétés
-du logarithme, on peut plus généralement écrire les choses ainsi :
-
-\\(\log_{10}\frac{P(A = a_i)}{P(A = a_j)} = \log_{10} P(A = a_i) - \log_{10} P(A = a_j)\\)
+\\(\frac{P(Rouge)}{P(Bleu)}\\). Une valeur de 100 voudrait dire que la voiture a
+100 fois plus de chances d'être rouge que bleue.
 
 Ainsi, décrire notre état de croyance pour les valeurs possibles \\(a_1, ... a_k\\)
-pour un nœud \\(A\\) peut être fait en donnant uniquement les valeurs
-\\(\log_{10} P(A = a_i)\\) pour chaque \\(i\\), et les log-cotes relatives peuvent être
-aisément calculées avec les différences entre ces log-probabilités.
+pour un nœud \\(A\\) peut être fait en donnant des valeurs de probabilité non normalisées
+(il n'est pas nécessaire que leur somme soit 1) pour chaque \\(i\\), et cotes relatives
+peuvent être aisément calculées avec les ratios entre ces probabilités non normalisées.
+Le Bayes-O-Matic utilise ça à son avantage, et travaille en utilisant de telles
+probabilités non-normalisées. Pour marquer cette non-normalisation, nous les notons
+\\(\mathcal{P}(A = a_i)\\).
 
-Cette représentation a également l'avantage de ne pas nécessiter de normalization (en
-générale des probabilités doivent sommer à 1) : comme seules les différences entre
-deux log-probabilités ont de l'importance, ajouter une constante donnée à toutes ne
-change rien. Le Bayes-O-Matic utilise ça à son avantage, et travaille en utilisant des
-log-probabilités non-normalisées. Pour marquer cette différence, nous utilisons le
-terme « crédence » pour les représenter, et on les note \\(C(A = a_i)\\).
-
-Il est important de noter que comparer des log-probabilités non-normalisées n'a de sens
-que si on compare les différentes valeurs d'un même nœud. Donc  \\(C(A = a_i)\\) peut
-être comparé à \\(C(A = a_j)\\), mais \\(C(A = a_i)\\) ne peut pas être comparé
-à \\(C(B = b_j)\\).
+Il est important de noter que comparer des probabilités non-normalisées n'a de sens
+que si on compare les différentes valeurs d'un même nœud. Donc
+\\(\mathcal{P}(A = a_i)\\) peut être comparé à \\(\mathcal{P}(A = a_j)\\),
+mais \\(\mathcal{P}(A = a_i)\\) ne peut pas être comparé à \\(\mathcal{P}(B = b_j)\\).
 
 ## Comment utiliser cette application ?
 
@@ -128,46 +120,43 @@ Les nœuds où vous n'avez pas encore rentré de valeur possible apparaissent en
 sur cette représentation, et l'inférence ne peut pas être faite si au moins un
 nœud est dans cet état.
 
-Vous pouvez ensuite définir les crédences des différentes valeurs du nœud sachant
+Vous pouvez ensuite définir les probabilités des différentes valeurs du nœud sachant
 ses parents. La tableau contient une ligne pour chaque combinaison possible des
 valeurs des parents du nœud, et chaque colonne représente une valeur possible du nœud
-en cours d'édition. Remplir ce tableau vous permet de spécifier la probabilité de
-chaque valeur du nœud sachant les valeurs de ses parents.
+en cours d'édition. Remplir ce tableau vous permet de spécifier la probabilité
+non-normalisée de chaque valeur du nœud sachant les valeurs de ses parents.
 
-Les crédences que vous rentrez, étant des log-probabilités non-normalisées, peuvent
+Ces cotes que vous définisses, étant des probabilités non-normalisées, peuvent
 seulement être comparées ensemble au sein d'une même ligne. Et de manière similaire,
-seules les différences entre les valeurs que vous rentrez sont pertinentes. Pour vous
-aider à les remplir, vous pouvez par exemple choisir une valeur comme référence à 0 et
+seules les ratios entre les valeurs que vous rentrez sont pertinentes. Pour vous
+aider à les remplir, vous pouvez par exemple choisir une valeur comme référence à 1 et
 décrire les autres relativement à elle. Ou bient vous pouvez décider de toujours
-mettre 0 pour la valeur la moins probable et remplir les autres valeurs relativement
+mettre 1 pour la valeur la moins probable et remplir les autres valeurs relativement
 à elle.
 
 #### Observations et croyances
 
-Une fois définies les valeurs et les crédences pour tous vos nœuds, votre modèle
+Une fois définies les valeurs et les probabilités pour tous vos nœuds, votre modèle
 est en place. Vous pouvez maintenant vous rendre sur l'onglet « Fixer les
 observations » et remplir les valeurs des nœuds que vous avez observé, et donc
 pour lesquels vous connaissez les valeurs. Les nœuds observés apparaissent en
 gras dans la représentation graphique de votre modèle.
 
 Finalement, vous pouvez exécuter l'algorithme pour cacluler les croyances, en
-cliquant sur le bouton « Calculer les croyances ». Les croyances sont
-mathématiquement la même chose que les crédences (des log-probabilités
-non-normalisées), mais nous utilisons un terme différent pour mettre en évidence
-leur différent rôle (les crédences son des entrées de l'algorithme, les croyances
-sont son résultat). Pour chaque nœud non-observé, le Bayes-O-Matic va calculer
-un vecteur de croyances pour ses différentes valeurs. Comme pour les crédences,
-seule la différence entre deux croyances a du sens, et seulement au sein
-d'un même nœud.
-
-Pour donner une échelle, une différence de 1 entre deux croyances ou crédences est
-considéré comme une légère préférence pour une valeur, alors qu'une différence de 5
-est une forte croyance qu'une valeur est vraie au détriment de l'autre.
+cliquant sur le bouton « Calculer les croyances ». Pour chaque nœud non-observé,
+le Bayes-O-Matic va calculer une liste de croyances pour ses différentes valeurs.
+Il s'agit ncore ici de probabilités non normalisées, seul le ratio entre deux
+croyances a du sens, et seulement au sein d'un même nœud.
 
 Lors de l'affichage du résultat, vous pouvez choisir de voir les « croyances brutes »
-comme expliqué à instance, out de plutôt afficher les log-cotes. Lors de l'affichage
-des log-cotes, l'application va calculer \\(\log_{10}\frac{P(A = a_i)}{P(A \neq a_i)}\\)
-pour chaque valeur, plutôt que de simplement afficher \\(\log_{10}P(A = a_i)\\).
+comme expliqué à l'instant, ou de plutôt afficher les cotes. Lors de l'affichage
+des log-cotes, l'application va calculer
+\\(\frac{\mathcal{P}(A = a_i)}{\mathcal{P}(A \neq a_i)}\\) pour chaque valeur,
+plutôt que de simplement afficher \\(\mathcal{P}(A = a_i)\\).
+
+L'affichage en « probabilités » normalise les probabilités pour les afficher, il peut
+être plus parlant pour les cas très incertains, mais peut facilement saturer pour les
+probabilités très proches de 0 ou de 1.
 
 #### Information mutuelle
 

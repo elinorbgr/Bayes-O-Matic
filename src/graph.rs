@@ -346,11 +346,14 @@ impl Dag {
                 parent_ids.push(map[p].unwrap());
                 values_count.push(self.nodes[p].as_ref().unwrap().values.len());
             }
-            let credencies_data = node.credencies.clone().unwrap_or_else(|| {
-                let count = values_count.iter().product();
-                ArrayD::from_shape_vec(IxDyn(&values_count), vec![0.0; count]).unwrap()
-            });
-            let log_probas = credencies_data * 10f32.ln();
+            let log_probas = node
+                .credencies
+                .as_ref()
+                .map(|array| array.map(|v| v.max(0.0).ln()))
+                .unwrap_or_else(|| {
+                    let count = values_count.iter().product();
+                    ArrayD::from_shape_vec(IxDyn(&values_count), vec![0.0; count]).unwrap()
+                });
             let loopy_id = net.add_node_from_log_probabilities(&parent_ids, log_probas);
 
             // collect the observation
