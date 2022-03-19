@@ -130,6 +130,7 @@ impl BayesOMatic {
                             html! { <li><p><a href="#" onclick={ link.callback(move |_| Msg::LoadExample(name.into())) }>{ name }</a></p></li> }
                         })}
                         </ul>
+                        <a href="#" onclick={ link.callback(|_| Msg::MoveToPage(Page::Idle)) }>{ lang!(self.lang, "close") }</a>
                     </div>
                 }
             }
@@ -138,12 +139,14 @@ impl BayesOMatic {
                     html! {
                         <div id="popup">
                             { crate::markdown::render_markdown(help) }
+                            <a href="#" onclick={ link.callback(|_| Msg::MoveToPage(Page::Idle)) }>{ lang!(self.lang, "close") }</a>
                         </div>
                     }
                 } else {
                     html! {
                         <div id="popup">
                             <p>{ lang!(self.lang, "loading-help") }</p>
+                            <a href="#" onclick={ link.callback(|_| Msg::MoveToPage(Page::Idle)) }>{ lang!(self.lang, "close") }</a>
                         </div>
                     }
                 }
