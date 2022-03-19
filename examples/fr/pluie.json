@@ -9,8 +9,8 @@
       "parents": [],
       "observation": null,
       "credencies": [
-        1.0,
-        0.0
+        9.0,
+        1.0
       ],
       "cred_description": [
         "Nous sommes dans une région assez sèche, il ne pleut que ~10% du temps."
@@ -28,10 +28,10 @@
       ],
       "observation": null,
       "credencies": [
-        0.0,
+        1.0,
+        10.0,
         2.0,
-        0.5,
-        0.0
+        1.0
       ],
       "cred_description": [
         "S'il n'a pas plu, il est légèrement probable que l'arroseur se soit déclenché récemment puisqu'il le fait une fois par jour.",
@@ -51,14 +51,14 @@
       ],
       "observation": 1,
       "credencies": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        2.0,
+        5.0,
         1.0,
-        3.0
+        1.0,
+        1.0,
+        1.0,
+        10.0,
+        10.0,
+        100.0
       ],
       "cred_description": [
         "",
@@ -79,10 +79,10 @@
       ],
       "observation": 1,
       "credencies": [
-        0.5,
-        0.0,
-        0.0,
-        2.0
+        5.0,
+        1.0,
+        1.0,
+        10.0
       ],
       "cred_description": [
         "Comme la pluie est rare ici, il est inhabituel de voir des nuages qui ne s'accompagnent pas de pluie.",

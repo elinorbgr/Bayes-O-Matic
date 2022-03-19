@@ -14,3 +14,14 @@ export function graph_render(dot, svg) {
         svg.setAttribute("height",(bbox.height+20) + "px");
     }, 10);
 }
+
+export function mathjax_typeset() {
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+}
+
+export function make_json_download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:application/json,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.click();
+  }

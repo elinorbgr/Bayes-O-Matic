@@ -68,42 +68,32 @@ an approximation of this last probability for each node. This approximation is n
 necessarily good in all cases, but it is good enough for Bayesian inference in many
 practical cases.
 
-## Log-odds and Credencies
+## Odds ratios and unnormalised probabilities
 
-In general, humans often tend to perceive the world in logarithmic scales, and
-our beliefs are no exception. That is why it is generally more natural to talk
-about probabilities in terms of log-odds, also called logits:
-\\(logit(A) = \log_{10}\frac{P(A)}{P(\neg A)}\\). It gives a rought scale of how
-\\(A\\) is likely to be true or false: a logit of 0 means we cannot decide, a logit
-of 1 that \\(A\\) is 10 times more likely to be true than false, a logit of 2 that it is
-100 times more likely to be true, etc. Similarly, negative values for the logit are
-in favor of \\(A\\) being false rather than true.
+Probabilities close to 0 or 1 are often difficult to grasp intuitively, and it can be easier
+to express them in terms of ratios, which we name odds ratios:
+\\(odds(A) = \frac{P(A)}{P(\neg A)}\\). This odds ratio represent how much more likely
+\\(A\\) is to be true rather than false. An odds ratio of 10 means that it is 10 times
+more likely to be true. On the opposite, an odds ratio of 0.1 means that it is 10 times
+more likely to be false rather than true.
 
 When considering a multi-valued node (for example the color of the car), it can be
-more practical to consider relative log odds from a value to an other. There, rather
-than the log-odds of "red" \\(\log_{10}\frac{P(Red)}{P(not Red)}\\), we would consider the
-log ratio of the probabilities of a given color compared to an other, such as
-\\(\log_{10}\frac{P(Red)}{P(Blue)}\\). A value of 2 would mean that the car is 100 times
-more likely to be red than blue. Note that due to the properties of the logarithm, we
-can also write more generally things like so:
-
-\\(\log_{10}\frac{P(A = a_i)}{P(A = a_j)} = \log_{10} P(A = a_i) - \log_{10} P(A = a_j)\\)
+more practical to consider relative odds from a value to an other. There, rather
+than the odds ratio of "red" \\(\frac{P(Red)}{P(not Red)}\\), we would consider
+the ratio of the probabilities of a given color compared to an other, such as
+\\(\frac{P(Red)}{P(Blue)}\\). A value of 100 would mean that the car is 100 times
+more likely to be red than blue.
 
 So describing our belief state on the possible values \\(a_1, ... a_k\\) for a node \\(A\\)
-can be done by only giving the value of \\(\log_{10} P(A = a_i)\\) for all \\(i\\), and the
-relative log odds can easily be computed by computing the difference between two
-log-probabilities.
+can be done by only giving unnormalised probability values (there is no need for them to
+sum to 1) for all \\(i\\), and the relative odds can easily be computed with the ratios
+between two unnormalised probabilities. The Bayes-O-Matic takes advantage of this and uses
+unnormalized log-probabilities. To mark this difference, it is noted \\(\mathcal{P}(A = a_i)\\).
 
-This representation also has the advantage of not requiring normalization (in general
-probabilities should sum to 1): as only the difference between two log-probabilities
-matter, adding a single constant to everything does not change anything. The
-Bayes-O-Matic takes advantage of this and uses unnormalized log-probabilities. To
-mark this difference, the Bayes-O-Matic uses the term "credency" to represent them,
-and it is noted \\(C(A = a_i)\\).
-
-Note however that comparing unnormalized log-probabilities only makes sense for comparing
-the different values of a given node. So \\(C(A = a_i)\\) can be compared to \\(C(A = a_j)\\),
-but \\(C(A = a_i)\\) cannot be compared to \\(C(B = b_j)\\).
+Note however that comparing unnormalized probabilities only makes sense for comparing
+the different values of a given node. So \\(\mathcal{P}(A = a_i)\\) can be compared to
+\\(\mathcal{P}(A = a_j)\\), but \\(\mathcal{P}(A = a_i)\\) cannot be compared to
+\\(\mathcal{P}(B = b_j)\\).
 
 ## How do I use this app?
 
@@ -120,41 +110,39 @@ to allow you to keep an eye on your model as a whole. Nodes without any possible
 will appear in red on this representation, and the computation cannot be done if any
 node is in that state.
 
-You can then set the credencies of the different values of your node given its parents.
+You can then set the probabilities of the different values of your node given its parents.
 The table contains a row for each possible combination of values of the parents of
 your node, and each column represents a possible value of the current node. Filling
 this table allows you to specify how likely each value of the node is depending on
 its parents.
 
-The credencies you input, being unnormalized log-probabilities, can only
-be compared to each other within a row. And similarly, only the difference between each
-value withing a row matters. To help filling them, you can for example choose a value
-as a reference and describe all other values relative to it. Or you can decide to always
-put 0 for the least likely value of the row and fill the other values relative to it.
+The probabilities you input, being unnormalized, can only be compared to each other
+within a row. And similarly, only the ratio between each value withing a row matters.
+To help filling them, you can for example choose a value as a reference 1 and describe
+all other values relative to it. Or you can decide to always put 1 for the least likely
+value of the row and fill the other values relative to it.
 
 #### Observations and beliefs
 
-Once your have defined the values and credencies for all your nodes, your model is
+Once your have defined the values and probabilities for all your nodes, your model is
 in place. You can then go to the "Set observations" tab and set the values for the
 nodes that are observed, and thus for which you know their values. Nodes that are
 observed will appear in bold in the graphical representation of your model.
 
 Finally, you can run the algorithm to compute the beliefs, by clicking the
-"Compute beliefs" button. Beliefs are the same as credencies mathematically
-speaking (unnormalized log-probabilities), but we use a different name to
-emphasise their different role (credencies are input to the algorithm, beliefs are
-its output). For each non-observed node, the Bayes-O-Matic will compute a vector
-of beliefs for its different values. As for credencies, only the difference between
-two beliefs is meaningful, and only within the same node.
-
-To give some scale, a difference of 1 in belief or credency value is considered as
-a slight preference for a value, while a difference of 5 will be a strong belief
-that one value must be chosen rather than the other.
+"Compute beliefs" button. For each non-observed node, the Bayes-O-Matic will compute
+a list of beliefs for its different values. Those are again unormalised probabilities,
+so only the ratio between two beliefs is meaningful, and only within the same node.
 
 When displaying the inference result, you can choose to see the "raw beliefs" as
-explained just before, or to dsplay them as log-odds. When choosing to display
-log-odds, the app will compute \\(\log_{10}\frac{P(A = a_i)}{P(A \neq a_i)}\\) for
-each value \\(a_i\\), rather than just displaying \\(\log_{10}P(A = a_i)\\).
+explained just before, or to display them as individual odds ratios. When choosing
+to display those, the app will compute
+\\(\frac{\mathcal{P}(A = a_i)}{\mathcal{P}(A \neq a_i)}\\) for each value \\(a_i\\),
+rather than just displaying \\(\mathcal{P}(A = a_i)\\).
+
+As third display mode the Bayes-O-Matic can display proper probabilities. It can be
+clearer in some uncertain cases, but the displayed probability can easily saturate when
+close to 0 or 1.
 
 #### Mutual information
 

@@ -11,10 +11,10 @@
       "parents": [],
       "observation": null,
       "credencies": [
+        5.0,
         1.0,
-        0.0,
-        0.0,
-        0.0
+        1.0,
+        1.0
       ],
       "cred_description": [
         "Mosquitoes are quite common at this moment of the year, the other insects are more rare."
@@ -32,14 +32,14 @@
       ],
       "observation": 1,
       "credencies": [
-        2.0,
-        2.0,
-        0.0,
+        100.0,
+        100.0,
         1.0,
-        0.0,
-        0.0,
+        10.0,
         1.0,
-        0.0
+        1.0,
+        10.0,
+        1.0
       ],
       "cred_description": [
         "Mosquitoes don't normally leave anything in the skin when they bite.",
@@ -60,14 +60,14 @@
       ],
       "observation": 1,
       "credencies": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.5,
-        1.5,
         1.0,
-        1.0
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        10.0,
+        8.0,
+        8.0
       ],
       "cred_description": [
         "Mosquito bites may cause some very small swelling, but it's rarely notable.",
@@ -88,14 +88,14 @@
       ],
       "observation": 1,
       "credencies": [
-        2.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        3.0,
-        3.0
+        20.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        100.0,
+        100.0
       ],
       "cred_description": [
         "Mosquito bites rarely hurt.",
