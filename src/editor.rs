@@ -316,7 +316,7 @@ impl BayesOMatic {
                     </th>
                     { for node.values.iter().map(|v| {
                         html! {
-                            <th>{ format!("\\(\\mathcal{{P}}\\)({})", v) }</th>
+                            <th>{ format!("𝒫({})", v) }</th>
                         }
                     })}
                     <th>{ lang!(self.lang, "explanation") }</th>
@@ -335,13 +335,13 @@ impl BayesOMatic {
             <ul class="blocky vlist">
             <li>{ lang!(self.lang, "obs-for-node") }</li>
             <li>
-                <select onchange={ link.callback(move |e: Event| if let Some(select) = e.target_dyn_into::<HtmlSelectElement>() {
+                <select id="node-obs" onchange={ link.callback(move |e: Event| if let Some(select) = e.target_dyn_into::<HtmlSelectElement>() {
                         Msg::SetObs { node: nodeid, obs: select.value().parse().ok() }
                     } else {
                         Msg::Ignore
                     })
                 }>
-                    <option selected={ node.observation.is_none() } value=""></option>
+                    <option selected={ node.observation.is_none() } value="none"></option>
                     { for node.values.iter().enumerate().map(|(i,v)| {
                         html! { <option selected={ node.observation == Some(i) } value={ i.to_string() }>{ v }</option> }
                     })}

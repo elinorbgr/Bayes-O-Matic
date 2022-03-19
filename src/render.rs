@@ -1,8 +1,7 @@
-use wasm_bindgen::JsCast;
 use yew::html::{Scope, TargetCast};
 use yew::{html, Html};
 
-use web_sys::{window, Event, HtmlInputElement, HtmlSelectElement, HtmlTextAreaElement};
+use web_sys::{Event, HtmlInputElement, HtmlSelectElement};
 
 use crate::draw::DotCanvas;
 use crate::graph::{DeserError, EdgeError};
@@ -98,6 +97,7 @@ impl BayesOMatic {
             Page::LoadJson => {
                 html! {
                     <div id="popup">
+                        { self.print_error() }
                         <input type="file" id="load-json" accept="application/json" onchange={ link.callback_future(|evt: Event| async move {
                             let fileinput = evt.target_dyn_into::<HtmlInputElement>().unwrap();
                             let file = fileinput.files()?.get(0)?;

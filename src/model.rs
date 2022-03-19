@@ -3,7 +3,8 @@ use std::future::Future;
 use loopybayesnet::LogProbVector;
 use ndarray::ArrayD;
 use reqwasm::http::Request;
-use wasm_bindgen::JsValue;
+use wasm_bindgen::{JsCast, JsValue};
+use web_sys::HtmlSelectElement;
 use yew::{html, Component, Context, Html};
 
 use crate::{
@@ -133,8 +134,7 @@ impl BayesOMatic {
             .collect();
         // retreive the base beliefs
         let mut base_belief: Vec<_> = self
-            .compute_beliefs()
-            .unwrap()
+            .compute_beliefs()?
             .into_iter()
             .filter(|&(_, id)| non_observed_nodes.contains(&id))
             .collect();
@@ -418,6 +418,27 @@ impl Component for BayesOMatic {
     }
 
     fn rendered(&mut self, _ctx: &Context<Self>, _first_render: bool) {
-        crate::js::mathjax_typeset();
+        if self.page == Page::Help {
+            crate::js::mathjax_typeset();
+        }
+
+        // FIXME: hack around https://github.com/yewstack/yew/issues/2530
+
+        if let Page::NodeEdit(nodeid) = self.page {
+            let node = self.dag.get(nodeid).unwrap();
+            let select: HtmlSelectElement = web_sys::window()
+                .unwrap()
+                .document()
+                .unwrap()
+                .query_selector("select[id=\"node-obs\"]")
+                .unwrap()
+                .unwrap()
+                .dyn_into()
+                .unwrap();
+            match node.observation {
+                Some(id) => select.set_value(&id.to_string()),
+                None => select.set_value("none"),
+            }
+        }
     }
 }
