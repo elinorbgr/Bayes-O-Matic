@@ -14,6 +14,7 @@ compute-beliefs = Compute beliefs
 mutual-info = Mutual information
 
 # Loading messages
+choose-file-lo-load = Choose a file to load
 invalid-json = The provided input is not valid JSON
 err-cycle = The input graph cannot be loaded as it contains a cycle.
 err-nodenotfound = The input graph cannot be loaded as it contains references to non-existing nodes.
@@ -30,6 +31,7 @@ node-name = Node name:
 node-values = Node values:
 add-value = Add a value...
 node-parents = Node parents:
+node-desc = Node description:
 write-desc = Write a description for this node...
 row-desc = Description for this row...
 parent-values = Parent values
@@ -40,6 +42,7 @@ duplicate-node = Duplicate this node
 remove-node = Delete this node
 press-enter = Press Enter to submit
 obs-for-node = Observation:
+add-parent = Add a parent...
 
 # Result messages
 node = Node "{$name}":
@@ -52,5 +55,5 @@ inference-no-value = Inference cannot be done if a node has no valid value.
 mutual-info-result = Results of mutual information computation:
 target-node = Target node:
 mi-no-value = Mutual information cannot be computed if no node is unobserved.
-with-node = With node "{$name}"
+with-node = With node "{$name}":
 probabilities = Probabilities

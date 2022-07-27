@@ -30,10 +30,10 @@ impl BayesOMatic {
         let node = self.dag.get(nodeid).unwrap();
         if let Some(obs) = node.observation {
             html! {
-                <li>
+                <div class="block">
                     <h3>{ lang!(self.lang, "node", name=&node.label[..]) }</h3>
                     <p>{ lang!(self.lang, "obs-as", value=&node.values[obs][..]) }</p>
-                </li>
+                </div>
             }
         } else {
             let log_beliefs = beliefs.log_probabilities();
@@ -48,9 +48,9 @@ impl BayesOMatic {
                             belief - lse
                         }));
                 html! {
-                    <li>
+                    <div class="block">
                         <h3>{ lang!(self.lang, "node", name=&node.label[..]) }</h3>
-                        <ul class="posterior">
+                        <ul class="vlist blocky">
                             { for logodds_iter.map(|(name, belief)| {
                                 html! {
                                     <li>
@@ -59,7 +59,7 @@ impl BayesOMatic {
                                 }
                             })}
                         </ul>
-                    </li>
+                    </div>
                 }
             } else {
                 let raw_iter = node.values.iter().zip(log_beliefs.iter());
@@ -69,14 +69,14 @@ impl BayesOMatic {
                     .filter(|v| v.is_finite())
                     .fold(0.0, f32::min);
                 html! {
-                    <li>
+                    <div class="block">
                         <h3>{ lang!(self.lang, "node", name=&node.label[..]) }</h3>
-                        <ul class="posterior">
+                        <ul class="vlist blocky">
                             { for raw_iter.map(|(name, belief)| {
                                 if self.beliefs_display == BeliefsDisplay::Probabilities {
                                     html! {
                                         <li>
-                                            { format!("{}: {:.2}", name, belief.exp()) }
+                                            { format!("{}: {:.1}%", name, belief.exp()*100.0) }
                                         </li>
                                     }
                                 } else {
@@ -88,7 +88,7 @@ impl BayesOMatic {
                                 }
                             })}
                         </ul>
-                    </li>
+                    </div>
                 }
             }
         }
@@ -97,9 +97,11 @@ impl BayesOMatic {
     pub fn make_beliefs_tab(&self, link: &Scope<Self>) -> Html {
         if let Some(ref results) = self.beliefs {
             html! {
-                <div id="node-editor">
+                <div id="node-editor" class="box content">
                     <h2>{ lang!(self.lang, "inference-results") }</h2>
-                    <p>{ lang!(self.lang, "result-format") }
+                    <div class="field">
+                    <label class="label">{ lang!(self.lang, "result-format") }</label>
+                    <div class="control select">
                     <select onchange={ link.callback(|e: Event| if let Some(select) = e.target_dyn_into::<HtmlSelectElement>() {
                                 Msg::SetBeliefsDisplay(BeliefsDisplay::from_str(&select.value()).unwrap())
                             } else {
@@ -113,17 +115,16 @@ impl BayesOMatic {
                         <option selected={ self.beliefs_display == BeliefsDisplay::Probabilities }
                                 value="probabilities">{ lang!(self.lang, "probabilities") }</option>
                     </select>
-                    </p>
-                    <ul class="silentlist widelist">
-                        { for results.iter().map(|&(ref beliefs, id)| {
-                            self.make_belief_node(id, beliefs)
-                        })}
-                    </ul>
+                    </div>
+                    </div>
+                    { for results.iter().map(|&(ref beliefs, id)| {
+                        self.make_belief_node(id, beliefs)
+                    })}
                 </div>
             }
         } else {
             html! {
-                <div id="node-editor">
+                <div id="node-editor" class="box content">
                     <p>{ lang!(self.lang, "inference-no-value") }</p>
                 </div>
             }
@@ -133,9 +134,11 @@ impl BayesOMatic {
     pub fn make_mutualinfo_tab(&self, link: &Scope<Self>) -> Html {
         if let Some(ref results) = self.mutual_info {
             html! {
-                <div id="node-editor">
+                <div id="node-editor" class="box content">
                     <h2> { lang!(self.lang, "mutual-info-result") }</h2>
-                    <p>{ lang!(self.lang, "target-node") }
+                    <div class="field">
+                    <label class="label">{ lang!(self.lang, "target-node") }</label>
+                    <div class="control select">
                     <select onchange={ link.callback(|e: Event| if let Some(select) = e.target_dyn_into::<HtmlSelectElement>() {
                             Msg::MoveToPage(Page::MutualInformation(Some(select.value().parse().unwrap())))
                         } else {
@@ -148,19 +151,18 @@ impl BayesOMatic {
                         }
                     }) }
                     </select>
-                    </p>
-                    <ul class="silentlist widelist">
-                        { for results.iter().map(|&(id, mi)| {
-                            html! {
-                                <li>{ format!("{} {:.5}", lang!(self.lang, "with-node", name=&self.dag.get(id).unwrap().label[..]), mi) }</li>
-                            }
-                        })}
-                    </ul>
+                    </div>
+                    </div>
+                    { for results.iter().map(|&(id, mi)| {
+                        html! {
+                            <div class="block">{ format!("{} {:.2} bits", lang!(self.lang, "with-node", name=&self.dag.get(id).unwrap().label[..]), mi) }</div>
+                        }
+                    })}
                 </div>
             }
         } else {
             html! {
-                <div id="node-editor">
+                <div id="node-editor" class="box">
                     <p>{ lang!(self.lang, "mi-no-value") }</p>
                 </div>
             }

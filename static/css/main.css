@@ -3,6 +3,46 @@ body {
     margin: auto;
 }
 
+.blocky li {
+    display: inline-block;
+    margin: 2px;
+}
+
+#canvas {
+    overflow: scroll;
+}
+
+.vlist li {
+    background-color: #fff;
+    border-width: 1px;
+    border: 1px solid #dbdbdb;
+    color: #363636;
+    justify-content: center;
+    padding-bottom: calc(.25em - 1px);
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    padding-top: calc(.25em - 1px);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.delete-button {
+    border: 1px solid #dbdbdb;
+    margin-left: 0.5em;
+    padding-left: 0.25em;
+    padding-right: 0.25em;
+}
+
+.silentlist {
+    list-style: none !important;
+}
+
+.widelist li {
+    padding: 8px;
+}
+
+/*
+
 #menu {
     margin: 8px;
 }
@@ -11,14 +51,36 @@ body {
     margin: 2px;
 }
 
+#canvas {
+    margin: 8px;
+    max-width: 800px;
+    overflow: scroll;
+}
+
+#editor {
+    margin: 8px;
+    max-width: 800px;
+    overflow: scroll;
+}
+
+#meta-editor, #help {
+    padding: 4px;
+}
+
+#node-editor {
+    padding: 4px;
+    margin-top: 16px;
+}
+
+*/
+
+/*
+
 ul {
     display: block;
     padding: 0;
 }
 
-.blocky li {
-    display: inline-block;
-}
 
 .vlist li {
     margin-right: 16px;
@@ -31,74 +93,8 @@ ul {
     border: 1px solid black;
 }
 
-.silentlist {
-    list-style: none;
-}
-
-.widelist li {
-    padding: 8px;
-}
-
-a {
-    display: inline-block;
-    border: 2px solid black;
-    border-radius: 16px;
-    padding: 8px;
-    color: black;
-    text-decoration: none;
-}
-
-p a {
-    display: inline;
-    border: 0;
-    padding: 0;
-    text-decoration: underline;
-}
-
-.vlist li a {
-    padding: 2px;
-    margin-left: 2px;
-}
-
-li a:hover {
-    background-color: #d0d0d0;
-}
-
-.selected {
-    background-color: #d0d0d0;
-}
-
 #content {
     display: flex;
-}
-
-#canvas {
-    border: 2px solid black;
-    border-radius: 16px;
-    flex: 50%;
-    margin: 8px;
-    max-width: 800px;
-    overflow: scroll;
-}
-
-#editor {
-    flex: 50%;
-    margin: 8px;
-    max-width: 800px;
-    overflow: scroll;
-}
-
-#meta-editor, #help {
-    border: 2px solid black;
-    border-radius: 16px;
-    padding: 4px;
-}
-
-#node-editor {
-    border: 2px solid black;
-    border-radius: 16px;
-    padding: 4px;
-    margin-top: 16px;
 }
 
 table, tr, td {
@@ -129,6 +125,7 @@ th:first-child {
     margin-right: auto;
     padding: 16px;
 }
+*/
 
 /* graph style */
 svg {
@@ -144,6 +141,9 @@ svg {
     stroke: #333;
     fill: #fff;
     stroke-width: 1.5px;
+}
+.node .label {
+    font-weight: normal;
 }
 .cluster rect {
     stroke: #333;

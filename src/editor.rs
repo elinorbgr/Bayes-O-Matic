@@ -14,7 +14,6 @@ use yew::{
 use crate::{
     lang,
     model::{BayesOMatic, Msg},
-    ui::PushButton,
 };
 
 pub fn fetch_input_and_clear(name: &str) -> String {
@@ -112,14 +111,16 @@ impl BayesOMatic {
     fn make_label_edit(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         html! {
-            <div>
-                { lang!(self.lang, "node-name") }
-                <input size=16
+            <div class="field">
+                <label class="label">{ lang!(self.lang, "node-name") }</label>
+                <div class="control">
+                <input class="input"
                         oninput={ link.callback(move |evt: InputEvent| Msg::SetLabel {
                             node: nodeid,
                             label: evt.target_dyn_into::<HtmlInputElement>().unwrap().value()
                         }) }
                         value={ node.label.clone() } />
+                </div>
             </div>
         }
     }
@@ -127,25 +128,27 @@ impl BayesOMatic {
     fn make_values_edit(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         html! {
-            <ul class="blocky vlist">
-                <li>{ lang!(self.lang, "node-values") }</li>
-                { for node.values.iter().enumerate().map(|(i,v)| {
-                    html! {
-                        <li>
-                            { v } <a href="#" onclick={ link.callback(move |_| Msg::DelValue { node: nodeid, value_id: i })}>{ "×" }</a>
-                        </li>
-                    }
-                })}
-                <li>
-                    <input placeholder={ lang!(self.lang, "add-value") }
-                        size=16
+            <div class="field">
+                <label class="label">{ lang!(self.lang, "node-values") }</label>
+                <ul class="blocky vlist">
+                    { for node.values.iter().enumerate().map(|(i,v)| {
+                        html! {
+                            <li>
+                                { v } <a href="#" class="delete-button" onclick={ link.callback(move |_| Msg::DelValue { node: nodeid, value_id: i })}>{ "×" }</a>
+                            </li>
+                        }
+                    })}
+                </ul>
+                <div class="control">
+                <input placeholder={ lang!(self.lang, "add-value") }
+                        class="input"
                         name="addvalue"
                         onkeypress={ link.callback(move |evt: KeyboardEvent| if evt.key() == "Enter" {
                             Msg::AddValue { node: nodeid, value: fetch_input_and_clear("addvalue") }
                         } else { Msg::Ignore }) } />
                     { format!("({})", lang!(self.lang, "press-enter")) }
-                </li>
-            </ul>
+                </div>
+            </div>
         }
     }
 
@@ -156,7 +159,7 @@ impl BayesOMatic {
                 } else {
                     Msg::Ignore
                 })}>
-                <option selected=true value=""></option>
+                <option selected=true value="">{ format!("({})", lang!(self.lang, "add-parent")) }</option>
                 { for self.dag.iter_nodes().map(|(i, potential)| {
                     if self.dag.check_edge_addition(nodeid, i).is_ok() {
                         html! {
@@ -173,24 +176,27 @@ impl BayesOMatic {
     fn make_parents_edit(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         html! {
-            <ul class="blocky vlist">
-                <li>{ lang!(self.lang, "node-parents") }</li>
-                { for node.parents.iter().map(|&p| {
-                    let parent = self.dag.get(p).unwrap();
-                    html! {
-                        <li>{ &parent.label }<a href="#" onclick={ link.callback(move |_| Msg::DelParent { node: nodeid, parent_id: p })}>{ "×" }</a></li>
-                    }
-                })}
-                <li>{ self.make_parent_seletor(nodeid, link) }</li>
-            </ul>
+            <div class="field">
+                <label class="label">{ lang!(self.lang, "node-parents") }</label>
+                <ul class="blocky vlist">
+                    { for node.parents.iter().map(|&p| {
+                        let parent = self.dag.get(p).unwrap();
+                        html! {
+                            <li>{ &parent.label }<a href="#" class="delete-button" onclick={ link.callback(move |_| Msg::DelParent { node: nodeid, parent_id: p })}>{ "×" }</a></li>
+                        }
+                    })}
+                </ul>
+                <div class="control select">{ self.make_parent_seletor(nodeid, link) }</div>
+            </div>
         }
     }
 
     fn make_node_description_edit(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         html! {
-            <div>
-                <textarea cols=40 rows=4 placeholder={ lang!(self.lang, "write-desc") }
+            <div class="field">
+                <label class="label">{ lang!(self.lang, "node-desc") }</label>
+                <textarea class="textarea" cols=40 rows=4 placeholder={ lang!(self.lang, "write-desc") }
                           oninput={ link.callback(move |evt: InputEvent| Msg::SetDesc {
                               node: nodeid,
                               desc: evt.target_dyn_into::<HtmlTextAreaElement>().unwrap().value()
@@ -226,7 +232,8 @@ impl BayesOMatic {
                         idx.extend(parent_values.iter().map(|&(_, _, v, _)| v));
                         html! {
                             <td>
-                                <input name={ format!("{}_{}", label, i) }
+                                <input class="input"
+                                       name={ format!("{}_{}", label, i) }
                                        size=2
                                        value={
                                     node.credencies.as_ref()
@@ -237,7 +244,7 @@ impl BayesOMatic {
                         }
                     })}
                     <td>
-                        <textarea cols=20 rows=2 name={ format!("{}_description", label) }
+                        <textarea class="textarea" cols=20 rows=1 name={ format!("{}_description", label) }
                                   placeholder={ lang!(self.lang, "row-desc") }
                                   value={ node.cred_description.get(line_id).cloned().unwrap_or_default() }>
                         </textarea>
@@ -251,7 +258,7 @@ impl BayesOMatic {
                     { for (0..node.values.len()).map(|i| {
                         html! {
                         <td>
-                            <input name={ format!("prior_{}", i) } size=2 value={
+                            <input class="input" name={ format!("prior_{}", i) } size=2 value={
                                 node.credencies
                                     .as_ref()
                                     .map(|array| array[i])
@@ -262,7 +269,7 @@ impl BayesOMatic {
                         }
                     })}
                     <td>
-                        <textarea cols=20 rows=2 name="prior_description"
+                        <textarea class="textarea" cols=20 rows=1 name="prior_description"
                                   placeholder={ lang!(self.lang, "row-desc") }
                                   value={ node.cred_description.get(0).cloned().unwrap_or_default() }>
                         </textarea>
@@ -309,7 +316,7 @@ impl BayesOMatic {
 
         html! {
             <div>
-            <table>
+            <table class="table">
                 <tr>
                     <th>
                     { if !node.parents.is_empty() { lang!(self.lang, "parent-values") } else { "".into() } }
@@ -324,7 +331,7 @@ impl BayesOMatic {
                 { if node.parents.is_empty() { self.make_credencies_edit_line(nodeid, None) } else { html!{} }}
                 { for values_iterator.map(|(iv, values)| self.make_credencies_edit_line(nodeid, Some((iv, values)))) }
             </table>
-            <a href="#" onclick={ link.callback(move |_| extract_credencies())}>{ lang!(self.lang, "save-credencies") }</a>
+            <a href="#" class="button" onclick={ link.callback(move |_| extract_credencies())}>{ lang!(self.lang, "save-credencies") }</a>
             </div>
         }
     }
@@ -332,9 +339,9 @@ impl BayesOMatic {
     fn make_observation_select(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         let node = self.dag.get(nodeid).unwrap();
         html! {
-            <ul class="blocky vlist">
-            <li>{ lang!(self.lang, "obs-for-node") }</li>
-            <li>
+            <div class="field">
+                <label class="label">{ lang!(self.lang, "obs-for-node") }</label>
+            <div class="control select">
                 <select id="node-obs" onchange={ link.callback(move |e: Event| if let Some(select) = e.target_dyn_into::<HtmlSelectElement>() {
                         Msg::SetObs { node: nodeid, obs: select.value().parse().ok() }
                     } else {
@@ -346,16 +353,18 @@ impl BayesOMatic {
                         html! { <option selected={ node.observation == Some(i) } value={ i.to_string() }>{ v }</option> }
                     })}
                 </select>
-            </li>
-            </ul>
+            </div>
+            </div>
         }
     }
 
     pub fn make_nodeedit_tab(&self, nodeid: usize, link: &Scope<Self>) -> Html {
         html! {
-            <div id="node-editor">
-                <PushButton text={ lang!(self.lang, "duplicate-node") } onclick={ link.callback(move |_| Msg::DuplicateNode(nodeid)) } />
-                <PushButton text={ lang!(self.lang, "remove-node") } onclick={ link.callback(move |_| Msg::RemoveNode(nodeid)) } />
+            <div id="node-editor" class="box">
+                <ul class="blocky">
+                <li class="button" onclick={ link.callback(move |_| Msg::DuplicateNode(nodeid)) }>{ lang!(self.lang, "duplicate-node") }</li>
+                <li class="button" onclick={ link.callback(move |_| Msg::RemoveNode(nodeid)) }>{ lang!(self.lang, "remove-node") }</li>
+                </ul>
                 { self.make_label_edit(nodeid, link) }
                 { self.make_values_edit(nodeid, link) }
                 { self.make_observation_select(nodeid, link) }

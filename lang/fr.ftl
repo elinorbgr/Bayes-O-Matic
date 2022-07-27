@@ -14,6 +14,7 @@ compute-beliefs = Calculer les croyances
 mutual-info = Information mutuelle
 
 # Loading messages
+choose-file-lo-load = Choisissez un fichier à charger
 invalid-json = Le text entré n'est pas du JSON valide
 err-cycle = Le graphe n'a pas pu être chargé car il contient un cycle.
 err-nodenotfound = Le graphe n'a pas pu être chargé car il contient des références à des nœuds inexistants.
@@ -27,9 +28,10 @@ load = Charger
 # Editor messages
 select-node = Choisissez un nœud à modifier...
 node-name = Nom du nœud:
-node-values = Valeurs du nœud:
+node-values = Valeurs du nœud :
 add-value = Ajouter une valeur...
-node-parents = Parents du nœud:
+node-parents = Parents du nœud :
+node-desc = Description du nœud :
 write-desc = Écrivez une description pour ce nœud...
 row-desc = Description pour cette ligne...
 parent-values = Valeurs parentes
@@ -40,6 +42,7 @@ duplicate-node = Dupliquer ce nœud
 remove-node = Supprimer ce nœud
 press-enter = Appuyez sur Entrée pour valider
 obs-for-node = Observation :
+add-parent = Ajouter un parent...
 
 # Result messages
 node = Nœud « {$name} » :
@@ -52,5 +55,5 @@ inference-no-value = L'inférence ne peut pas être effectuée si un nœud n'a p
 mutual-info-result = Résultats du calcul d'information mutuelle:
 target-node = Nœud cible :
 mi-no-value = L'information mutuelle ne peut pas être calculée si tous les nœuds sont observés.
-with-node = Avec le nœud « {$name} »
+with-node = Avec le nœud « {$name} » :
 probabilities = Probabilitiés

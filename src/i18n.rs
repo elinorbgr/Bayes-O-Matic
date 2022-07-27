@@ -1,7 +1,7 @@
 use fluent::{FluentBundle, FluentResource};
 use unic_langid::langid;
 
-pub const AVAILABLE_LANGS: &[&str] = &["en", "fr"];
+pub const AVAILABLE_LANGS: &[(&str, &str)] = &[("en", "🇺🇸"), ("fr", "🇫🇷")];
 
 const EXAMPLE_LIST_EN: &[&str] = &["insect_bite", "rain", "flat_earth"];
 const EXAMPLE_LIST_FR: &[&str] = &["morsure_d-insecte", "pluie", "terre_plate"];

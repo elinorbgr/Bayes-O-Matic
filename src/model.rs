@@ -410,9 +410,11 @@ impl Component for BayesOMatic {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
-            <div id="main">
+            <div id="main" class="columns">
+                <div class="column">
                 { self.topbar(ctx.link()) }
                 { self.content(ctx.link()) }
+                </div>
             </div>
         }
     }

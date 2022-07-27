@@ -63,7 +63,7 @@ impl Component for DotCanvas {
 
         let vnode = VNode::VRef(svg.into());
         html! {
-            <div id="canvas">
+            <div id="canvas" class="box">
                 { vnode }
             </div>
         }

@@ -22,14 +22,14 @@ pub fn push_button(props: &PushButtonProps) -> Html {
             <a href="#"
                 onclick={ move |_| onclick.emit(()) }
                 title={ title.clone() }
-                class={ if props.selected { "selected" } else { "" }}
+                class={ if props.selected { "button is-primary" } else { "button" }}
                 > { &props.text }</a>
         }
     } else {
         html! {
             <a href="#"
             onclick={ move |_| onclick.emit(()) }
-                class={ if props.selected { "selected" } else { "" }}
+                class={ if props.selected { "button is-primary" } else { "button" }}
                 > { &props.text }</a>
         }
     }
